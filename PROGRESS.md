@@ -72,3 +72,19 @@ ya da `npm test`. Kurulum gerekmez (Node 18+ yeterli).
 
 **Nasıl çalıştırılır:** `index.html` dosyasını tarayıcıda aç (çift tıkla).
 İstersen yerel sunucuyla: `python -m http.server 8765` → http://localhost:8765
+
+## Aşama 4 — Görev panosu
+
+**Ne yaptım:** `js/ekranlar/gorevler.js` — üç sütunlu pano (Yapılacak /
+Yapılıyor / Bitti), görev ekle/düzenle/sil, sorumlu ve bitiş tarihi,
+sorumluya göre süzme, ◀ ▶ ile sütun değiştirme.
+
+**Neden böyle:**
+- *Sürükle-bırak yerine ◀ ▶ düğmeleri.* Telefonda sürükle-bırak zahmetli ve
+  kodu uzun. Düğmeler her cihazda aynı çalışır, klavyeyle de kullanılır.
+- *`gorevFormu` ayrı bir fonksiyon.* Toplantı ekranı "karardan görev oluştur"
+  için aynı formu kullanacak; kod tekrar yazılmıyor.
+- *Gecikme vurgusu:* kartın sol kenarı gecikmişse kırmızı, 3 gün ve altı
+  kalmışsa turuncu. Biten görev asla "gecikmiş" görünmez (`gorevGecikti`).
+
+**Nasıl çalıştırılır:** `index.html` → menüden "Görevler".
