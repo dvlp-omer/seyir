@@ -109,3 +109,26 @@ sorumluya göre süzme, ◀ ▶ ile sütun değiştirme.
   sıralandığında tarih sırasına da girmiş olur; ek kütüphane gerekmez.
 
 **Nasıl çalıştırılır:** `index.html` → "Özet" ve "Tarihler".
+
+## Aşama 6 — Toplantı tutanağı
+
+**Ne yaptım:** `js/ekranlar/toplantilar.js` — toplantı listesi, tutanak
+görünümü (künye, gündem, kararlar, görevler, notlar, imza alanı), karardan
+tek tıkla görev, "Yazdır / PDF".
+
+**Neden böyle:**
+- *Gündem ve kararlar "her satıra bir madde" olarak yazılıyor.* Madde ekle/sil
+  düğmeleriyle uğraşmak yerine tek bir metin kutusu; toplantı sırasında hızlı
+  not almaya en yakın yol. `satirlaraAyir` satırları maddelere çevirir.
+- *Karardan görev:* kararın yanındaki düğme görev formunu karar metniyle dolu
+  açar. Kaydedilince kararın `gorev_id` alanına görevin kimliği yazılır;
+  böylece aynı karardan yanlışlıkla iki görev açılmaz.
+- *Tutanak düzenlenince bağ kopmaz:* `kararlariBirlestir` metni değişmeyen
+  kararların `gorev_id` değerini korur (testi var).
+- *PDF için kütüphane yok.* Tarayıcının kendi "Yazdır → PDF olarak kaydet"
+  özelliği kullanılıyor. `@media print` kuralları menüyü ve düğmeleri gizler,
+  geriye sadece tutanak kâğıdı kalır. Ekrandaki görünüm ile çıktı aynıdır.
+- *Tutanak düzeni özgün;* resmi bir şablondan kopyalanmadı.
+
+**Nasıl çalıştırılır:** "Toplantı" → "+ Yeni toplantı" → kaydet → "Yazdır / PDF"
+→ yazıcı olarak "PDF olarak kaydet" seç.
