@@ -75,6 +75,21 @@ async function ornekVeriYukle(depo, bugunTarihi) {
     ],
   });
 
+  // Etkinlikler: ikisi geçmişte (yoklaması alınmış), biri gelecekte
+  const etkinlikler = [
+    ["Lise tanıtım ziyareti", -24, "Atatürk Anadolu Lisesi", 85, [deniz, elif, zeynep],
+      "Su altı araçları ve yarışma süreci hakkında sunum yapıldı. Öğrenciler prototipi inceledi."],
+    ["Kampüs kulüp tanıtım standı", -10, "Merkez Kampüs", 140, [deniz, mert],
+      "Stantta takımın çalışmaları tanıtıldı, 12 yeni gönüllü başvurusu alındı."],
+    ["Havuz testi günü", 12, "Üniversite havuzu", 0, [], ""],
+  ];
+  for (const [ad, gun, yer, sayi, katilanlar, aciklama] of etkinlikler) {
+    await depo.ekle("etkinlikler", {
+      ...ortak, ad: ad, tarih: gunEkle(bugunTarihi, gun), yer: yer,
+      katilimci_sayisi: sayi, katilimci_idler: katilanlar, aciklama: aciklama,
+    });
+  }
+
   return takim;
 }
 

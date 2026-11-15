@@ -6,7 +6,8 @@
 
      depo.listele(koleksiyon, filtre)   -> kayıt dizisi
      depo.oku(koleksiyon, id)           -> tek kayıt ya da null
-     depo.ekle(koleksiyon, kayit)       -> eklenen kayıt (id verilmiş hâli)
+     depo.ekle(koleksiyon, kayit)       -> eklenen kayıt (id verilmiş hâli;
+                                           kayıtta id varsa o korunur)
      depo.guncelle(koleksiyon, id, degisiklik) -> güncel kayıt
      depo.sil(koleksiyon, id)           -> (bir şey dönmez)
 
@@ -19,7 +20,7 @@
    ========================================================================== */
 
 // Uygulamadaki tablolar. Yanlış yazılmış bir ad hemen hata versin diye liste tutuyoruz.
-const KOLEKSIYONLAR = ["takimlar", "uyeler", "gorevler", "son_tarihler", "toplantilar"];
+const KOLEKSIYONLAR = ["takimlar", "uyeler", "gorevler", "son_tarihler", "toplantilar", "etkinlikler"];
 
 function koleksiyonKontrol(koleksiyon) {
   if (!KOLEKSIYONLAR.includes(koleksiyon)) {
@@ -35,6 +36,17 @@ function kimlikUret() {
   }
   // Çok eski tarayıcılar için yedek yol
   return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+
+// Eklenecek kayda kimlik ve oluşturma zamanı verir. Kayıt bunları zaten
+// taşıyorsa (yedekten geri yüklenen kayıt) olduğu gibi korur; böylece
+// kayıtlar arasındaki bağlar (takim_id, sorumlu_id...) bozulmaz.
+function yeniKayit(kayit) {
+  return {
+    ...kayit,
+    id: kayit.id || kimlikUret(),
+    olusturma: kayit.olusturma || new Date().toISOString(),
+  };
 }
 
 // Kayıt, filtredeki bütün alanlarla eşleşiyor mu?
@@ -80,7 +92,10 @@ function yerelDepoOlustur(depolama, onEk = "takim-asistani:") {
 
     async ekle(koleksiyon, kayit) {
       const liste = tumunuOku(koleksiyon);
-      const yeni = { ...kayit, id: kimlikUret(), olusturma: new Date().toISOString() };
+      const yeni = yeniKayit(kayit);
+      if (liste.some((mevcut) => mevcut.id === yeni.id)) {
+        throw new Error("Bu kimlikle bir kayıt zaten var: " + koleksiyon + "/" + yeni.id);
+      }
       liste.push(yeni);
       tumunuYaz(koleksiyon, liste);
       return yeni;
@@ -168,7 +183,7 @@ function supabaseDepoOlustur(url, anahtar, istek = (...args) => fetch(...args)) 
 
     async ekle(koleksiyon, kayit) {
       koleksiyonKontrol(koleksiyon);
-      const yeni = { ...kayit, id: kimlikUret(), olusturma: new Date().toISOString() };
+      const yeni = yeniKayit(kayit);
       const satirlar = await cagir("POST", koleksiyon, yeni);
       return satirlar[0];
     },

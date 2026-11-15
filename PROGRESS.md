@@ -203,3 +203,41 @@ Bunları yapmazsan uygulama localStorage ile çalışmaya devam eder.
 - "Kopyala" düğmesinin panoya gerçekten yazdığı (otomasyonda pano okunamıyor).
 
 **Nasıl çalıştırılır:** `index.html`'e çift tıkla. Testler: `npm test`.
+
+# İkinci tur
+
+## Tur 2 / Aşama 1 — Denetim ve düzeltmeler
+
+**Ne yaptım:** Bütün kodu okuyup `RAPOR.md`'yi yazdım (27 bulgu), sonra
+bulguları düzelttim: çift kayıt, çizim yarışı, klavye odağı, kontrast,
+dokunma hedefleri, tarih ve uzunluk sınırları, boş durum yönlendirmeleri.
+
+**Neden böyle:**
+- *Önce rapor, sonra düzeltme.* Sorunları yazmadan düzeltmeye başlasaydım
+  hangilerini atladığım belli olmazdı.
+- *Eylem kilidi (`eylemSuruyor`).* Bir işlem bitmeden ikincisi başlamaz;
+  çift tıklama artık çift kayıt oluşturmaz.
+- *Çizim kuyruğu.* `yenile()` çağrıları sıraya girer; yavaş depoda eski
+  çizim yenisinin üstüne yazamaz.
+- *Odak tarifi.* Ekran baştan çizilince odaktaki düğme yok oluyordu. Çizimden
+  önce düğmenin `data-eylem` + `data-id` değerini saklayıp sonra aynı düğmeyi
+  buluyoruz.
+- *Renkler tek yerde.* Bütün renkler CSS değişkeni; `testler/kontrast.test.js`
+  açık ve koyu temada her yazı/zemin çiftini otomatik ölçüyor.
+
+## Tur 2 / Aşama 2 — Etkinlik kaydı ve faaliyet raporu
+
+**Ne yaptım:** `etkinlikler` koleksiyonu, `js/ekranlar/etkinlikler.js`
+(etkinlik listesi + tarih aralığına göre yazdırılabilir rapor taslağı),
+`mantik.js > faaliyetOzeti` ve testleri.
+
+**Neden böyle:** Rapor hesabı (hangi etkinlikler, toplam katılımcı) saf
+fonksiyonda; ekran yalnızca çiziyor. Tutanakla aynı kâğıt düzenini ve aynı
+yazdırma kurallarını kullanıyor.
+
+**Nasıl çalıştırılır:** "Etkinlik" → "+ Yeni etkinlik" → "Faaliyet raporu".
+Testler: `npm test` (58 test).
+
+## YARIM KALAN (ikinci tur burada kesildi)
+
+Bkz. QUESTIONS.md en üstteki "İkinci tur yarım kaldı" bölümü.

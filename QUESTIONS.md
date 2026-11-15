@@ -4,6 +4,23 @@
 sonradan değiştirilebilir. Katılmadığın bir şey varsa söyle. En önemlileri
 üstte.
 
+## İkinci tur yarım kaldı (kullanım sınırı doldu)
+
+**Bitenler:** RAPOR.md, denetim düzeltmeleri, etkinlik kaydı + faaliyet raporu.
+
+**Başlanmadı:** yoklama ekranı (hesap fonksiyonu `katilimOranlari` ve testi
+hazır, Takım ekranına kart eklenmedi), takvim ekranı (`ayIzgarasi` ve testi
+hazır, ekran yok), JSON yedekleme, tema düğmesi (koyu tema renkleri CSS'te
+hazır ama onu açan `js/tema.js` yok), PWA, Supabase RLS + giriş,
+SUPABASE_KURULUM.md, yayın yapılandırması, ARCHITECTURE.md, MULAKAT.md,
+README güncellemesi, RAPOR.md'deki "Durum" sütunu.
+
+**Dikkat:**
+- `supabase/sema.sql` içinde `etkinlikler` tablosu henüz YOK; Supabase ile
+  etkinlik eklenemez. Yerel kayıtta sorun yok.
+- "Örnek veriyle dene" son denemede örnek etkinlikleri göstermedi; büyük
+  olasılıkla tarayıcı eski `ornek-veri.js`'yi önbellekten aldı. Doğrulanmadı.
+
 ## Karar bekleyenler (bakmanı istediklerim)
 
 ### 1. Supabase'de giriş yok → veri herkese açık

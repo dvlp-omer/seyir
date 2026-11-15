@@ -56,9 +56,10 @@ async function uyeSil(id) {
 // Takım silinince ona ait bütün kayıtlar da silinir.
 async function takimSil() {
   const takim = durum.takim;
-  if (!confirm('"' + takim.ad + '" takımı ve ona ait BÜTÜN üyeler, görevler, son tarihler ve tutanaklar silinsin mi?\nBu işlem geri alınamaz.')) return;
+  if (!confirm('"' + takim.ad + '" takımı ve ona ait BÜTÜN üyeler, görevler, son tarihler, tutanaklar ve etkinlikler silinsin mi?\nBu işlem geri alınamaz.')) return;
 
-  for (const koleksiyon of ["uyeler", "gorevler", "son_tarihler", "toplantilar"]) {
+  // "takimlar" dışındaki bütün koleksiyonlar (yeni koleksiyon eklenince burası kendiliğinden kapsar)
+  for (const koleksiyon of KOLEKSIYONLAR.filter((k) => k !== "takimlar")) {
     const kayitlar = await durum.depo.listele(koleksiyon, { takim_id: takim.id });
     for (const kayit of kayitlar) {
       await durum.depo.sil(koleksiyon, kayit.id);

@@ -138,6 +138,12 @@ for (const [ad, depoOlustur] of Object.entries(depolar)) {
 
     await depo.sil("gorevler", a.id);
     assert.deepEqual((await depo.listele("gorevler")).map((g) => g.id), [b.id]);
+
+    // Kayıtta id ve olusturma varsa korunur (yedekten geri yükleme bunu kullanır)
+    const hazir = await depo.ekle("gorevler", { id: "sabit-1", olusturma: "2026-01-01T00:00:00.000Z", baslik: "C" });
+    assert.equal(hazir.id, "sabit-1");
+    assert.equal(hazir.olusturma, "2026-01-01T00:00:00.000Z");
+    assert.equal((await depo.oku("gorevler", "sabit-1")).baslik, "C");
   });
 
   test("sözleşme (" + ad + "): örnek veri uçtan uca yüklenir", async () => {
@@ -148,6 +154,7 @@ for (const [ad, depoOlustur] of Object.entries(depolar)) {
     assert.equal((await depo.listele("uyeler", filtre)).length, 4);
     assert.equal((await depo.listele("gorevler", filtre)).length, 6);
     assert.equal((await depo.listele("son_tarihler", filtre)).length, 4);
+    assert.equal((await depo.listele("etkinlikler", filtre)).length, 3);
 
     // İlk karar bir göreve bağlı olmalı ve o görev gerçekten var olmalı
     const [toplanti] = await depo.listele("toplantilar", filtre);

@@ -94,6 +94,13 @@ test("bozuk kayıt uygulamayı çökertmez, boş liste döner", async () => {
   }
 });
 
+test("ekle: aynı kimlikle ikinci kayıt reddedilir", async () => {
+  const depo = yerelDepoOlustur(sahteDepolama());
+  await depo.ekle("uyeler", { id: "u1", ad: "A" });
+  await assert.rejects(() => depo.ekle("uyeler", { id: "u1", ad: "B" }), /zaten var/);
+  assert.equal((await depo.listele("uyeler")).length, 1);
+});
+
 test("filtreyeUyar ve kimlikUret", () => {
   assert.equal(filtreyeUyar({ a: 1, b: 2 }, { a: 1 }), true);
   assert.equal(filtreyeUyar({ a: 1 }, { a: 2 }), false);
