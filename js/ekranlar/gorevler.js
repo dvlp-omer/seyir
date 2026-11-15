@@ -7,6 +7,12 @@
 // Panodaki "sorumluya göre süz" seçimi. "" = herkes.
 let gorevSorumluFiltresi = "";
 
+// "yapiliyor" -> "Yapılıyor". Beklenmeyen bir değer gelirse çökmeden yazar.
+function gorevDurumEtiketi(deger) {
+  const bulunan = GOREV_DURUMLARI.find((d) => d.deger === deger);
+  return bulunan ? bulunan.etiket : "Bilinmiyor";
+}
+
 /* Görev ekleme/düzenleme formu. Toplantı ekranı da "karardan görev oluştur"
    için bunu kullanır; o yüzden ayrı bir fonksiyon.
      gorev      : düzenlenecek görev (yeni görev için null)
@@ -18,7 +24,11 @@ function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null }
     alanlar: [
       { ad: "baslik", etiket: "Görev", tur: "metin", zorunlu: true },
       { ad: "aciklama", etiket: "Açıklama", tur: "uzun" },
-      { ad: "sorumlu_id", etiket: "Sorumlu", tur: "secim", secenekler: uyeSecenekleri(uyeler, "— Sorumlu atanmadı —") },
+      {
+        ad: "sorumlu_id", etiket: "Sorumlu", tur: "secim",
+        secenekler: uyeSecenekleri(uyeler, "— Sorumlu atanmadı —"),
+        ipucu: uyeler.length ? "" : "Takımda henüz üye yok. Sorumlu atamak için önce Takım ekranından üye ekle.",
+      },
       { ad: "bitis_tarihi", etiket: "Bitiş tarihi", tur: "tarih" },
       { ad: "durum", etiket: "Durum", tur: "secim", secenekler: GOREV_DURUMLARI },
     ],
@@ -40,16 +50,20 @@ function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null }
 // Görevi bir sonraki (+1) ya da önceki (-1) sütuna taşır.
 async function gorevTasi(id, yon) {
   const gorev = await durum.depo.oku("gorevler", id);
+  // Görev bu sırada başka bir sekmede silinmiş olabilir.
+  if (!gorev) return yenile();
   const sira = GOREV_DURUMLARI.findIndex((d) => d.deger === gorev.durum);
   const yeni = GOREV_DURUMLARI[sira + yon];
   if (!yeni) return;
   await durum.depo.guncelle("gorevler", id, { durum: yeni.deger });
   await yenile();
+  bildir('"' + gorev.baslik + '" → ' + yeni.etiket); // ekran okuyucu da duyar (role=status)
 }
 
 async function gorevSil(id) {
   const gorev = await durum.depo.oku("gorevler", id);
-  if (!gorev || !confirm('"' + gorev.baslik + '" görevi silinsin mi?')) return;
+  if (!gorev) return yenile();
+  if (!confirm('"' + gorev.baslik + '" görevi silinsin mi?')) return;
   await durum.depo.sil("gorevler", id);
   bildir("Görev silindi");
   await yenile();
@@ -59,6 +73,7 @@ async function gorevSil(id) {
 
 function gorevKartiHtml(gorev, uyeler) {
   const id = htmlKacis(gorev.id);
+  const baslik = htmlKacis(gorev.baslik);
   const sira = GOREV_DURUMLARI.findIndex((d) => d.deger === gorev.durum);
   const bitti = gorev.durum === "bitti";
   const sorumlu = uyeAdi(uyeler, gorev.sorumlu_id);
@@ -71,24 +86,29 @@ function gorevKartiHtml(gorev, uyeler) {
   // Biten görevde geri sayım göstermenin anlamı yok; sadece tarihi yaz.
   let tarih = "";
   if (gorev.bitis_tarihi) {
-    tarih = bitti
-      ? '<span class="soluk">' + tarihYaz(gorev.bitis_tarihi, false) + "</span>"
-      : '<span class="soluk">' + tarihYaz(gorev.bitis_tarihi, false) + "</span> " + kalanRozet(gorev.bitis_tarihi);
+    tarih = '<span class="soluk">' + tarihYaz(gorev.bitis_tarihi, false) + "</span>" +
+      (bitti ? "" : " " + kalanRozet(gorev.bitis_tarihi));
   }
 
+  // ◀ ▶ düğmeleri: aria-label hem yönü hem görevi söyler.
+  const tasiDugmesi = (eylem, simge, hedefSira) => {
+    const hedef = GOREV_DURUMLARI[hedefSira];
+    const etiket = hedef ? '"' + hedef.etiket + '" sütununa taşı: ' + gorev.baslik : "Taşınamaz";
+    return '<button class="dugme kucuk" data-eylem="' + eylem + '" data-id="' + id + '"' + (hedef ? "" : " disabled") +
+      ' aria-label="' + htmlKacis(etiket) + '" title="' + htmlKacis(hedef ? hedef.etiket + " sütununa taşı" : "") + '">' + simge + "</button>";
+  };
+
   return '<article class="gorev-kart ' + vurgu + '">' +
-    "<h4>" + htmlKacis(gorev.baslik) + "</h4>" +
+    "<h4>" + baslik + "</h4>" +
     (gorev.aciklama ? '<p class="aciklama">' + htmlKacis(gorev.aciklama) + "</p>" : "") +
     '<div class="gorev-alt">' +
     (sorumlu ? '<span class="kisi">' + htmlKacis(sorumlu) + "</span>" : '<span class="soluk">Sorumlu yok</span>') +
     tarih + "</div>" +
     '<div class="gorev-dugmeler">' +
-    '<button class="dugme kucuk" data-eylem="geri" data-id="' + id + '"' + (sira === 0 ? " disabled" : "") +
-    ' aria-label="Önceki sütuna taşı" title="Önceki sütuna taşı">◀</button>' +
-    '<button class="dugme kucuk" data-eylem="ileri" data-id="' + id + '"' + (sira === GOREV_DURUMLARI.length - 1 ? " disabled" : "") +
-    ' aria-label="Sonraki sütuna taşı" title="Sonraki sütuna taşı">▶</button>' +
-    '<button class="dugme kucuk" data-eylem="duzenle" data-id="' + id + '">Düzenle</button>' +
-    '<button class="dugme kucuk tehlike" data-eylem="sil" data-id="' + id + '">Sil</button>' +
+    tasiDugmesi("geri", "◀", sira - 1) +
+    tasiDugmesi("ileri", "▶", sira + 1) +
+    kayitDugmesi("duzenle", gorev.id, "Düzenle", gorev.baslik) +
+    kayitDugmesi("sil", gorev.id, "Sil", gorev.baslik, "tehlike") +
     "</div></article>";
 }
 
@@ -104,24 +124,26 @@ async function gorevlerEkraniCiz(kok) {
 
   const sutunlar = GOREV_DURUMLARI.map((sutun) => {
     const kartlar = tariheGoreSirala(gorunen.filter((g) => g.durum === sutun.deger), "bitis_tarihi");
-    return '<section class="sutun" data-durum="' + sutun.deger + '">' +
-      '<h3 class="sutun-baslik">' + sutun.etiket + ' <span class="sayi">' + kartlar.length + "</span></h3>" +
+    return '<section class="sutun" data-durum="' + sutun.deger + '" aria-label="' + sutun.etiket + '">' +
+      '<h3 class="sutun-baslik">' + sutun.etiket + ' <span class="sayi" aria-label="' + kartlar.length + ' görev">' + kartlar.length + "</span></h3>" +
       (kartlar.length
         ? kartlar.map((g) => gorevKartiHtml(g, uyeler)).join("")
         : '<p class="sutun-bos">Burada görev yok</p>') +
       "</section>";
   }).join("");
 
-  const filtreSecenekleri = uyeSecenekleri(uyeler, "Herkes").map((s) =>
-    '<option value="' + htmlKacis(s.deger) + '"' + (s.deger === gorevSorumluFiltresi ? " selected" : "") + ">" +
-    htmlKacis(s.etiket) + "</option>").join("");
+  // Süzgeç etkinken bunu açıkça söyle; yoksa pano "boş" sanılabilir (RAPOR.md > B3).
+  const suzgecNotu = gorevSorumluFiltresi
+    ? '<p class="bilgi-kutusu">Yalnızca <b>' + htmlKacis(uyeAdi(uyeler, gorevSorumluFiltresi)) + "</b> üzerindeki görevler gösteriliyor (" +
+      gorunen.length + " / " + gorevler.length + '). <button class="dugme kucuk" data-eylem="suzgec-kaldir">Hepsini göster</button></p>'
+    : "";
 
   kok.innerHTML =
     '<div class="arac-cubugu">' +
-    '<label><span class="gizli">Sorumluya göre süz</span><select id="gorev-filtre">' + filtreSecenekleri + "</select></label>" +
+    '<label>Sorumlu <select id="gorev-filtre">' + secenekHtml(uyeSecenekleri(uyeler, "Herkes"), gorevSorumluFiltresi) + "</select></label>" +
     '<span class="bosluk"></span>' +
     '<button class="dugme ana" data-eylem="ekle">+ Yeni görev</button>' +
-    "</div>" +
+    "</div>" + suzgecNotu +
     (gorevler.length === 0
       ? '<div class="bos"><h3>Henüz görev yok</h3>İlk görevi ekle ya da bir toplantı kararından görev oluştur.</div>'
       : '<div class="pano">' + sutunlar + "</div>");
@@ -133,10 +155,15 @@ async function gorevlerEkraniCiz(kok) {
 
   eylemleriBagla(kok, {
     ekle: () => gorevFormu({ uyeler: uyeler, varsayilan: { sorumlu_id: gorevSorumluFiltresi } }),
-    duzenle: async (id) => gorevFormu({ gorev: await durum.depo.oku("gorevler", id), uyeler: uyeler }),
+    duzenle: async (id) => {
+      const gorev = await durum.depo.oku("gorevler", id);
+      if (!gorev) return yenile();
+      gorevFormu({ gorev: gorev, uyeler: uyeler });
+    },
     ileri: (id) => gorevTasi(id, +1),
     geri: (id) => gorevTasi(id, -1),
     sil: gorevSil,
+    "suzgec-kaldir": () => { gorevSorumluFiltresi = ""; return yenile(); },
   });
 }
 

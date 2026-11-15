@@ -47,7 +47,7 @@ async function ozetEkraniCiz(kok) {
     '<div class="sayi-kutu"><b>' + sayilar.bitti + "</b><span>Bitti</span></div>" +
     '<div class="sayi-kutu ' + (sayilar.geciken ? "uyari" : "") + '"><b>' + sayilar.geciken + "</b><span>Geciken</span></div>" +
     "</div>" +
-    '<button class="tumu" data-eylem="git" data-id="gorevler">Görev panosunu aç</button>' +
+    '<button class="baglanti-dugme" data-eylem="git" data-id="gorevler">Görev panosunu aç</button>' +
     "</section>";
 
   /* 3) Önümüzdeki günler: açık görevler + açık son tarihler tek listede */
@@ -70,7 +70,15 @@ async function ozetEkraniCiz(kok) {
       : '<p class="soluk">Bu hafta için bekleyen bir şey yok.</p>') +
     "</section>";
 
-  kok.innerHTML = '<div class="ozet-izgara">' + oneCikan + gorevKarti + akisKarti + "</div>";
+  /* Yeni takımda her şey sıfır görünür; kullanıcıya sıradaki adımı göster
+     (RAPOR.md > B1). Üye eklenince bu kutu kendiliğinden kaybolur. */
+  const baslarken = uyeler.length === 0
+    ? '<div class="bilgi-kutusu genis"><b>Başlarken:</b> önce takım üyelerini ekle; sonra görev, son tarih ve toplantı girebilirsin.<br>' +
+      '<button class="dugme kucuk" data-eylem="git" data-id="takim">Üye ekle</button>' +
+      '<button class="dugme kucuk" data-eylem="git" data-id="tarihler">Son tarih ekle</button></div>'
+    : "";
+
+  kok.innerHTML = '<div class="ozet-izgara">' + baslarken + oneCikan + gorevKarti + akisKarti + "</div>";
 
   eylemleriBagla(kok, { git: (ekranAdi) => ekranaGit(ekranAdi) });
 }
@@ -78,6 +86,6 @@ async function ozetEkraniCiz(kok) {
 ekranKaydet("ozet", {
   baslik: "Özet",
   kisaAd: "Özet",
-  simge: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 12l4-4M12 7v0",
+  simge: "M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z",
   ciz: ozetEkraniCiz,
 });

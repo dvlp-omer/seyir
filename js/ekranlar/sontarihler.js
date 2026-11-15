@@ -1,6 +1,6 @@
 /* ==========================================================================
    EKRAN: Son tarihler
-   Rapor teslimi, izin başvurusu, etkinlik gibi kaçırılmaması gereken günler.
+   Rapor teslimi, izin başvurusu gibi kaçırılmaması gereken günler.
    Her satırda geri sayım kutusu var; renk aciliyete göre değişir
    (mantik.js > aciliyet). Tamamlananlar ayrı listelenir.
    ========================================================================== */
@@ -39,7 +39,7 @@ function sonTarihFormu(kayit) {
 
 // Geri sayım kutusu: büyük sayı + altında küçük açıklama.
 function sayacHtml(tarih, tamamlandi) {
-  if (tamamlandi) return '<div class="sayac tamam"><b>✓</b><span>tamam</span></div>';
+  if (tamamlandi) return '<div class="sayac tamam"><b aria-hidden="true">✓</b><span>tamam</span></div>';
   const gun = kalanGun(tarih, bugun());
   let etiket = "gün";
   if (gun < 0) etiket = "gün geçti";
@@ -49,7 +49,6 @@ function sayacHtml(tarih, tamamlandi) {
 }
 
 function sonTarihSatiriHtml(kayit) {
-  const id = htmlKacis(kayit.id);
   return '<li class="tarih-satir">' +
     sayacHtml(kayit.tarih, kayit.tamamlandi) +
     '<div class="tarih-bilgi">' +
@@ -58,10 +57,10 @@ function sonTarihSatiriHtml(kayit) {
     (kayit.aciklama ? "<p>" + htmlKacis(kayit.aciklama) + "</p>" : "") +
     "</div>" +
     '<div class="satir-dugmeler">' +
-    '<button class="dugme kucuk" data-eylem="tamam" data-id="' + id + '">' + (kayit.tamamlandi ? "Geri al" : "Tamamlandı") + "</button>" +
-    (kayit.tamamlandi ? "" : '<button class="dugme kucuk" data-eylem="duyuru" data-id="' + id + '">Duyuru</button>') +
-    '<button class="dugme kucuk" data-eylem="duzenle" data-id="' + id + '">Düzenle</button>' +
-    '<button class="dugme kucuk tehlike" data-eylem="sil" data-id="' + id + '">Sil</button>' +
+    kayitDugmesi("tamam", kayit.id, kayit.tamamlandi ? "Geri al" : "Tamamlandı", kayit.baslik) +
+    (kayit.tamamlandi ? "" : kayitDugmesi("duyuru", kayit.id, "Duyuru", kayit.baslik)) +
+    kayitDugmesi("duzenle", kayit.id, "Düzenle", kayit.baslik) +
+    kayitDugmesi("sil", kayit.id, "Sil", kayit.baslik, "tehlike") +
     "</div></li>";
 }
 
@@ -80,7 +79,7 @@ async function sonTarihlerEkraniCiz(kok) {
         ? '<ul class="tarih-liste">' + acik.map(sonTarihSatiriHtml).join("") + "</ul>"
         : '<div class="bos">Bekleyen son tarih yok. 🎉</div>') +
       (tamamlanan.length
-        ? '<h3 class="bolum-baslik">Tamamlanan</h3><ul class="tarih-liste">' + tamamlanan.map(sonTarihSatiriHtml).join("") + "</ul>"
+        ? '<h2 class="bolum-baslik">Tamamlanan</h2><ul class="tarih-liste">' + tamamlanan.map(sonTarihSatiriHtml).join("") + "</ul>"
         : "");
   }
 
@@ -91,15 +90,21 @@ async function sonTarihlerEkraniCiz(kok) {
   eylemleriBagla(kok, {
     ekle: () => sonTarihFormu(null),
     duyuru: (id) => duyuruyaGit("hatirlatma", id),
-    duzenle: async (id) => sonTarihFormu(await durum.depo.oku("son_tarihler", id)),
+    duzenle: async (id) => {
+      const kayit = await durum.depo.oku("son_tarihler", id);
+      if (!kayit) return yenile();
+      sonTarihFormu(kayit);
+    },
     tamam: async (id) => {
       const kayit = await durum.depo.oku("son_tarihler", id);
-      await durum.depo.guncelle("son_tarihler", id, { tamamlandi: !kayit.tamamlandi });
+      // Kayıt bu sırada başka bir sekmede silinmiş olabilir.
+      if (kayit) await durum.depo.guncelle("son_tarihler", id, { tamamlandi: !kayit.tamamlandi });
       await yenile();
     },
     sil: async (id) => {
       const kayit = await durum.depo.oku("son_tarihler", id);
-      if (!kayit || !confirm('"' + kayit.baslik + '" silinsin mi?')) return;
+      if (!kayit) return yenile();
+      if (!confirm('"' + kayit.baslik + '" silinsin mi?')) return;
       await durum.depo.sil("son_tarihler", id);
       bildir("Son tarih silindi");
       await yenile();
@@ -110,6 +115,6 @@ async function sonTarihlerEkraniCiz(kok) {
 ekranKaydet("tarihler", {
   baslik: "Son tarihler",
   kisaAd: "Tarihler",
-  simge: "M5 6h14v14H5zM5 10h14M9 3v4M15 3v4",
+  simge: "M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z",
   ciz: sonTarihlerEkraniCiz,
 });

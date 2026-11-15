@@ -71,10 +71,6 @@ async function duyuruEkraniCiz(kok) {
     return duyuruHatirlatma({ ...ortak, bugun: bugun() });
   }
 
-  const secenekHtml = (liste, secili) => liste.map((s) =>
-    '<option value="' + htmlKacis(s.deger) + '"' + (s.deger === secili ? " selected" : "") + ">" + htmlKacis(s.etiket) + "</option>"
-  ).join("");
-
   const kaynakSecenekleri = kaynaklar.map((k) => ({
     deger: k.id, etiket: k.baslik + " — " + tarihYaz(k.tarih, false),
   }));
@@ -86,7 +82,7 @@ async function duyuruEkraniCiz(kok) {
     (kaynaklar.length
       ? '<label class="alan"><span>' + (hatirlatma ? "Son tarih" : "Toplantı") + '</span><select id="duyuru-kaynak">' +
         secenekHtml(kaynakSecenekleri, duyuruSecimi.kaynak_id) + "</select></label>" +
-        '<label class="alan"><span>Ek not</span><textarea id="duyuru-not" placeholder="İsteğe bağlı; metnin sonuna eklenir.">' +
+        '<label class="alan"><span>Ek not</span><textarea id="duyuru-not" maxlength="500" placeholder="İsteğe bağlı; metnin sonuna eklenir.">' +
         htmlKacis(duyuruSecimi.not) + "</textarea></label>"
       : '<div class="bos">' + (hatirlatma
           ? "Bekleyen son tarih yok. Önce <b>Tarihler</b> ekranından bir tarih ekle."

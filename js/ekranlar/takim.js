@@ -135,8 +135,8 @@ async function takimEkraniCiz(kok) {
     '<span class="avatar" aria-hidden="true">' + htmlKacis(basHarfler(uye.ad)) + "</span>" +
     '<span class="uye-ad">' + htmlKacis(uye.ad) + "</span>" +
     '<span class="rozet ' + (uye.rol === "kaptan" ? "kaptan" : "") + '">' + (uye.rol === "kaptan" ? "Kaptan" : "Üye") + "</span>" +
-    '<button class="dugme kucuk" data-eylem="uye-duzenle" data-id="' + htmlKacis(uye.id) + '">Düzenle</button>' +
-    '<button class="dugme kucuk tehlike" data-eylem="uye-sil" data-id="' + htmlKacis(uye.id) + '" aria-label="' + htmlKacis(uye.ad) + ' üyesini çıkar">Çıkar</button>' +
+    kayitDugmesi("uye-duzenle", uye.id, "Düzenle", uye.ad) +
+    kayitDugmesi("uye-sil", uye.id, "Çıkar", uye.ad, "tehlike") +
     "</li>"
   ).join("");
 
@@ -162,7 +162,11 @@ async function takimEkraniCiz(kok) {
 
   eylemleriBagla(kok, {
     "uye-ekle": () => uyeFormu(null),
-    "uye-duzenle": async (id) => uyeFormu(await durum.depo.oku("uyeler", id)),
+    "uye-duzenle": async (id) => {
+      const uye = await durum.depo.oku("uyeler", id);
+      if (!uye) return yenile(); // başka sekmede silinmiş olabilir
+      uyeFormu(uye);
+    },
     "uye-sil": uyeSil,
     "takim-ad": () => takimAdiFormu(durum.takim),
     "takim-yeni": () => takimAdiFormu(null),

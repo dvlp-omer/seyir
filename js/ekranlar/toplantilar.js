@@ -6,12 +6,20 @@
        tarayıcının yazdırma penceresini açar; oradan PDF olarak kaydedilir.
    Kararların yanındaki "Görev oluştur" düğmesi, kararı tek tıkla göreve
    çevirir (görev formu karar metniyle dolu açılır).
+   Formdaki "Katılanlar" listesi aynı zamanda toplantının YOKLAMASIDIR;
+   katılım yüzdeleri buradan hesaplanır (Takım ekranı).
    ========================================================================== */
 
 // Hangi toplantının tutanağı açık? null ise liste gösterilir.
 let acikToplantiId = null;
 
 const AY_KISA = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+
+// Satırların solundaki tarih kutusu: gün sayısı + ay kısaltması.
+function gunKutusuHtml(tarih) {
+  const [, ay, gun] = tarih.split("-").map(Number);
+  return '<span class="gun-kutu" aria-hidden="true"><b>' + gun + "</b><span>" + (AY_KISA[ay - 1] || "") + "</span></span>";
+}
 
 function toplantiFormu(toplanti, uyeler) {
   formAc({
@@ -21,7 +29,10 @@ function toplantiFormu(toplanti, uyeler) {
       { ad: "tarih", etiket: "Tarih", tur: "tarih", zorunlu: true },
       { ad: "saat", etiket: "Saat", tur: "saat" },
       { ad: "yer", etiket: "Yer", tur: "metin" },
-      { ad: "katilimci_idler", etiket: "Katılımcılar", tur: "coklu", secenekler: uyeSecenekleri(uyeler) },
+      {
+        ad: "katilimci_idler", etiket: "Katılanlar (yoklama)", tur: "coklu", secenekler: uyeSecenekleri(uyeler),
+        ipucu: "Toplantıya gelenleri işaretli bırak. Katılım yüzdesi buradan hesaplanır.",
+      },
       { ad: "yazan_id", etiket: "Tutanağı yazan", tur: "secim", secenekler: uyeSecenekleri(uyeler, "— Seçilmedi —") },
       { ad: "gundem", etiket: "Gündem", tur: "uzun", ipucu: "Her satıra bir madde yaz." },
       { ad: "kararlar", etiket: "Kararlar", tur: "uzun", ipucu: "Her satıra bir karar. Kaydettikten sonra kararlardan görev oluşturabilirsin." },
@@ -66,10 +77,10 @@ async function toplantiSil(toplanti) {
 }
 
 // Yazdırma penceresini açar. PDF dosya adı sayfa başlığından geldiği için
-// başlığı geçici olarak "Tutanak - konu - tarih" yapıyoruz.
-function tutanakYazdir(toplanti) {
+// başlığı geçici olarak değiştiriyoruz. (Faaliyet raporu da bunu kullanır.)
+function belgeYazdir(dosyaAdi) {
   const eskiBaslik = document.title;
-  document.title = "Tutanak - " + toplanti.baslik + " - " + toplanti.tarih;
+  document.title = dosyaAdi;
   window.print();
   document.title = eskiBaslik;
 }
@@ -80,10 +91,9 @@ function toplantiListesiCiz(kok, toplantilar, uyeler) {
   const sirali = tariheGoreSirala(toplantilar, "tarih").reverse(); // en yeni üstte
 
   const satirlar = sirali.map((t) => {
-    const [, ay, gun] = t.tarih.split("-").map(Number);
-    const ayrinti = [t.saat, t.yer, t.kararlar.length + " karar"].filter((p) => p).join(" · ");
+    const ayrinti = [tarihYaz(t.tarih, false), t.saat, t.yer, t.kararlar.length + " karar"].filter((p) => p).join(" · ");
     return '<li><button class="toplanti-satir" data-eylem="ac" data-id="' + htmlKacis(t.id) + '">' +
-      '<span class="gun"><b>' + gun + "</b><span>" + AY_KISA[ay - 1] + "</span></span>" +
+      gunKutusuHtml(t.tarih) +
       '<span class="bilgi"><b>' + htmlKacis(t.baslik) + "</b><span>" + htmlKacis(ayrinti) + "</span></span>" +
       "</button></li>";
   }).join("");
@@ -117,7 +127,7 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
     const gorev = gorevler.find((g) => g.id === karar.gorev_id);
     const sag = gorev
       ? '<span class="rozet rahat yazdirma">Görev oluşturuldu</span>'
-      : '<button class="dugme kucuk yazdirma" data-eylem="karardan-gorev" data-id="' + sira + '">+ Görev oluştur</button>';
+      : '<span class="yazdirma">' + kayitDugmesi("karardan-gorev", String(sira), "+ Görev oluştur", karar.metin) + "</span>";
     return '<li><div class="karar"><span>' + htmlKacis(karar.metin) + "</span>" + sag + "</div></li>";
   }).join("");
 
@@ -125,7 +135,7 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
     "<tr><td>" + htmlKacis(g.baslik) + "</td>" +
     "<td>" + (htmlKacis(uyeAdi(uyeler, g.sorumlu_id)) || "—") + "</td>" +
     "<td>" + (g.bitis_tarihi ? tarihYaz(g.bitis_tarihi, false) : "—") + "</td>" +
-    "<td>" + GOREV_DURUMLARI.find((d) => d.deger === g.durum).etiket + "</td></tr>"
+    "<td>" + gorevDurumEtiketi(g.durum) + "</td></tr>"
   ).join("");
 
   kok.innerHTML =
@@ -150,7 +160,7 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
     kunye("Tarih", tarihYaz(toplanti.tarih)) +
     kunye("Saat", toplanti.saat) +
     kunye("Yer", toplanti.yer) +
-    kunye("Katılımcılar", katilimcilar.join(", ")) +
+    kunye("Katılanlar", katilimcilar.length ? katilimcilar.join(", ") + " (" + katilimcilar.length + " kişi)" : "") +
     kunye("Yazan", yazan) +
     "</dl>" +
 
@@ -164,7 +174,8 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
 
     "<h3>Görevler</h3>" +
     (gorevSatirlari
-      ? "<table><thead><tr><th>Görev</th><th>Sorumlu</th><th>Bitiş</th><th>Durum</th></tr></thead><tbody>" + gorevSatirlari + "</tbody></table>"
+      ? '<div class="tablo-sarici"><table class="tablo"><thead><tr><th>Görev</th><th>Sorumlu</th><th>Bitiş</th><th>Durum</th></tr></thead><tbody>' +
+        gorevSatirlari + "</tbody></table></div>"
       : '<p class="soluk">Bu toplantıdan görev çıkmadı.</p>') +
     '<p class="yazdirma" style="margin-top:10px"><button class="dugme kucuk" data-eylem="gorev-ekle">+ Görev ekle</button></p>' +
 
@@ -179,7 +190,7 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
   eylemleriBagla(kok, {
     geri: () => { acikToplantiId = null; return yenile(); },
     duzenle: () => toplantiFormu(toplanti, uyeler),
-    yazdir: () => tutanakYazdir(toplanti),
+    yazdir: () => belgeYazdir("Tutanak - " + toplanti.baslik + " - " + toplanti.tarih),
     // Toplantı henüz yapılmadıysa davet, yapıldıysa özet duyurusu
     duyuru: () => duyuruyaGit(toplanti.tarih >= bugun() ? "davet" : "ozet", toplanti.id),
     sil: () => toplantiSil(toplanti),
@@ -225,4 +236,6 @@ ekranKaydet("toplantilar", {
   kisaAd: "Toplantı",
   simge: "M7 3h8l4 4v14H7zM10 11h6M10 15h6",
   ciz: toplantilarEkraniCiz,
+  // Menüden basılınca açık tutanağı kapatıp listeye dön (RAPOR.md > H3)
+  sifirla: () => { acikToplantiId = null; },
 });

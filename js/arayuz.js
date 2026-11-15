@@ -8,10 +8,11 @@
 
 /* ---------- Ekran kaydı ----------
    Her ekran dosyası (js/ekranlar/*.js) kendini buraya kaydeder:
-     ekranKaydet("gorevler", { baslik, simge, ciz })
-   "ciz(kok)" fonksiyonu ekranın HTML'ini kok elemanının içine yazar.
-   Menü bu listeden otomatik oluşur; yeni ekran eklemek için başka bir
-   yere dokunmak gerekmez. */
+     ekranKaydet("gorevler", { baslik, kisaAd, simge, ciz, sifirla })
+   "ciz(kok)" ekranın HTML'ini kok elemanının içine yazar.
+   "sifirla()" isteğe bağlıdır: menüden ekrana basılınca alt görünümü
+   (ör. açık tutanağı) kapatıp ekranı ilk hâline döndürür.
+   Menü bu listeden otomatik oluşur. */
 const EKRANLAR = {};
 const EKRAN_SIRASI = [];
 
@@ -28,19 +29,28 @@ function sec(secici) {
 /* ---------- Tıklama eylemleri ----------
    HTML'de:  <button data-eylem="sil" data-id="abc">Sil</button>
    JS'de:    eylemleriBagla(kok, { sil: (id) => ... })
-   Her düğmeye ayrı ayrı dinleyici eklemek yerine, kapsayıcıya TEK dinleyici
-   koyuyoruz ve tıklanan düğmenin data-eylem değerine bakıyoruz
-   (buna "olay delegasyonu" denir). Ekran yeniden çizilince de çalışmaya devam eder. */
+   Her düğmeye ayrı dinleyici yerine kapsayıcıya TEK dinleyici koyuyoruz ve
+   tıklanan düğmenin data-eylem değerine bakıyoruz ("olay delegasyonu").
+
+   eylemSuruyor: bir eylem bitmeden ikincisi başlamasın diye kilit. Bu olmadan
+   hızlı çift tıklama aynı kaydı iki kez oluşturabiliyordu (RAPOR.md > H1). */
+let eylemSuruyor = false;
+
 function eylemleriBagla(kok, eylemler) {
-  kok.onclick = (olay) => {
+  kok.onclick = async (olay) => {
     const dugme = olay.target.closest("[data-eylem]");
-    if (!dugme || !kok.contains(dugme)) return;
+    if (!dugme || !kok.contains(dugme) || dugme.disabled) return;
     const islev = eylemler[dugme.dataset.eylem];
-    if (!islev) return;
-    // Eylem async olabilir; hata olursa kullanıcıya göster.
-    Promise.resolve()
-      .then(() => islev(dugme.dataset.id, dugme))
-      .catch(hataGoster);
+    if (!islev || eylemSuruyor) return;
+
+    eylemSuruyor = true;
+    try {
+      await islev(dugme.dataset.id, dugme);
+    } catch (hata) {
+      hataGoster(hata);
+    } finally {
+      eylemSuruyor = false;
+    }
   };
 }
 
@@ -57,7 +67,7 @@ function bildir(mesaj) {
   kutu.textContent = mesaj;
   kutu.classList.add("acik");
   clearTimeout(bildirimZamanlayici);
-  bildirimZamanlayici = setTimeout(() => kutu.classList.remove("acik"), 2600);
+  bildirimZamanlayici = setTimeout(() => kutu.classList.remove("acik"), 3200);
 }
 
 /* ---------- Form penceresi ----------
@@ -71,7 +81,9 @@ function bildir(mesaj) {
        degerler: { baslik: "..." },          // düzenlemede mevcut değerler
        kaydet: async (degerler) => { ... },  // "Kaydet"e basılınca çağrılır
      });
-   Alan türleri: metin, uzun (çok satır), tarih, saat, secim, coklu (çoklu seçim) */
+   Alan türleri: metin, uzun (çok satır), tarih, saat, sayi, secim, coklu */
+const UZUN_METIN_SINIRI = 2000;
+
 function alanHtml(alan, deger) {
   const ad = htmlKacis(alan.ad);
   const zorunlu = alan.zorunlu ? " required" : "";
@@ -85,23 +97,27 @@ function alanHtml(alan, deger) {
       (secili.includes(s.deger) ? " checked" : "") + "> " + htmlKacis(s.etiket) + "</label>"
     ).join("");
     return '<fieldset class="alan"><legend>' + htmlKacis(alan.etiket) + "</legend>" +
-      '<div class="secenekler">' + (kutular || '<span class="soluk kucuk-yazi">Önce takıma üye ekleyin.</span>') +
+      '<div class="secenekler">' + (kutular || '<span class="soluk kucuk-yazi">Önce Takım ekranından üye ekle.</span>') +
       "</div>" + ipucu + "</fieldset>";
   }
 
   let giris;
   if (alan.tur === "uzun") {
-    giris = '<textarea name="' + ad + '"' + zorunlu + ">" + htmlKacis(deger) + "</textarea>";
+    giris = '<textarea name="' + ad + '" maxlength="' + UZUN_METIN_SINIRI + '"' + zorunlu + ">" + htmlKacis(deger) + "</textarea>";
   } else if (alan.tur === "secim") {
     const secenekler = alan.secenekler.map((s) =>
       '<option value="' + htmlKacis(s.deger) + '"' + (s.deger === (deger || "") ? " selected" : "") + ">" +
       htmlKacis(s.etiket) + "</option>"
     ).join("");
     giris = '<select name="' + ad + '"' + zorunlu + ">" + secenekler + "</select>";
+  } else if (alan.tur === "sayi") {
+    giris = '<input type="number" name="' + ad + '" value="' + htmlKacis(deger) + '" min="0" max="100000" step="1" inputmode="numeric"' + zorunlu + ">";
+  } else if (alan.tur === "tarih") {
+    giris = '<input type="date" name="' + ad + '" value="' + htmlKacis(deger) + '" min="' + EN_ERKEN_TARIH + '" max="' + EN_GEC_TARIH + '"' + zorunlu + ">";
+  } else if (alan.tur === "saat") {
+    giris = '<input type="time" name="' + ad + '" value="' + htmlKacis(deger) + '"' + zorunlu + ">";
   } else {
-    const tip = { tarih: "date", saat: "time" }[alan.tur] || "text";
-    giris = '<input type="' + tip + '" name="' + ad + '" value="' + htmlKacis(deger) + '"' + zorunlu +
-      (tip === "text" ? ' maxlength="200" autocomplete="off"' : "") + ">";
+    giris = '<input type="text" name="' + ad + '" value="' + htmlKacis(deger) + '" maxlength="200" autocomplete="off"' + zorunlu + ">";
   }
   return '<label class="alan">' + etiket + giris + ipucu + "</label>";
 }
@@ -112,6 +128,9 @@ function formDegerleri(form, alanlar) {
   for (const alan of alanlar) {
     if (alan.tur === "coklu") {
       sonuc[alan.ad] = [...form.querySelectorAll('input[name="' + alan.ad + '"]:checked')].map((k) => k.value);
+    } else if (alan.tur === "sayi") {
+      const ham = form.elements[alan.ad].value.trim();
+      sonuc[alan.ad] = ham === "" ? 0 : Number(ham);
     } else {
       sonuc[alan.ad] = form.elements[alan.ad].value.trim();
     }
@@ -119,13 +138,31 @@ function formDegerleri(form, alanlar) {
   return sonuc;
 }
 
+// Değerleri denetler; sorun varsa kullanıcıya gösterilecek mesajı döner.
+function formHatasi(alanlar, degerler) {
+  for (const alan of alanlar) {
+    const deger = degerler[alan.ad];
+    if (alan.zorunlu && (deger === "" || deger == null)) {
+      return '"' + alan.etiket + '" alanı boş bırakılamaz.';
+    }
+    if (alan.tur === "tarih" && deger && !tarihGecerli(deger)) {
+      return '"' + alan.etiket + '" geçerli bir tarih değil (2000–2100 arası olmalı).';
+    }
+    if (alan.tur === "sayi" && (!Number.isInteger(deger) || deger < 0 || deger > 100000)) {
+      return '"' + alan.etiket + '" 0 ile 100000 arasında tam sayı olmalı.';
+    }
+  }
+  return null;
+}
+
 function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet }) {
   const pencere = sec("#pencere");
+  pencere.setAttribute("aria-labelledby", "pencere-baslik"); // ekran okuyucu pencerenin adını okusun
   pencere.innerHTML =
-    '<form class="form">' +
-    "<h2>" + htmlKacis(baslik) + "</h2>" +
+    '<form class="form" novalidate>' +
+    '<h2 id="pencere-baslik">' + htmlKacis(baslik) + "</h2>" +
     alanlar.map((alan) => alanHtml(alan, degerler[alan.ad])).join("") +
-    '<p class="form-hata" hidden></p>' +
+    '<p class="form-hata" role="alert" hidden></p>' +
     '<div class="form-dugmeler">' +
     '<button type="button" class="dugme" data-kapat>Vazgeç</button>' +
     '<button type="submit" class="dugme ana">' + htmlKacis(kaydetYazi) + "</button>" +
@@ -133,28 +170,31 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
 
   const form = pencere.querySelector("form");
   const hataKutusu = form.querySelector(".form-hata");
+  const kaydetDugmesi = form.querySelector('[type="submit"]');
   form.querySelector("[data-kapat]").onclick = () => pencere.close();
 
   form.onsubmit = async (olay) => {
     olay.preventDefault(); // sayfanın yenilenmesini engelle
-    const sonuc = formDegerleri(form, alanlar);
+    if (kaydetDugmesi.disabled) return; // kayıt sürerken ikinci gönderimi yok say (H1)
 
-    // Sadece boşluk yazılmış zorunlu alanları da yakala
-    const eksik = alanlar.find((alan) => alan.zorunlu && !sonuc[alan.ad]);
-    if (eksik) {
-      hataKutusu.textContent = '"' + eksik.etiket + '" alanı boş bırakılamaz.';
+    const sonuc = formDegerleri(form, alanlar);
+    const hata = formHatasi(alanlar, sonuc);
+    if (hata) {
+      hataKutusu.textContent = hata;
       hataKutusu.hidden = false;
       return;
     }
 
+    kaydetDugmesi.disabled = true;
     try {
       await kaydet(sonuc);
-      pencere.close();
-      await yenile(); // ekranı güncel veriyle yeniden çiz (uygulama.js)
-    } catch (hata) {
-      console.error(hata);
-      hataKutusu.textContent = "Kaydedilemedi: " + hata.message;
+      pencere.close(); // odak, pencereyi açan düğmeye geri döner
+      await yenile();  // ekranı güncel veriyle yeniden çiz (uygulama.js)
+    } catch (hataNesnesi) {
+      console.error(hataNesnesi);
+      hataKutusu.textContent = "Kaydedilemedi: " + hataNesnesi.message;
       hataKutusu.hidden = false;
+      kaydetDugmesi.disabled = false;
     }
   };
 
@@ -163,9 +203,17 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
 
 /* ---------- Küçük HTML yardımcıları ---------- */
 
-// Menüde ve başka yerlerde kullanılan çizgi simgeler (24x24 SVG yolu).
+// Menüde kullanılan çizgi simgeler (24x24 SVG yolu).
 function simgeHtml(yol) {
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + yol + '"/></svg>';
+}
+
+// <option> listesi üretir.
+function secenekHtml(secenekler, secili) {
+  return secenekler.map((s) =>
+    '<option value="' + htmlKacis(s.deger) + '"' + (s.deger === secili ? " selected" : "") + ">" +
+    htmlKacis(s.etiket) + "</option>"
+  ).join("");
 }
 
 // Üye listesini form seçeneklerine çevirir.
@@ -186,4 +234,13 @@ function kalanRozet(tarih) {
   if (!tarih) return "";
   const gun = kalanGun(tarih, bugun());
   return '<span class="rozet ' + aciliyet(gun) + '">' + kalanGunMetni(gun) + "</span>";
+}
+
+/* Kayıt düğmesi: aynı adlı düğmeler ("Düzenle", "Sil") ekran okuyucuda
+   ayırt edilsin diye aria-label'a kaydın adını da ekler (RAPOR.md > E4).
+     kayitDugmesi("sil", gorev.id, "Sil", gorev.baslik, "tehlike")
+     -> <button ... aria-label="Sil: Rapor taslağı">Sil</button> */
+function kayitDugmesi(eylem, id, yazi, kayitAdi, ekSinif) {
+  return '<button class="dugme kucuk ' + (ekSinif || "") + '" data-eylem="' + eylem + '" data-id="' + htmlKacis(id) +
+    '" aria-label="' + htmlKacis(yazi + ": " + kayitAdi) + '">' + htmlKacis(yazi) + "</button>";
 }
