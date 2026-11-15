@@ -1,0 +1,2 @@
+# Depoda satır sonları her zaman LF olsun (Windows uyarılarını önler)
+* text=auto eol=lf

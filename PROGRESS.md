@@ -179,3 +179,27 @@ tarih satırlarına bu ekrana kısayol düğmeleri.
 4. Sayfayı yenile; sol altta "Supabase'e bağlı" yazmalı.
 
 Bunları yapmazsan uygulama localStorage ile çalışmaya devam eder.
+
+## Aşama 9 — Doğrulama ve README
+
+**Ne yaptım:**
+- Uygulamayı tarayıcıda boş hâlden başlayarak uçtan uca denedim: takım oluştur
+  → üye ekle → görev ekle ve taşı → son tarih ekle / tamamla → toplantı gir →
+  karardan görev oluştur → tutanağı düzenle (bağ korunuyor) → duyuru üret →
+  üye çıkar (görevi sorumlusuz kalıyor) → takımı sil.
+- Aynı akışı tarayıcıda sahte bir Supabase sunucusuyla da çalıştırdım.
+- 375 piksel genişlikte (telefon) bütün ekranlarda yatay taşma olmadığını kontrol ettim.
+- Yazdırma kurallarını ekrana uygulayıp tutanağın düğmesiz, menüsüz çıktığını gördüm.
+- `README.md` (Türkçe + İngilizce) yazdım.
+
+**Doğrulanamayanlar (dürüst liste):**
+- Gerçek Supabase projesiyle bağlantı (anahtar yok).
+- `index.html`'i çift tıklayarak (file://) açma; denemeler yerel sunucu
+  (`python -m http.server`) üzerinden yapıldı. Kod buna göre yazıldı (ES modülü
+  ve fetch yok) ama bir kez elle denemekte fayda var.
+- Tarayıcının gerçek yazdırma penceresi ve üretilen PDF dosyası (otomasyonda
+  açılamıyor); yalnızca yazdırma CSS'i kontrol edildi.
+- Gerçek telefonda deneme; yalnızca dar ekran benzetimi yapıldı.
+- "Kopyala" düğmesinin panoya gerçekten yazdığı (otomasyonda pano okunamıyor).
+
+**Nasıl çalıştırılır:** `index.html`'e çift tıkla. Testler: `npm test`.
