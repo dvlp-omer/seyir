@@ -88,3 +88,24 @@ sorumluya göre süzme, ◀ ▶ ile sütun değiştirme.
   kalmışsa turuncu. Biten görev asla "gecikmiş" görünmez (`gorevGecikti`).
 
 **Nasıl çalıştırılır:** `index.html` → menüden "Görevler".
+
+## Aşama 5 — Son tarihler ve özet
+
+**Ne yaptım:**
+- `js/ekranlar/sontarihler.js`: rapor / izin / etkinlik tarihleri, geri sayım
+  kutusu, "tamamlandı" işareti.
+- `js/ekranlar/ozet.js`: açılış ekranı — en yakın son tarih, görev sayıları,
+  gecikenler ve önümüzdeki 7 gün.
+
+**Neden böyle:**
+- *Renkler tek kuraldan geliyor:* `aciliyet(gun)` → gecikti / yakın (0–3 gün) /
+  yaklaşıyor (4–7) / rahat. Pano, son tarihler ve özet aynı fonksiyonu
+  kullandığı için her yerde aynı renk aynı anlama gelir.
+- *"Tamamlandı" işareti.* Teslim edilmiş bir rapor, tarihi geçti diye sonsuza
+  kadar "gecikti" görünmesin.
+- *Özet ekranı veri tutmaz,* var olan kayıtlardan hesaplar. Böylece
+  "özet ile pano farklı şey gösteriyor" hatası olamaz.
+- *Tarihleri metin olarak karşılaştırmak:* "YYYY-AA-GG" biçimi alfabetik
+  sıralandığında tarih sırasına da girmiş olur; ek kütüphane gerekmez.
+
+**Nasıl çalıştırılır:** `index.html` → "Özet" ve "Tarihler".
