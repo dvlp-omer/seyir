@@ -149,3 +149,33 @@ tarih satırlarına bu ekrana kısayol düğmeleri.
   dosyadan açıldıysa) eski `execCommand("copy")`.
 
 **Nasıl çalıştırılır:** "Duyuru" → tür ve kaynak seç → "Kopyala" → WhatsApp'a yapıştır.
+
+## Aşama 8 — Supabase sürümü
+
+**Ne yaptım:**
+- `js/veri.js`: `supabaseDepoOlustur` — yerel depoyla aynı beş fonksiyon,
+  Supabase REST API'sine `fetch` ile bağlanır. `depoSec` ayar varsa Supabase'i,
+  yoksa localStorage'ı seçer.
+- `supabase/sema.sql`: tablolar ve erişim kuralları.
+- `.env.example` (yer tutucu) ve `araclar/env-aktar.js` (`.env` → `js/ayarlar.js`).
+- `testler/supabase.test.js`: sahte sunucuyla testler + "sözleşme testi".
+
+**Neden böyle:**
+- *Ekran kodunda tek satır değişmedi.* Bütün ekranlar `durum.depo` üzerinden
+  çalışıyor; arkasında localStorage mı Supabase mi olduğunu bilmiyorlar. Veri
+  katmanını tek dosyada ve açık bir arayüzle tutmanın karşılığı bu.
+- *Supabase kütüphanesi yok.* Supabase her tablo için REST adresi verir;
+  dört HTTP yöntemi (GET/POST/PATCH/DELETE) yetiyor. Bağımlılık yok, kod okunur.
+- *Sözleşme testi:* aynı senaryo iki depoda da çalıştırılıyor. İkisi de
+  geçiyorsa "aynı arayüz" iddiası kanıtlanmış olur.
+- *Anahtar koda gömülmedi.* `.env` ve `js/ayarlar.js` gitignore'da.
+- *Gerçek Supabase ile denenmedi* (anahtar istenmedi). Bkz. QUESTIONS.md #2.
+- *Giriş olmadığı için veriler anon anahtarla herkese açık.* Bkz. QUESTIONS.md #1.
+
+**Nasıl çalıştırılır (isteğe bağlı):**
+1. Supabase'de ücretsiz proje aç → SQL Editor'da `supabase/sema.sql`'i çalıştır.
+2. `.env.example` dosyasını `.env` adıyla kopyala, iki değeri doldur.
+3. `node araclar/env-aktar.js`
+4. Sayfayı yenile; sol altta "Supabase'e bağlı" yazmalı.
+
+Bunları yapmazsan uygulama localStorage ile çalışmaya devam eder.

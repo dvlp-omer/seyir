@@ -91,8 +91,22 @@ async function yenile() {
 
 /* ---------- Başlatma ---------- */
 
+// İsteğe bağlı ayar dosyasını (js/ayarlar.js) yükler. Bu dosya Supabase
+// adresini ve anahtarını window.TAKIM_AYARLARI içine koyar. Dosya depoda
+// YOKTUR (.gitignore'da); anahtarlar koda gömülmez. Dosya yoksa uygulama
+// localStorage ile çalışır — konsolda görülen 404 uyarısı bu yüzden normaldir.
+function ayarlariYukle() {
+  return new Promise((bitti) => {
+    const betik = document.createElement("script");
+    betik.src = "js/ayarlar.js";
+    betik.onload = () => bitti(window.TAKIM_AYARLARI || {});
+    betik.onerror = () => bitti({});
+    document.head.appendChild(betik);
+  });
+}
+
 async function baslat() {
-  durum.depo = depoSec({}, window.localStorage);
+  durum.depo = depoSec(await ayarlariYukle(), window.localStorage);
   sec("#depo-rozet").textContent =
     durum.depo.tur === "supabase" ? "Supabase'e bağlı" : "Veriler bu tarayıcıda saklanıyor";
 

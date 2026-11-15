@@ -104,16 +104,109 @@ function yerelDepoOlustur(depolama, onEk = "takim-asistani:") {
 }
 
 /* --------------------------------------------------------------------------
+   2) SUPABASE DEPOSU
+   Yukarıdaki yerel depoyla BİREBİR aynı beş fonksiyonu sunar; veriyi
+   tarayıcı yerine Supabase'deki (PostgreSQL) tablolara yazar. Böylece
+   takımdaki herkes aynı veriyi görür.
+
+   Supabase her tablo için hazır bir REST adresi verir:
+     https://PROJE.supabase.co/rest/v1/gorevler
+   Bu yüzden ek kütüphane yüklemeden, tarayıcının kendi fetch() fonksiyonuyla
+   konuşabiliyoruz:
+     listele  -> GET     ?takim_id=eq.abc
+     ekle     -> POST
+     guncelle -> PATCH   ?id=eq.xyz
+     sil      -> DELETE  ?id=eq.xyz
+   Tablolar için: supabase/sema.sql
+
+   "istek" parametresi normalde fetch'tir; testlerde sahtesini veriyoruz.
+   -------------------------------------------------------------------------- */
+function supabaseDepoOlustur(url, anahtar, istek = (...args) => fetch(...args)) {
+  const taban = url.replace(/\/+$/, "") + "/rest/v1/";
+
+  // Bütün isteklerin geçtiği tek yer: başlıkları ekler, hatayı yakalar.
+  async function cagir(yontem, yol, govde) {
+    const yanit = await istek(taban + yol, {
+      method: yontem,
+      headers: {
+        apikey: anahtar,
+        Authorization: "Bearer " + anahtar,
+        "Content-Type": "application/json",
+        // Eklenen/güncellenen satırı cevapta geri iste
+        Prefer: "return=representation",
+      },
+      body: govde ? JSON.stringify(govde) : undefined,
+    });
+    if (!yanit.ok) {
+      throw new Error("Supabase hatası (" + yanit.status + "): " + (await yanit.text()));
+    }
+    // 204 = "başarılı ama içerik yok"
+    return yanit.status === 204 ? [] : yanit.json();
+  }
+
+  // { takim_id: "abc" } -> "takim_id=eq.abc"   (birden fazlaysa & ile birleşir)
+  function filtreSorgusu(filtre) {
+    return Object.keys(filtre || {})
+      .map((alan) => encodeURIComponent(alan) + "=eq." + encodeURIComponent(filtre[alan]))
+      .join("&");
+  }
+
+  return {
+    tur: "supabase",
+
+    async listele(koleksiyon, filtre) {
+      koleksiyonKontrol(koleksiyon);
+      const sorgu = filtreSorgusu(filtre);
+      return cagir("GET", koleksiyon + "?select=*&order=olusturma.asc" + (sorgu ? "&" + sorgu : ""));
+    },
+
+    async oku(koleksiyon, id) {
+      koleksiyonKontrol(koleksiyon);
+      const satirlar = await cagir("GET", koleksiyon + "?select=*&" + filtreSorgusu({ id: id }));
+      return satirlar[0] || null;
+    },
+
+    async ekle(koleksiyon, kayit) {
+      koleksiyonKontrol(koleksiyon);
+      const yeni = { ...kayit, id: kimlikUret(), olusturma: new Date().toISOString() };
+      const satirlar = await cagir("POST", koleksiyon, yeni);
+      return satirlar[0];
+    },
+
+    async guncelle(koleksiyon, id, degisiklik) {
+      koleksiyonKontrol(koleksiyon);
+      // id ve oluşturma zamanı değiştirilemez (yerel depoyla aynı kural):
+      // bu iki alanı ayırıp geri kalanını gönderiyoruz.
+      const { id: _id, olusturma: _olusturma, ...govde } = degisiklik;
+      const satirlar = await cagir("PATCH", koleksiyon + "?" + filtreSorgusu({ id: id }), govde);
+      if (satirlar.length === 0) throw new Error("Kayıt bulunamadı: " + koleksiyon + "/" + id);
+      return satirlar[0];
+    },
+
+    async sil(koleksiyon, id) {
+      koleksiyonKontrol(koleksiyon);
+      await cagir("DELETE", koleksiyon + "?" + filtreSorgusu({ id: id }));
+    },
+  };
+}
+
+/* --------------------------------------------------------------------------
    Hangi depo kullanılacak?
-   Şimdilik sadece yerel depo var. Supabase sürümü eklendiğinde seçim burada
-   yapılacak; uygulamanın geri kalanı değişmeyecek.
+   Supabase adresi ve anahtarı verilmişse Supabase, verilmemişse localStorage.
+   Uygulamanın geri kalanı bu seçimden habersizdir; sadece "depo" kullanır.
+   Ayarların nereden geldiği: js/uygulama.js > ayarlariYukle
    -------------------------------------------------------------------------- */
 function depoSec(ayarlar, depolama) {
+  if (ayarlar && ayarlar.SUPABASE_URL && ayarlar.SUPABASE_ANON_KEY) {
+    return supabaseDepoOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY);
+  }
   return yerelDepoOlustur(depolama);
 }
 
 // Node'da (testlerde) bu dosya require() ile yüklenir. Tarayıcıda "module"
 // diye bir şey yoktur; orada fonksiyonlar zaten globaldir.
 if (typeof module !== "undefined") {
-  module.exports = { KOLEKSIYONLAR, kimlikUret, filtreyeUyar, yerelDepoOlustur, depoSec };
+  module.exports = {
+    KOLEKSIYONLAR, kimlikUret, filtreyeUyar, yerelDepoOlustur, supabaseDepoOlustur, depoSec,
+  };
 }
