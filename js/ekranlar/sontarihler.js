@@ -59,6 +59,7 @@ function sonTarihSatiriHtml(kayit) {
     "</div>" +
     '<div class="satir-dugmeler">' +
     '<button class="dugme kucuk" data-eylem="tamam" data-id="' + id + '">' + (kayit.tamamlandi ? "Geri al" : "Tamamlandı") + "</button>" +
+    (kayit.tamamlandi ? "" : '<button class="dugme kucuk" data-eylem="duyuru" data-id="' + id + '">Duyuru</button>') +
     '<button class="dugme kucuk" data-eylem="duzenle" data-id="' + id + '">Düzenle</button>' +
     '<button class="dugme kucuk tehlike" data-eylem="sil" data-id="' + id + '">Sil</button>' +
     "</div></li>";
@@ -89,6 +90,7 @@ async function sonTarihlerEkraniCiz(kok) {
 
   eylemleriBagla(kok, {
     ekle: () => sonTarihFormu(null),
+    duyuru: (id) => duyuruyaGit("hatirlatma", id),
     duzenle: async (id) => sonTarihFormu(await durum.depo.oku("son_tarihler", id)),
     tamam: async (id) => {
       const kayit = await durum.depo.oku("son_tarihler", id);

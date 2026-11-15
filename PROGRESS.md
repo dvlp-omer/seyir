@@ -132,3 +132,20 @@ tek tıkla görev, "Yazdır / PDF".
 
 **Nasıl çalıştırılır:** "Toplantı" → "+ Yeni toplantı" → kaydet → "Yazdır / PDF"
 → yazıcı olarak "PDF olarak kaydet" seç.
+
+## Aşama 7 — Duyuru şablonu
+
+**Ne yaptım:** `js/ekranlar/duyuru.js` — toplantı daveti, toplantı özeti ve
+son tarih hatırlatması için WhatsApp metni; "Kopyala" düğmesi. Tutanak ve son
+tarih satırlarına bu ekrana kısayol düğmeleri.
+
+**Neden böyle:**
+- *Yapay zekâ yok, düz şablon.* Metin `mantik.js`'teki üç fonksiyondan gelir;
+  aynı girdi her zaman aynı metni verir, bu yüzden birebir test edilebiliyor.
+- *Boş alanın satırı yazılmaz.* Yer girilmediyse "Yer:" satırı hiç çıkmaz.
+- *Metin kutusu düzenlenebilir.* Şablon her duruma uymaz; kopyalamadan önce
+  elle düzeltme imkânı var.
+- *Kopyalama iki yöntemli:* önce `navigator.clipboard`, olmazsa (ör. sayfa
+  dosyadan açıldıysa) eski `execCommand("copy")`.
+
+**Nasıl çalıştırılır:** "Duyuru" → tür ve kaynak seç → "Kopyala" → WhatsApp'a yapıştır.

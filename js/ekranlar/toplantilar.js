@@ -134,6 +134,7 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
     '<button class="dugme" data-eylem="geri">← Tüm toplantılar</button>' +
     '<span class="bosluk"></span>' +
     '<button class="dugme" data-eylem="duzenle">Düzenle</button>' +
+    '<button class="dugme" data-eylem="duyuru">Duyuru hazırla</button>' +
     '<button class="dugme ana" data-eylem="yazdir">Yazdır / PDF</button>' +
     '<button class="dugme tehlike" data-eylem="sil">Sil</button>' +
     "</div>" +
@@ -179,6 +180,8 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
     geri: () => { acikToplantiId = null; return yenile(); },
     duzenle: () => toplantiFormu(toplanti, uyeler),
     yazdir: () => tutanakYazdir(toplanti),
+    // Toplantı henüz yapılmadıysa davet, yapıldıysa özet duyurusu
+    duyuru: () => duyuruyaGit(toplanti.tarih >= bugun() ? "davet" : "ozet", toplanti.id),
     sil: () => toplantiSil(toplanti),
 
     // Toplantıya bağlı, karardan bağımsız görev
