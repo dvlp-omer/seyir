@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Takım Asistanı</title>
+  <meta name="description" content="Öğrenci takımları için görev, son tarih, toplantı tutanağı ve duyuru asistanı.">
+  <link rel="stylesheet" href="css/stil.css">
+</head>
+<body>
+  <!-- Sayfa iki parçadan oluşur: yan menü (.yan) ve içerik (.govde).
+       Ekranların içeriği JavaScript ile <main id="ekran"> içine çizilir. -->
+  <div class="kabuk">
+    <aside class="yan">
+      <div class="marka">
+        <!-- Logo: sonar halkaları ve turuncu bir hedef noktası -->
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="17" fill="none" stroke="#9fc0c8" stroke-width="1.5" opacity=".5"/>
+          <circle cx="20" cy="20" r="11" fill="none" stroke="#9fc0c8" stroke-width="1.5" opacity=".8"/>
+          <circle cx="20" cy="20" r="5" fill="none" stroke="#fff" stroke-width="1.5"/>
+          <path d="M20 20 L32 9" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="27" cy="26" r="3" fill="#ee6a2f"/>
+        </svg>
+        <div>Takım Asistanı<small>görev · tarih · tutanak</small></div>
+      </div>
+      <nav id="menu" class="menu" aria-label="Ekranlar"></nav>
+      <div class="yan-alt"><span id="depo-rozet" class="depo-rozet"></span></div>
+    </aside>
+
+    <div class="govde">
+      <header class="ust">
+        <h1 id="ekran-baslik">Takım Asistanı</h1>
+        <label>
+          <span class="gizli">Etkin takım</span>
+          <select id="takim-sec" class="takim-sec" hidden></select>
+        </label>
+      </header>
+      <main id="ekran"></main>
+    </div>
+  </div>
+
+  <!-- Bütün formlar bu tek pencerede açılır (bkz. js/arayuz.js > formAc) -->
+  <dialog id="pencere"></dialog>
+  <div id="bildirim" role="status" aria-live="polite"></div>
+
+  <!-- Sıra önemli: önce veri ve mantık, sonra ortak arayüz, sonra ekranlar,
+       en son hepsini başlatan uygulama.js. -->
+  <script src="js/veri.js"></script>
+  <script src="js/mantik.js"></script>
+  <script src="js/arayuz.js"></script>
+  <script src="js/ornek-veri.js"></script>
+  <script src="js/ekranlar/takim.js"></script>
+  <script src="js/uygulama.js"></script>
+</body>
+</html>

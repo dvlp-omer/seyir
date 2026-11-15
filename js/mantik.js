@@ -81,6 +81,13 @@ function tarihYaz(tarih, gunAdiyla = true) {
   return sonuc;
 }
 
+// Tarihe gün ekler (eksi sayı geriye götürür). "2026-11-30" + 2 -> "2026-12-02"
+function gunEkle(tarih, gun) {
+  const [yil, ay, gunu] = tarih.split("-").map(Number);
+  // Date, taşan günleri kendisi sonraki aya aktarır.
+  return new Date(Date.UTC(yil, ay - 1, gunu + gun)).toISOString().slice(0, 10);
+}
+
 // Listeyi verilen tarih alanına göre eskiden yeniye sıralar.
 // Tarihi olmayan kayıtlar en sona gider. Asıl listeyi değiştirmez.
 function tariheGoreSirala(liste, alan) {
@@ -208,7 +215,7 @@ function duyuruHatirlatma(b) {
 // Node'da (testlerde) require() ile yüklenebilsin diye. Tarayıcıda atlanır.
 if (typeof module !== "undefined") {
   module.exports = {
-    htmlKacis, tarihMetni, bugun, kalanGun, kalanGunMetni, aciliyet, tarihYaz,
+    htmlKacis, tarihMetni, bugun, kalanGun, kalanGunMetni, aciliyet, tarihYaz, gunEkle,
     tariheGoreSirala, GOREV_DURUMLARI, gorevGecikti, gorevSayilari,
     satirlaraAyir, kararlariBirlestir,
     duyuruToplantiDaveti, duyuruToplantiOzeti, duyuruHatirlatma,

@@ -38,3 +38,37 @@ eklendi ki gerçek anahtar yanlışlıkla depoya girmesin.
 node --test "testler/*.test.js"
 ```
 ya da `npm test`. Kurulum gerekmez (Node 18+ yeterli).
+
+## Aşama 3 — Arayüz iskeleti, tasarım, takım ve üyeler
+
+**Ne yaptım:**
+- `index.html`: tek sayfa. Yan menü + içerik alanı + tek bir form penceresi.
+- `css/stil.css`: bütün tasarım (masaüstü, mobil, yazdırma).
+- `js/arayuz.js`: ortak parçalar — `ekranKaydet`, `eylemleriBagla`, `formAc`, `bildir`.
+- `js/uygulama.js`: başlatma, takım seçimi, ekranlar arası geçiş.
+- `js/ekranlar/takim.js`: takım oluşturma, üye ekleme/düzenleme/çıkarma, rol.
+- `js/ornek-veri.js`: "Örnek veriyle dene" düğmesi için hayali takım.
+
+**Neden böyle:**
+- *Her ekran kendi dosyasında ve kendini `ekranKaydet` ile kaydediyor.* Menü bu
+  kayıtlardan otomatik oluşuyor. Yeni ekran eklemek = yeni dosya + bir
+  `<script>` satırı.
+- *"Değişince hepsini yeniden çiz" (`yenile()`).* Her işlemden sonra ekran
+  veriyi depodan tekrar okuyup baştan çiziliyor. React gibi kütüphanelerin
+  çözdüğü "ekran ile veri uyumsuz kaldı" sorununu en basit yoldan çözer.
+- *Tek `formAc` fonksiyonu.* Bütün ekle/düzenle formları alan listesinden
+  üretiliyor; her form için ayrı HTML yazmak gerekmiyor.
+- *Olay delegasyonu (`data-eylem`).* Her düğmeye ayrı dinleyici yerine
+  kapsayıcıya tek dinleyici. Ekran yeniden çizilince dinleyiciler kaybolmuyor.
+- *`htmlKacis`.* Kullanıcının yazdığı her metin HTML'e konmadan önce
+  kaçırılıyor (XSS önlemi).
+- *Adres çubuğunda `#gorevler` gibi ekran adı.* Sayfa yenilenince aynı ekranda
+  kalınır, tarayıcının geri tuşu çalışır.
+- *Tasarım:* "derin su" teması — koyulaşan lacivert yan menü, kâğıt rengi
+  çalışma alanı, şamandıra turuncusu vurgu, sayılarda eş aralıklı yazı tipi.
+  Mobilde yan menü alt sekme çubuğuna dönüşür.
+- *Üye silinince* görevleri silinmez, sorumlusuz kalır. *Takım silinince* ona
+  ait her şey silinir (iki durumda da onay sorulur).
+
+**Nasıl çalıştırılır:** `index.html` dosyasını tarayıcıda aç (çift tıkla).
+İstersen yerel sunucuyla: `python -m http.server 8765` → http://localhost:8765

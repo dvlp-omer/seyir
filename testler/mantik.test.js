@@ -42,6 +42,12 @@ test("tarihMetni: Date -> YYYY-AA-GG (tek haneler sıfırla dolar)", () => {
   assert.equal(m.tarihMetni(new Date(2026, 0, 5)), "2026-01-05");
 });
 
+test("gunEkle: ay ve yıl sınırını geçer, eksi sayıyla geri gider", () => {
+  assert.equal(m.gunEkle("2026-11-30", 2), "2026-12-02");
+  assert.equal(m.gunEkle("2026-12-31", 1), "2027-01-01");
+  assert.equal(m.gunEkle("2026-03-01", -1), "2026-02-28");
+});
+
 test("tariheGoreSirala: eskiden yeniye, tarihsizler sonda, asıl liste değişmez", () => {
   const liste = [{ t: "2026-12-01" }, { t: "" }, { t: "2026-11-20" }];
   const sirali = m.tariheGoreSirala(liste, "t");
