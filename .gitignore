@@ -1,0 +1,9 @@
+# Gerçek anahtarlar asla depoya girmez
+.env
+js/ayarlar.js
+
+# Araç/editör dosyaları
+.claude/
+node_modules/
+.DS_Store
+Thumbs.db
