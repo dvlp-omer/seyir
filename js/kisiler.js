@@ -11,12 +11,12 @@
 
 /* ---------- Telefon ----------
    WhatsApp bağlantısı numarayı ülke koduyla, artı ve boşluk OLMADAN ister:
-   "905321234567". İnsanlar ise her biçimde yazar. Bu fonksiyon hepsini
+   "905000000001". İnsanlar ise her biçimde yazar. Bu fonksiyon hepsini
    aynı biçime çevirir:
-     0532 123 45 67   -> 905321234567
-     +90 532 123 4567 -> 905321234567
-     0090532...       -> 905321234567
-     532 123 45 67    -> 905321234567
+     0500 000 00 01   -> 905000000001
+     +90 500 000 0001 -> 905000000001
+     0090500...       -> 905000000001
+     500 000 00 01    -> 905000000001
    Sonuç: { telefon: "90..." } ya da { hata: "neden" }.
    Yalnızca Türkiye cep numaraları (5 ile başlayan) kabul edilir; WhatsApp
    için cep numarası gerekir. Sabit hat (212..., 312...) "cep değil" uyarısı alır. */
@@ -37,7 +37,7 @@ function telefonNormallestir(metin) {
   return { telefon: rakam };
 }
 
-// "905321234567" -> "+90 532 123 45 67" (ekranda okunaklı göstermek için)
+// "905000000001" -> "+90 500 000 00 01" (ekranda okunaklı göstermek için)
 function telefonGoster(telefon) {
   const t = String(telefon || "");
   if (!/^90\d{10}$/.test(t)) return t;
