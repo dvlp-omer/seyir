@@ -132,7 +132,7 @@ function yerelDepoOlustur(depolama, onEk = "takim-asistani:") {
      ekle     -> POST
      guncelle -> PATCH   ?id=eq.xyz
      sil      -> DELETE  ?id=eq.xyz
-   Tablolar için: supabase/sema.sql
+   Tablolar ve güvenlik kuralları: supabase/schema.sql
 
    Seçenekler:
      istek      : normalde fetch; testlerde sahtesini veriyoruz.

@@ -319,3 +319,40 @@ dosyadan çift tıklayınca service worker devreye girmez, uygulama yine çalı�
 **Geliştirirken dikkat:** `python -m http.server` dosyaları tarayıcıya
 "önbelleğe alınabilir" gönderir. Bir dosyayı değiştirince eski hâli gelirse
 sayfayı Ctrl+Shift+R ile yenile.
+
+## Tur 2 / Aşama 7 — Supabase hazırlığı (RLS + giriş)
+
+**Ne yaptım:**
+- `supabase/schema.sql` (eski adı `sema.sql`): 7 tablo, takım üyeliği,
+  satır düzeyinde güvenlik kuralları, davet koduyla katılma fonksiyonu.
+- `js/oturum.js` + `js/ekranlar/giris.js`: e-posta/şifre ile giriş, jeton
+  yenileme, çıkış. Takım ekranında davet kodu.
+- `VERI_KATMANI` ortam değişkeni: `yerel` ya da `supabase`.
+- `araclar/env-aktar.js` yeniden yazıldı; testleri eklendi.
+- `SUPABASE_KURULUM.md`: adım adım rehber + "güvenliği dene" tablosu.
+
+**Neden böyle:**
+- *"Kullanıcı sadece kendi takımını görsün" giriş olmadan yapılamaz.*
+  Veritabanının kimin istek attığını bilmesi gerekir; bu yüzden v1'de olmayan
+  giriş bu turda eklendi. localStorage kullanılırken giriş ekranı hiç çıkmaz.
+- *Güvenlik veritabanında, uygulamada değil.* Tarayıcıdaki kod herkesin
+  elindedir ve değiştirilebilir. Kural `uye_mi(takim_id)` fonksiyonuyla her
+  tabloda aynı; her satır için veritabanı sorar: "bu hesap bu takımın üyesi mi?"
+- *Beş fonksiyonluk depo arayüzü değişmedi.* Giriş ayrı bir dosyada
+  (`oturum.js`); depo yalnızca "jetonu ver" diye bir fonksiyon alıyor.
+  Ekranların hiçbiri Supabase'den haberdar değil.
+- *İki "üye" kavramı ayrı tutuldu:* `uyeler` = kadro (ad + rol), 
+  `takim_uyelikleri` = giriş yapan hesaplar. Kadrodaki herkesin hesabı olmak
+  zorunda değil. E-posta uygulama tablolarına girmiyor.
+- *Davet kodu:* başka birini takıma almanın en basit yolu. Üyelik tablosuna
+  doğrudan yazılamaz; tek yol kodu bilen birinin `takima_katil` çağırması.
+- *Gizli anahtar koruması:* `env-aktar.js`, `service_role` anahtarı yazılırsa
+  durur. Bu anahtarın tarayıcıya gitmesi bütün kuralları boşa çıkarırdı.
+- *Aynı sözleşme testi iki depoda da çalışıyor* (`testler/supabase.test.js`).
+
+**Doğrulanamayan (önemli):** Gerçek Supabase projesi yok. `schema.sql` hiçbir
+PostgreSQL'de çalıştırılmadı; RLS kuralları yalnızca okunarak kontrol edildi.
+Giriş ve veri istekleri sahte sunucuyla test edildi. İlk gerçek kurulumda
+`SUPABASE_KURULUM.md > 7. Güvenliği dene` mutlaka yapılmalı.
+
+**Nasıl çalıştırılır:** `SUPABASE_KURULUM.md`. Yapmazsan uygulama yerel çalışır.
