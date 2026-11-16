@@ -287,13 +287,18 @@ function bolumBul(sadeMetin) {
 
 // "Ali Kaya, Ece Demir; Can Öz" -> ["Ali Kaya", "Ece Demir", "Can Öz"]
 function adlariAyir(metin) {
-  return String(metin).split(/[,;\n]/).map((ad) => ad.replace(/^\s*(?:[-•*]|\d+[.)])\s+/, "").trim()).filter((ad) => ad);
+  return String(metin).split(/[,;\n]/)
+    .map((ad) => ad.replace(/^\s*(?:[-•*]|\d+[.)])\s+/, "").replace(/\.\s*$/, "").trim())
+    .filter((ad) => ad);
 }
 
-// "Karar metni (ROTA/İSAS-2026/03, Karar 2)" -> { metin, atif }
+// "Karar metni (ROTA/İSAS-2026/03, Karar 2)" -> { metin, atif }   (atıf sonda; eski biçim)
+// "(ROTA/İSAS-2026/03, Karar 2) Karar metni" -> { metin, atif }   (atıf başta; referanstaki biçim)
 function atifiAyir(metin) {
-  const eslesme = metin.match(/^(.*\S)\s*\(([^()]{3,120})\)\s*\.?$/);
-  return eslesme ? { metin: eslesme[1].trim(), atif: eslesme[2].trim() } : { metin: metin, atif: "" };
+  const basta = metin.match(/^\(([^()]{3,120})\)\s*(\S.*)$/);
+  if (basta) return { metin: basta[2].trim(), atif: basta[1].trim() };
+  const sonda = metin.match(/^(.*\S)\s*\(([^()]{3,120})\)\s*\.?$/);
+  return sonda ? { metin: sonda[1].trim(), atif: sonda[2].trim() } : { metin: metin, atif: "" };
 }
 
 function notlariAyristir(metin) {
@@ -452,6 +457,12 @@ function notlariBirlestir(mevcut, ayristirilan) {
 
 // Tutanağın belge görünümü (HTML). Ekrandaki önizleme, yazdırma/PDF ve
 // testler aynı çıktıyı kullanır. Görünüm: css/stil.css > "Resmî tutanak".
+// "Ali Kaya, Ece Demir" -> "Ali Kaya, Ece Demir."  (referanstaki gibi noktayla biter)
+function katilimciSatiri(adlar) {
+  const satir = (adlar || []).join(", ");
+  return satir && !/[.!?]$/.test(satir) ? satir + "." : satir;
+}
+
 function tutanakBelgeHtml(t) {
   const k = htmlKacis;
   const maddeListesi = (maddeler, maddeHtml, bosYazi) => maddeler.length
@@ -466,7 +477,7 @@ function tutanakBelgeHtml(t) {
     "<tr><th>Toplantı Tarihi</th><td>" + k(tarihYaz(t.toplanti_tarihi)) + "</td>" +
     "<th>Tutanak Tarihi</th><td>" + k(tarihYaz(t.tutanak_tarihi)) + "</td></tr>" +
     "<tr><th>Sonraki Toplantı</th><td" + (ekVar ? "" : ' colspan="3"') + ">" + (k(t.sonraki_toplanti) || "—") + "</td>" +
-    (ekVar ? "<th>" + k(t.ek_etiket) + "</th><td>" + k(t.ek_deger) + "</td>" : "") + "</tr>" +
+    (ekVar ? "<th>" + k(t.ek_etiket).replace(/\//g, "/<wbr>") + "</th><td>" + k(t.ek_deger) + "</td>" : "") + "</tr>" +
     "</tbody></table>";
 
   const imzalar = (t.katilimcilar || []).map((ad) =>
@@ -477,13 +488,14 @@ function tutanakBelgeHtml(t) {
     '<h2 class="rt-baslik">' + TUTANAK_BASLIGI + "</h2>" +
     (t.alt_baslik ? '<p class="rt-alt-baslik">' + k(t.alt_baslik) + "</p>" : "") +
     (t.numara ? '<p class="rt-no">Tutanak No: ' + k(t.numara) + "</p>" : "") +
+    '<hr class="rt-ust-cizgi">' +   // başlık bloğunu tablodan ayıran kalın çizgi
     bilgiTablosu +
-    '<p class="rt-katilimcilar"><b>Katılımcılar:</b> ' + (k((t.katilimcilar || []).join(", ")) || "—") + "</p>" +
+    '<p class="rt-katilimcilar">Katılımcılar: ' + (k(katilimciSatiri(t.katilimcilar)) || "—") + "</p>" +
 
     '<section class="rt-madde"><h3>' + MADDE_BASLIKLARI[0] + "</h3>" +
     ((t.devreden || []).length && t.devreden_giris ? '<p class="rt-giris">' + k(t.devreden_giris) + "</p>" : "") +
     maddeListesi(t.devreden || [], (d) =>
-      k(d.metin) + (d.atif ? ' <span class="rt-atif">(' + k(d.atif) + ")</span>" : ""),
+      (d.atif ? '<span class="rt-atif">(' + k(d.atif) + ")</span> " : "") + k(d.metin),
       "Devreden karar bulunmamaktadır.") +
     "</section>" +
 
@@ -493,8 +505,11 @@ function tutanakBelgeHtml(t) {
     '<section class="rt-madde"><h3>' + MADDE_BASLIKLARI[2] + "</h3>" +
     maddeListesi(t.gorevler || [], k, "Kayıt girilmemiştir.") + "</section>" +
 
-    (imzalar ? '<section class="rt-imza-bolumu"><h3>' + IMZA_BASLIGI + '</h3><div class="rt-imzalar">' + imzalar + "</div></section>" : "") +
-    (t.alt_bilgi ? '<p class="rt-alt-bilgi">' + k(t.alt_bilgi) + "</p>" : "") +
+    // Alt bilgi satırı imza bölümünün İÇİNDE: sayfa sonunda tek başına yeni sayfaya düşmesin
+    (imzalar
+      ? '<section class="rt-imza-bolumu"><h3>' + IMZA_BASLIGI + '</h3><div class="rt-imzalar">' + imzalar + "</div>" +
+        (t.alt_bilgi ? '<p class="rt-alt-bilgi">' + k(t.alt_bilgi) + "</p>" : "") + "</section>"
+      : (t.alt_bilgi ? '<p class="rt-alt-bilgi">' + k(t.alt_bilgi) + "</p>" : "")) +
     "</article>";
 }
 
@@ -530,6 +545,6 @@ if (typeof module !== "undefined") {
     bosTutanak, tutanaklariSirala, tutanakSirasi, sonrakiTutanakNo, sirayiYaziyla, sirayiGuncelle,
     yeniTutanakTaslagi, tutanakKopyasi, atifMetni, devredenAdaylari,
     tarihCoz, notlariAyristir, notlariBirlestir,
-    tutanakBelgeHtml, cssMetni, tutanakSayfaCss, tutanakDosyaAdi,
+    tutanakBelgeHtml, katilimciSatiri, cssMetni, tutanakSayfaCss, tutanakDosyaAdi,
   };
 }

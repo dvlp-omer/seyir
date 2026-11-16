@@ -197,6 +197,7 @@ function xmlKacis(metin) {
 function wYazi(metin, bicim = {}) {
   const ozellik =
     (bicim.kalin ? "<w:b/>" : "") + (bicim.italik ? "<w:i/>" : "") +
+    (bicim.renk ? '<w:color w:val="' + bicim.renk + '"/>' : "") +   // renk: "4D4D4D" gibi
     (bicim.boyut ? '<w:sz w:val="' + bicim.boyut * 2 + '"/>' : "");
   return "<w:r>" + (ozellik ? "<w:rPr>" + ozellik + "</w:rPr>" : "") +
     '<w:t xml:space="preserve">' + xmlKacis(metin) + "</w:t></w:r>";
@@ -208,7 +209,8 @@ function wYazi(metin, bicim = {}) {
            sonrakiyle (başlık sonraki paragraftan ayrılmasın), sekme (twip) }
    Not: Word, <w:pPr> içindeki etiketlerin SIRASINA duyarlıdır; sıra bilerek böyle. */
 function wParagraf(icerik, ayar = {}) {
-  const kenar = (ad) => "<w:" + ad + ' w:val="single" w:sz="6" w:space="2" w:color="000000"/>';
+  // kalinCizgi: numara satırının altındaki 1,5 puntoluk çizgi (w:sz sekizde bir punto)
+  const kenar = (ad) => "<w:" + ad + ' w:val="single" w:sz="' + (ayar.kalinCizgi ? 12 : 6) + '" w:space="' + (ayar.kalinCizgi ? 6 : 2) + '" w:color="000000"/>';
   const ozellik =
     (ayar.sonrakiyle ? "<w:keepNext/>" : "") +
     (ayar.bolme ? "<w:keepLines/>" : "") +
@@ -226,12 +228,19 @@ function wHucre(icerik, ayar) {
     '<w:tcW w:w="' + ayar.genislik + '" w:type="dxa"/>' +
     (ayar.birlesim ? '<w:gridSpan w:val="' + ayar.birlesim + '"/>' : "") +
     (ayar.altCizgi ? '<w:tcBorders><w:bottom w:val="single" w:sz="6" w:space="0" w:color="000000"/></w:tcBorders>' : "") +
+    (ayar.zemin ? '<w:shd w:val="clear" w:color="auto" w:fill="' + ayar.zemin + '"/>' : "") +   // hücre zemin rengi
+    '<w:vAlign w:val="center"/>' +
     "</w:tcPr>" + icerik + "</w:tc>";
 }
 
 // Tablo. ayar: { sutunlar: [twip...], cerceve: true/false }
 function wTablo(satirlar, ayar) {
-  const cizgi = (ad) => "<w:" + ad + ' w:val="' + (ayar.cerceve ? "single" : "nil") + '" w:sz="6" w:space="0" w:color="000000"/>';
+  // Çerçeveli tabloda dış çizgi koyu ve kalın, iç çizgiler ince ve gri (referanstaki gibi)
+  const cizgi = (ad) => {
+    if (!ayar.cerceve) return "<w:" + ad + ' w:val="nil"/>';
+    const ic = ad.startsWith("inside");
+    return "<w:" + ad + ' w:val="single" w:sz="' + (ic ? 4 : 10) + '" w:space="0" w:color="' + (ic ? "C4C4C4" : "000000") + '"/>';
+  };
   return "<w:tbl><w:tblPr>" +
     '<w:tblW w:w="' + ayar.sutunlar.reduce((a, b) => a + b, 0) + '" w:type="dxa"/>' +
     "<w:tblBorders>" + ["top", "left", "bottom", "right", "insideH", "insideV"].map(cizgi).join("") + "</w:tblBorders>" +
@@ -249,14 +258,15 @@ function tutanakBelgeXml(t) {
   const govde = [];
   const ekle = (xml) => govde.push(xml);
 
-  ekle(wParagraf(wYazi(t.kurum, { kalin: true, boyut: 12.5 }), { hiza: "center" }));
-  ekle(wParagraf(wYazi(TUTANAK_BASLIGI, { kalin: true, boyut: 17 }), { hiza: "center", once: 10, sonra: 2 }));
-  if (t.alt_baslik) ekle(wParagraf(wYazi(t.alt_baslik, { italik: true }), { hiza: "center" }));
-  if (t.numara) ekle(wParagraf(wYazi("Tutanak No: " + t.numara, { boyut: 11 }), { hiza: "center", sonra: 10 }));
+  ekle(wParagraf(wYazi(t.kurum, { kalin: true, boyut: 12 }), { hiza: "center" }));
+  ekle(wParagraf(wYazi(TUTANAK_BASLIGI, { kalin: true, boyut: 20 }), { hiza: "center", once: 12, sonra: 3 }));
+  if (t.alt_baslik) ekle(wParagraf(wYazi(t.alt_baslik, { italik: true, boyut: 13, renk: "4D4D4D" }), { hiza: "center" }));
+  // Numara satırının altındaki kalın çizgi başlık bloğunu tablodan ayırır (referanstaki gibi)
+  ekle(wParagraf(t.numara ? wYazi("Tutanak No: " + t.numara, { boyut: 10.5, renk: "4D4D4D" }) : "", { hiza: "center", sonra: 12, altCizgi: true, kalinCizgi: true }));
 
   // Bilgi tablosu (2 satır x 4 hücre: etiket, değer, etiket, değer)
   const [etiketG, degerG] = [2000, 2819];
-  const etiket = (yazi) => wHucre(wParagraf(wYazi(yazi, { kalin: true, boyut: 11 }), { hiza: "left" }), { genislik: etiketG });
+  const etiket = (yazi) => wHucre(wParagraf(wYazi(yazi, { kalin: true, boyut: 11 }), { hiza: "left" }), { genislik: etiketG, zemin: "EFEDE8" });
   const deger = (yazi, birlesim) => wHucre(wParagraf(wYazi(yazi, { boyut: 11 }), { hiza: "left" }),
     { genislik: birlesim ? degerG * 2 + etiketG : degerG, birlesim: birlesim });
   const ekVar = !!(t.ek_etiket && t.ek_deger);
@@ -267,9 +277,9 @@ function tutanakBelgeXml(t) {
       : [etiket("Sonraki Toplantı"), deger(t.sonraki_toplanti || "—", 3)],
   ], { sutunlar: [etiketG, degerG, etiketG, degerG], cerceve: true }));
 
-  ekle(wParagraf(wYazi("Katılımcılar: ", { kalin: true }) + wYazi((t.katilimcilar || []).join(", ") || "—"), { once: 8, sonra: 4 }));
+  ekle(wParagraf(wYazi("Katılımcılar: " + (katilimciSatiri(t.katilimcilar) || "—")), { once: 8, sonra: 4 }));
 
-  const baslik = (yazi) => ekle(wParagraf(wYazi(yazi, { kalin: true }), { hiza: "left", once: 14, sonra: 5, altCizgi: true, sonrakiyle: true }));
+  const baslik = (yazi) => ekle(wParagraf(wYazi(yazi, { kalin: true, boyut: 13.5 }), { hiza: "left", once: 16, sonra: 6, altCizgi: true, sonrakiyle: true }));
   // Numaralı maddeler: "1." kalın, sonra sekme, sonra yazı. Madde sayfalara bölünmez.
   const maddeler = (liste, parcalar, bosYazi) => {
     if (!liste.length) return ekle(wParagraf(wYazi(bosYazi, { italik: true })));
@@ -280,7 +290,7 @@ function tutanakBelgeXml(t) {
 
   baslik(MADDE_BASLIKLARI[0]);
   if ((t.devreden || []).length && t.devreden_giris) ekle(wParagraf(wYazi(t.devreden_giris), { sonra: 4, sonrakiyle: true }));
-  maddeler(t.devreden || [], (d) => wYazi(d.metin) + (d.atif ? wYazi(" (" + d.atif + ")", { italik: true }) : ""), "Devreden karar bulunmamaktadır.");
+  maddeler(t.devreden || [], (d) => wYazi((d.atif ? "(" + d.atif + ") " : "") + d.metin), "Devreden karar bulunmamaktadır.");
   baslik(MADDE_BASLIKLARI[1]);
   maddeler(t.kararlar || [], (metin) => wYazi(metin), "Bu toplantıda karar alınmamıştır.");
   baslik(MADDE_BASLIKLARI[2]);
@@ -289,7 +299,8 @@ function tutanakBelgeXml(t) {
   // İmza bölümü: üçer üçer, çerçevesiz tablo; her hücrede ad ve altında imza çizgisi
   const adlar = t.katilimcilar || [];
   if (adlar.length) {
-    baslik(IMZA_BASLIGI);
+    // Referanstaki gibi: üstte ayırıcı çizgi, başlığın altında çizgi yok
+    ekle(wParagraf(wYazi(IMZA_BASLIGI, { kalin: true, boyut: 13.5 }), { hiza: "left", once: 22, sonra: 6, ustCizgi: true, sonrakiyle: true }));
     const [imzaG, araG] = [2900, 469];
     const satirlar = [];
     for (let i = 0; i < adlar.length; i += 3) {
@@ -298,14 +309,18 @@ function tutanakBelgeXml(t) {
         const ad = adlar[i + j];
         if (j > 0) hucreler.push(wHucre(wParagraf("", {}), { genislik: araG }));
         hucreler.push(wHucre(
-          wParagraf(wYazi(ad || "", { boyut: 11 }), { hiza: "center", once: 8 }) + wParagraf("", { sonra: 16 }),
+          wParagraf(wYazi(ad || "", { boyut: 11.5, kalin: true }), { hiza: "center", once: 8 }),
           { genislik: imzaG, altCizgi: !!ad }));
       }
       satirlar.push(hucreler);
+      // Adların altında imza atılacak boş satır
+      const bosluk = [];
+      for (let j = 0; j < 5; j++) bosluk.push(wHucre(wParagraf("", { sonra: 30 }), { genislik: j % 2 ? araG : imzaG }));
+      satirlar.push(bosluk);
     }
     ekle(wTablo(satirlar, { sutunlar: [imzaG, araG, imzaG, araG, imzaG], cerceve: false }));
   }
-  if (t.alt_bilgi) ekle(wParagraf(wYazi(t.alt_bilgi, { italik: true, boyut: 9.5 }), { hiza: "center", once: 18, ustCizgi: true }));
+  if (t.alt_bilgi) ekle(wParagraf(wYazi(t.alt_bilgi, { italik: true, boyut: 9.5, renk: "4D4D4D" }), { hiza: "center", once: 6, ustCizgi: true }));
 
   // Sayfa ayarı: A4, 2 cm kenar boşluğu, sayfa çerçevesi, altlık
   // Çerçeve yazı alanından 20 punto dışarıda durur; altlık çerçevenin ALTINDA kalır (PDF'teki gibi).
@@ -329,7 +344,7 @@ function tutanakAltlikXml(t) {
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
     wParagraf(
-      wYazi(t.sayfa_altligi, { italik: true, boyut: 9 }) + "<w:r><w:tab/></w:r>" + wYazi("Sayfa ", { boyut: 9 }) +
+      wYazi(t.sayfa_altligi, { boyut: 9, renk: "4D4D4D" }) + "<w:r><w:tab/></w:r>" + wYazi("Sayfa ", { boyut: 9, renk: "4D4D4D" }) +
       alan("begin") + '<w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>' +
       alan("separate") + wYazi("1", { boyut: 9 }) + alan("end"),
       { hiza: "left", sekme: DOCX_YAZI_GENISLIGI }) +

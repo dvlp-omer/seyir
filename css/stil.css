@@ -64,6 +64,9 @@
   --belge-zemin: #ffffff;
   --belge-yazi: #000000;
   --belge-tipi: "Times New Roman", Tinos, "Liberation Serif", "Nimbus Roman", serif;
+  --belge-soluk: #4d4d4d;   /* alt başlık, numara, alt bilgi (referanstaki gri) */
+  --belge-ince: #c4c4c4;    /* tablonun iç çizgileri */
+  --belge-golge: #efede8;   /* tablodaki etiket hücrelerinin zemini */
 
   --yazi-tipi: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --sayi-tipi: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Roboto Mono", monospace;
@@ -427,29 +430,34 @@ a { color: var(--su); }
   border: 1pt solid var(--belge-yazi); pointer-events: none;
 }
 .resmi-tutanak p, .resmi-tutanak li { text-align: justify; overflow-wrap: anywhere; }
-.rt-kurum { font-weight: 700; text-align: center !important; font-size: 12.5pt; letter-spacing: .02em; }
-.rt-baslik { margin: 10pt 0 2pt; text-align: center; font-size: 17pt; letter-spacing: .06em; font-family: inherit; }
-.rt-alt-baslik { text-align: center !important; font-style: italic; }
-.rt-no { text-align: center !important; margin-top: 2pt; font-size: 11pt; }
-.rt-bilgi { width: calc(100% - 1pt); margin: 12pt 0 8pt; border-collapse: collapse; font-size: 11pt; table-layout: fixed; }
-.rt-bilgi th, .rt-bilgi td { padding: 4pt 6pt; border: .75pt solid var(--belge-yazi); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
-.rt-bilgi th { width: 21%; font-weight: 700; }
-.rt-katilimcilar { margin: 6pt 0 4pt; }
-.rt-madde h3, .rt-imza-bolumu h3 {
-  margin: 14pt 0 5pt; padding-bottom: 2pt;
-  font-family: inherit; font-size: 12pt; letter-spacing: .02em;
-  border-bottom: .75pt solid var(--belge-yazi);
+.rt-kurum { font-weight: 700; text-align: center !important; font-size: 12pt; letter-spacing: .01em; }
+.rt-baslik { margin: 12pt 0 3pt; text-align: center; font-size: 20pt; letter-spacing: .01em; font-family: inherit; }
+.rt-alt-baslik { text-align: center !important; font-style: italic; font-size: 13pt; color: var(--belge-soluk); }
+.rt-no { text-align: center !important; margin-top: 2pt; font-size: 10.5pt; color: var(--belge-soluk); }
+.rt-ust-cizgi { margin: 10pt 0 0; border: 0; border-top: 1.5pt solid var(--belge-yazi); }
+/* Bilgi tablosu: dışta koyu çerçeve, içte ince gri çizgiler, etiket hücreleri açık gri zeminli */
+.rt-bilgi { width: calc(100% - 1.5pt); margin: 14pt 0 8pt; border-collapse: collapse; border: 1.2pt solid var(--belge-yazi); font-size: 11pt; table-layout: fixed; }
+.rt-bilgi th, .rt-bilgi td { padding: 6pt 8pt; border: .5pt solid var(--belge-ince); text-align: left; vertical-align: middle; overflow-wrap: anywhere; }
+.rt-bilgi th { width: 20.5%; font-weight: 700; background: var(--belge-golge); overflow-wrap: normal; }
+.rt-katilimcilar { margin: 8pt 0 4pt; }
+.rt-madde h3 {
+  margin: 18pt 0 8pt; padding-bottom: 4pt;
+  font-family: inherit; font-size: 13.5pt;
+  border-bottom: .75pt solid var(--belge-soluk);
 }
-.rt-giris { margin-bottom: 4pt; }
-.rt-maddeler li { display: flex; gap: 6pt; padding: 2.5pt 0; }
-.rt-sira { flex: none; min-width: 16pt; font-weight: 700; }
-.rt-atif { font-style: italic; white-space: nowrap; }
+.rt-giris { margin-bottom: 6pt; }
+.rt-maddeler li { display: flex; gap: 8pt; padding: 3.5pt 0; line-height: 1.45; }
+.rt-sira { flex: none; min-width: 18pt; font-weight: 700; }
+.rt-atif { white-space: nowrap; }
 .rt-bos { font-style: italic; }
-.rt-imzalar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22pt 18pt; margin-top: 12pt; }
+/* İmza bölümü: üstte ayırıcı çizgi, adlar kalın, adların altında çizgi ve imza boşluğu */
+.rt-imza-bolumu { margin-top: 16pt; padding-top: 12pt; border-top: .75pt solid var(--belge-yazi); }
+.rt-imza-bolumu h3 { margin: 0 0 6pt; font-family: inherit; font-size: 13.5pt; }
+.rt-imzalar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
 .rt-imza { text-align: center; }
-.rt-imza-ad { display: block; font-size: 11pt; overflow-wrap: anywhere; }
-.rt-imza-cizgi { display: block; height: 26pt; margin: 0 6pt; border-bottom: .75pt solid var(--belge-yazi); }
-.rt-alt-bilgi { margin-top: 18pt; padding-top: 5pt; border-top: .75pt solid var(--belge-yazi); text-align: center !important; font-size: 9.5pt; font-style: italic; }
+.rt-imza-ad { display: block; padding: 2pt 4pt 3pt; font-size: 11.5pt; font-weight: 700; overflow-wrap: anywhere; border-bottom: .75pt solid var(--belge-yazi); }
+.rt-imza-cizgi { display: block; height: 34pt; }   /* imza atılacak boşluk */
+.rt-alt-bilgi { margin-top: 6pt; padding-top: 6pt; border-top: .75pt solid var(--belge-yazi); text-align: center !important; font-size: 9.5pt; font-style: italic; color: var(--belge-soluk); }
 
 /* Tutanak düzenleme formu */
 .tutanak-form .kart { margin-bottom: 18px; }
@@ -607,8 +615,9 @@ dialog::backdrop { background: var(--perde); }
   /* Sayfa kutusu: dışta boşluk (margin), sonra çerçeve (border), içte yazıyla
      çerçeve arasındaki pay (padding). Çerçeve böylece HER sayfada yinelenir. */
   margin: 11mm 11mm 16mm 11mm;
-  border: 1pt solid #000000;
+  border: .75pt solid #333333;
   padding: 9mm 9mm 7mm 9mm;
-  @bottom-left { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; font-style: italic; }
-  @bottom-right { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; }
+  /* Altlık çerçevenin hemen altında, yazının hizasında; gri ve düz (referanstaki gibi) */
+  @bottom-left { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; color: #4d4d4d; vertical-align: top; padding: 1.2mm 0 0 9mm; }
+  @bottom-right { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; color: #4d4d4d; vertical-align: top; padding: 1.2mm 9mm 0 0; }
 }

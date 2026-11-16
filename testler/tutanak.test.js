@@ -264,7 +264,7 @@ test("tutanakBelgeHtml: bütün bölümler ve içerik sırayla yer alır", () =>
   const sirali = [
     "İSTANBUL SABAHATTİN ZAİM ÜNİVERSİTESİ TEKNOFEST KULÜBÜ", "TOPLANTI TUTANAĞI",
     "İSAS Akademi — Dördüncü Toplantı", "Tutanak No: ROTA/İSAS-2026/04",
-    "Toplantı Tarihi", "12 Mart 2026 Perşembe", "Tutanak Tarihi", "Sonraki Toplantı", "Seminer/Buluşma",
+    "Toplantı Tarihi", "12 Mart 2026 Perşembe", "Tutanak Tarihi", "Sonraki Toplantı", "Seminer/<wbr>Buluşma",
     "Katılımcılar:", "MADDE 1 — DEVREDEN KARARLAR", "(ROTA/İSAS-2026/01, Karar 1)",
     "MADDE 2 — BU TOPLANTIDA ALINAN KARARLAR", "MADDE 3 — GÖREV DURUMU VE SONRAKİ TOPLANTI",
     "TOPLANTI KATILIMCILARI", "Ümran Ağaoğlu", "ROTA: İSAS Akademi — Toplantı Tutanağı No. 04",
@@ -278,6 +278,22 @@ test("tutanakBelgeHtml: bütün bölümler ve içerik sırayla yer alır", () =>
   // Madde sayıları
   assert.equal((html.match(/class="rt-sira"/g) || []).length, 3 + 12 + 5);
   assert.equal((html.match(/class="rt-imza"/g) || []).length, 6);
+});
+
+test("tutanakBelgeHtml: referans biçimi — atıf maddenin başında, katılımcı satırı noktayla biter", () => {
+  const html = t.tutanakBelgeHtml(ornekTutanak());
+  assert.ok(html.includes('<span class="rt-atif">(ROTA/İSAS-2026/01, Karar 1)</span> Haftalık'));
+  assert.ok(html.includes("Ümran Ağaoğlu.</p>"));
+  // Alt bilgi imza bölümünün içinde (sayfa sonunda tek başına kalmasın)
+  assert.ok(/<section class="rt-imza-bolumu">.*rt-alt-bilgi.*<\/section>/.test(html));
+  assert.equal(t.katilimciSatiri(["A", "B"]), "A, B.");
+  assert.equal(t.katilimciSatiri([]), "");
+});
+
+test("notlariAyristir: atıf başta yazılmış devreden karar ve noktayla biten katılımcı listesi", () => {
+  const sonuc = t.notlariAyristir("Katılımcılar: Ece Demir, Can Öz.\nDevreden Kararlar:\n1. (1. toplantı, Karar 3) Eğitim tarihinin teyit edilmesine");
+  assert.deepEqual(sonuc.katilimcilar, ["Ece Demir", "Can Öz"]);
+  assert.deepEqual(sonuc.devreden, [{ metin: "Eğitim tarihinin teyit edilmesine", atif: "1. toplantı, Karar 3" }]);
 });
 
 test("tutanakBelgeHtml: kullanıcı metni kaçırılır (XSS)", () => {
