@@ -424,3 +424,43 @@ yüklendi, ekranlar çizildi, koyu ve açık tema çalıştı).
 
 **Hâlâ senin yapman gerekenler:** GitHub'a gönderme, Netlify'da yayın,
 gerçek Supabase kurulumu, ekipte kullanım. Bkz. QUESTIONS.md > A.
+
+# Resmî tutanak özelliği
+
+## Tutanak / Aşama 1 — Mantık, belge görünümü ve PDF denemesi
+
+**Ne yaptım:**
+- `js/tutanak.js`: tutanak numarası, yeni taslak, kopya, devreden karar
+  adayları, notlardan ayrıştırma, belgenin HTML'i ve sayfa kuralları.
+- `css/stil.css`: "Resmî tutanak" görünümü (A4, serif, çerçeve) ve yazdırma kuralları.
+- `tutanaklar` adında yeni kayıt türü (veri katmanı, yedek şeması, Supabase şeması).
+- `araclar/tutanak-pdf-test.js` (`npm run test:pdf`): örnek tutanağı gerçek
+  PDF'e çevirip sayfa sayısını, Türkçe harfleri ve yazı tipini denetler.
+- `testler/tutanak.test.js`: 31 test.
+
+**Neden böyle:**
+- *Önce mantık ve belge, sonra ekran.* Belgeyi üreten fonksiyon
+  (`tutanakBelgeHtml`) ekrandan bağımsız; bu yüzden aynı fonksiyon hem
+  uygulamada hem PDF testinde kullanılıyor. Testte gördüğüm çıktı kullanıcının
+  alacağı çıktıyla aynı.
+- *PDF'i tarayıcının yazdırma motoru üretiyor, kütüphane değil.* Sayfalara
+  bölme, "karar ortadan bölünmesin" (`break-inside: avoid`), her sayfada
+  çerçeve ve "Sayfa N" (`@page` kuralı ve `counter(page)`) tarayıcının zaten
+  yaptığı işler. Türkçe harfler sorun olmuyor çünkü bilgisayardaki Times New
+  Roman kullanılıyor; PDF kütüphanesi kullansaydım yaklaşık 2 MB'lık bir
+  yazı tipi dosyasını da uygulamaya gömmem gerekirdi.
+- *Notlardan ayrıştırma basit kurallarla:* "Etiket: değer" satırları, bölüm
+  başlıkları, numaralı satırlar. Amaç %100 doğru olmak değil; **hiçbir satırı
+  kaybetmemek** (tanınmayanlar "yerleştirilemeyen satırlar" olarak gösterilir)
+  ve sonucu düzeltilebilir bir forma vermek.
+- *Numara biçimi için ayrı ayar yok.* Sıradaki numara bir öncekinden türetilir
+  (`sonrakiTutanakNo`): son sayı bir artar, sıfır dolgusu korunur, yıl
+  değişince sayaç 01'e döner. Biçimi değiştirmek için bir tutanağın numarasını
+  elle değiştirmek yeter; sonrakiler onu izler.
+- *Sayfa altlığındaki yazı CSS'e yazılırken kaçırılıyor* (`cssMetni`):
+  kullanıcının yazdığı metin stil kuralını bozamaz.
+
+**Referans PDF hakkında:** `referans/` klasörü proje klasöründe yoktu;
+görünüm, istekte yazılı biçim tarifine göre yapıldı. Bkz. QUESTIONS.md.
+
+**Nasıl çalıştırılır:** `npm test` · `npm run test:pdf` (çıktı: `testler/cikti/ornek-tutanak.pdf`)

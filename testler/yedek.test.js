@@ -123,6 +123,25 @@ test("gidiş-dönüş: dışa aktar -> metin -> içe aktar, veri birebir aynı k
   }
 });
 
+test("resmî tutanak: yedekte korunur; bozuk devreden listesi reddedilir", () => {
+  const { ornekTutanak } = require("./ornek-tutanak.js");
+  const yedek = ornekYedek();
+  yedek.veriler.tutanaklar = [{ ...ornekTutanak(), takim_id: "t1", fazla_alan: "atılmalı" }];
+  const sonuc = coz(yedek);
+  assert.equal(sonuc.gecerli, true, sonuc.hata);
+  const kayit = sonuc.veriler.tutanaklar[0];
+  assert.equal(kayit.numara, "ROTA/İSAS-2026/04");
+  assert.equal(kayit.kararlar.length, 12);
+  assert.deepEqual(kayit.devreden[0], ornekTutanak().devreden[0]);
+  assert.equal("fazla_alan" in kayit, false);
+
+  yedek.veriler.tutanaklar[0].devreden = [{ atif: "metni yok" }];
+  assert.match(coz(yedek).hata, /devreden/);
+  yedek.veriler.tutanaklar[0].devreden = [];
+  yedek.veriler.tutanaklar[0].toplanti_tarihi = "dün";
+  assert.match(coz(yedek).hata, /toplanti_tarihi/);
+});
+
 test("yedekYukle: aynı dosya ikinci kez yüklenince hiçbir şey eklenmez ya da değişmez", async () => {
   const depo = yeniDepo();
   const veriler = coz(ornekYedek()).veriler;

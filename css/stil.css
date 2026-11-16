@@ -60,6 +60,11 @@
   --gece-soluk: #a9c8cf;
   --gece-vurgu: #ffd9c4;
 
+  /* Resmî tutanak kâğıdı: tema ne olursa olsun beyaz kâğıt, siyah yazı. */
+  --belge-zemin: #ffffff;
+  --belge-yazi: #000000;
+  --belge-tipi: "Times New Roman", Tinos, "Liberation Serif", "Nimbus Roman", serif;
+
   --yazi-tipi: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --sayi-tipi: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Roboto Mono", monospace;
   --kose: 10px;
@@ -403,6 +408,66 @@ a { color: var(--su); }
 .aciklama-satiri { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0 18px; font-size: 14px; color: var(--soluk); }
 .aciklama-satiri span { display: inline-flex; align-items: center; gap: 6px; }
 
+/* Resmî tutanak (js/tutanak.js > tutanakBelgeHtml)
+   Ekranda A4 kâğıdı gibi görünür; yazdırınca aynı düzen PDF'e çıkar.
+   Ölçüler "pt" ve "mm": kâğıt ölçüleri; ekran pikseli değil. */
+.rt-sarici { overflow-x: auto; padding-bottom: 8px; }
+.resmi-tutanak {
+  page: resmi-tutanak;                 /* yazdırırken bu ada sahip sayfa kuralları geçerli olur */
+  position: relative;
+  width: 210mm; max-width: 100%; margin: 0 auto;
+  padding: 20mm 19mm;
+  background: var(--belge-zemin); color: var(--belge-yazi);
+  border: 1px solid var(--cizgi); box-shadow: var(--golge);
+  font-family: var(--belge-tipi); font-size: 12pt; line-height: 1.4;
+}
+/* Sayfa çerçevesi. Ekranda kâğıdın içinde tek çerçeve; yazdırırken her sayfada yinelenir. */
+.resmi-tutanak::before {
+  content: ""; position: absolute; inset: 9mm;
+  border: 1pt solid var(--belge-yazi); pointer-events: none;
+}
+.resmi-tutanak p, .resmi-tutanak li { text-align: justify; overflow-wrap: anywhere; }
+.rt-kurum { font-weight: 700; text-align: center !important; font-size: 12.5pt; letter-spacing: .02em; }
+.rt-baslik { margin: 10pt 0 2pt; text-align: center; font-size: 17pt; letter-spacing: .06em; font-family: inherit; }
+.rt-alt-baslik { text-align: center !important; font-style: italic; }
+.rt-no { text-align: center !important; margin-top: 2pt; font-size: 11pt; }
+.rt-bilgi { width: calc(100% - 1pt); margin: 12pt 0 8pt; border-collapse: collapse; font-size: 11pt; table-layout: fixed; }
+.rt-bilgi th, .rt-bilgi td { padding: 4pt 6pt; border: .75pt solid var(--belge-yazi); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.rt-bilgi th { width: 21%; font-weight: 700; }
+.rt-katilimcilar { margin: 6pt 0 4pt; }
+.rt-madde h3, .rt-imza-bolumu h3 {
+  margin: 14pt 0 5pt; padding-bottom: 2pt;
+  font-family: inherit; font-size: 12pt; letter-spacing: .02em;
+  border-bottom: .75pt solid var(--belge-yazi);
+}
+.rt-giris { margin-bottom: 4pt; }
+.rt-maddeler li { display: flex; gap: 6pt; padding: 2.5pt 0; }
+.rt-sira { flex: none; min-width: 16pt; font-weight: 700; }
+.rt-atif { font-style: italic; white-space: nowrap; }
+.rt-bos { font-style: italic; }
+.rt-imzalar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22pt 18pt; margin-top: 12pt; }
+.rt-imza { text-align: center; }
+.rt-imza-ad { display: block; font-size: 11pt; overflow-wrap: anywhere; }
+.rt-imza-cizgi { display: block; height: 26pt; margin: 0 6pt; border-bottom: .75pt solid var(--belge-yazi); }
+.rt-alt-bilgi { margin-top: 18pt; padding-top: 5pt; border-top: .75pt solid var(--belge-yazi); text-align: center !important; font-size: 9.5pt; font-style: italic; }
+
+/* Tutanak düzenleme formu */
+.tutanak-form .kart { margin-bottom: 18px; }
+.alan-izgara { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.alan-izgara .tam { grid-column: 1 / -1; }
+.alan textarea.uzun { min-height: 150px; }
+.devreden-satir { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) auto; gap: 8px; align-items: start; margin-bottom: 8px; }
+.devreden-satir textarea, .devreden-satir input {
+  width: 100%; min-height: 42px; padding: 8px 10px;
+  border: 1px solid var(--giris-cizgi); border-radius: 8px; background: var(--giris-zemin);
+}
+.devreden-satir textarea { min-height: 64px; resize: vertical; }
+.aday-liste { max-height: 46vh; overflow-y: auto; margin-bottom: 12px; }
+.aday-liste label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 4px; border-top: 1px solid var(--cizgi); cursor: pointer; }
+.aday-liste label:first-child { border-top: 0; }
+.aday-liste small { display: block; color: var(--soluk); }
+.alt-cubuk { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 0; background: var(--zemin); border-top: 1px solid var(--cizgi); }
+
 /* Duyuru */
 .duyuru-izgara { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; }
 .duyuru-metin {
@@ -485,6 +550,12 @@ dialog::backdrop { background: var(--perde); }
   .imzalar { gap: 20px; }
   .one-cikan .buyuk-sayi { font-size: 44px; }
 
+  .alan-izgara { grid-template-columns: minmax(0, 1fr); }
+  .devreden-satir { grid-template-columns: minmax(0, 1fr); }
+  .alt-cubuk { bottom: 60px; }
+  /* Resmî tutanak dar ekranda küçülmez (A4 düzeni bozulmasın); yana kaydırılır. */
+  .resmi-tutanak { max-width: none; }
+
   /* Takvim: dar ekranda başlıklar sığmaz; gün hücresinde sadece noktalar görünür */
   .gun-dugme { min-height: 58px; padding: 4px 2px; text-align: center; }
   .gun-oge, .gun-fazla { display: none; }
@@ -512,4 +583,32 @@ dialog::backdrop { background: var(--perde); }
   .tutanak { max-width: none; padding: 0; border: 0; box-shadow: none; }
   .tutanak h3, .tutanak h4 { break-after: avoid; }
   .imzalar, .tutanak tr, .tutanak li { break-inside: avoid; }
+
+  /* --- Resmî tutanak --- */
+  .rt-sarici { overflow: visible; padding: 0; }
+  .resmi-tutanak { width: auto; max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; }
+  /* Ekrandaki tek çerçeve yazdırırken kapatılır; her sayfanın çerçevesini
+     aşağıdaki @page kuralı çizer. */
+  .resmi-tutanak::before { display: none; }
+  /* Sayfa sonu kuralları: bir karar maddesi iki sayfaya bölünmez; başlık
+     sayfanın dibinde yalnız kalmaz; imza bölümü ve bilgi tablosu bütün kalır. */
+  .rt-maddeler li, .rt-bilgi, .rt-imza, .rt-alt-bilgi { break-inside: avoid; }
+  .rt-madde h3, .rt-imza-bolumu h3, .rt-giris { break-after: avoid; }
+  .rt-imza-bolumu { break-inside: avoid; }
+  p, li { orphans: 2; widows: 2; }
+}
+
+/* Resmî tutanağın sayfa düzeni (A4). Alt kenardaki iki kutu (sol yazı, sağda
+   sayfa numarası) "sayfa kenar kutuları"dır; içerikleri tutanağa göre değiştiği
+   için js/tutanak.js > tutanakSayfaCss tarafından ayrıca yazılır. Buradaki
+   kural yalnızca ölçüleri ve yazı biçimini belirler. */
+@page resmi-tutanak {
+  size: A4;
+  /* Sayfa kutusu: dışta boşluk (margin), sonra çerçeve (border), içte yazıyla
+     çerçeve arasındaki pay (padding). Çerçeve böylece HER sayfada yinelenir. */
+  margin: 11mm 11mm 16mm 11mm;
+  border: 1pt solid #000000;
+  padding: 9mm 9mm 7mm 9mm;
+  @bottom-left { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; font-style: italic; }
+  @bottom-right { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; }
 }

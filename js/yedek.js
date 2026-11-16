@@ -27,6 +27,7 @@ const YEDEK_METIN_SINIRI = 5000;
      "tarih"     : "" ya da YYYY-AA-GG        "tarih!"  : zorunlu tarih
      "mantik"    : true / false               "sayi"    : 0 ya da pozitif tam sayı
      "liste"     : yazı dizisi                "kararlar": [{ metin, gorev_id }]
+     "atifli"    : [{ metin, atif }]  (resmî tutanağın devreden kararları)
      [a, b, c]   : bu değerlerden biri; yoksa ilki */
 const YEDEK_SEMASI = {
   takimlar: { ad: "metin!" },
@@ -47,6 +48,15 @@ const YEDEK_SEMASI = {
   etkinlikler: {
     takim_id: "metin!", ad: "metin!", tarih: "tarih!", yer: "metin",
     katilimci_sayisi: "sayi", katilimci_idler: "liste", aciklama: "metin",
+  },
+  // Resmî toplantı tutanağı (js/tutanak.js). Katılımcılar burada üye kimliği
+  // değil, doğrudan ad olarak tutulur (tutanak, yazıldığı günkü hâliyle kalsın).
+  tutanaklar: {
+    takim_id: "metin!", kurum: "metin", alt_baslik: "metin", numara: "metin",
+    toplanti_tarihi: "tarih!", tutanak_tarihi: "tarih", sonraki_toplanti: "metin",
+    ek_etiket: "metin", ek_deger: "metin", katilimcilar: "liste",
+    devreden_giris: "metin", devreden: "atifli", kararlar: "liste", gorevler: "liste",
+    alt_bilgi: "metin", sayfa_altligi: "metin",
   },
 };
 
@@ -84,6 +94,12 @@ function alanTemizle(kural, deger) {
       }
       // Sadece bilinen iki alanı al
       return { deger: deger.map((k) => ({ metin: k.metin, gorev_id: k.gorev_id || null })) };
+    case "atifli":
+      if (deger === undefined || deger === null) return { deger: [] };
+      if (!Array.isArray(deger) || !deger.every((d) => d && metinMi(d.metin) && (d.atif == null || metinMi(d.atif)))) {
+        return { hata: "devreden karar listesi bozuk" };
+      }
+      return { deger: deger.map((d) => ({ metin: d.metin, atif: d.atif || "" })) };
     default:
       return { hata: "bilinmeyen kural" };
   }

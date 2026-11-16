@@ -7,3 +7,9 @@ js/ayarlar.js
 node_modules/
 .DS_Store
 Thumbs.db
+
+# Referans belgeler (kişisel/kurumsal içerik olabilir; depoya girmez)
+referans/
+
+# Tutanak PDF testinin ürettiği geçici dosyalar
+testler/cikti/

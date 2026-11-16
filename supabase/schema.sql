@@ -110,12 +110,35 @@ create table if not exists etkinlikler (
   olusturma        timestamptz not null default now()
 );
 
+-- Resmî toplantı tutanağı (js/tutanak.js)
+create table if not exists tutanaklar (
+  id               text primary key,
+  takim_id         text not null references takimlar (id) on delete cascade,
+  kurum            text not null default '',
+  alt_baslik       text not null default '',
+  numara           text not null default '',
+  toplanti_tarihi  text not null,
+  tutanak_tarihi   text not null default '',
+  sonraki_toplanti text not null default '',
+  ek_etiket        text not null default '',
+  ek_deger         text not null default '',
+  katilimcilar     jsonb not null default '[]',   -- ["Ad Soyad", ...]
+  devreden_giris   text not null default '',
+  devreden         jsonb not null default '[]',   -- [{ "metin": "...", "atif": "..." }]
+  kararlar         jsonb not null default '[]',
+  gorevler         jsonb not null default '[]',
+  alt_bilgi        text not null default '',
+  sayfa_altligi    text not null default '',
+  olusturma        timestamptz not null default now()
+);
+
 -- Listeler hep "takim_id'ye göre" çekilir; bu dizinler o sorguları hızlandırır.
 create index if not exists uyeler_takim       on uyeler (takim_id);
 create index if not exists gorevler_takim     on gorevler (takim_id);
 create index if not exists son_tarihler_takim on son_tarihler (takim_id);
 create index if not exists toplantilar_takim  on toplantilar (takim_id);
 create index if not exists etkinlikler_takim  on etkinlikler (takim_id);
+create index if not exists tutanaklar_takim   on tutanaklar (takim_id);
 create index if not exists uyelikler_kullanici on takim_uyelikleri (kullanici_id);
 
 
@@ -197,9 +220,9 @@ $$;
 -- anon          : giriş yapmamış ziyaretçi -> HİÇBİR ŞEY
 -- authenticated : giriş yapmış hesap       -> aşağıdaki kurallar kadar
 
-revoke all on takimlar, takim_uyelikleri, uyeler, gorevler, son_tarihler, toplantilar, etkinlikler from anon;
+revoke all on takimlar, takim_uyelikleri, uyeler, gorevler, son_tarihler, toplantilar, etkinlikler, tutanaklar from anon;
 
-grant select, insert, update, delete on uyeler, gorevler, son_tarihler, toplantilar, etkinlikler to authenticated;
+grant select, insert, update, delete on uyeler, gorevler, son_tarihler, toplantilar, etkinlikler, tutanaklar to authenticated;
 
 -- Takımda yalnızca AD değiştirilebilir. olusturan_id ve davet_kodu
 -- sütunlarını istemci değiştiremez (sütun düzeyinde yetki).
@@ -233,6 +256,7 @@ alter table gorevler         enable row level security;
 alter table son_tarihler     enable row level security;
 alter table toplantilar      enable row level security;
 alter table etkinlikler      enable row level security;
+alter table tutanaklar       enable row level security;
 
 -- v1'in "herkese açık" kuralları kaldırılır (eski şemayı çalıştırmış olanlar için).
 drop policy if exists "v1: herkese acik" on takimlar;
@@ -292,6 +316,10 @@ create policy toplantilar_takim_uyesi on toplantilar for all to authenticated
 
 drop policy if exists etkinlikler_takim_uyesi on etkinlikler;
 create policy etkinlikler_takim_uyesi on etkinlikler for all to authenticated
+  using (uye_mi(takim_id)) with check (uye_mi(takim_id));
+
+drop policy if exists tutanaklar_takim_uyesi on tutanaklar;
+create policy tutanaklar_takim_uyesi on tutanaklar for all to authenticated
   using (uye_mi(takim_id)) with check (uye_mi(takim_id));
 
 

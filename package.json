@@ -4,6 +4,7 @@
   "private": true,
   "description": "Öğrenci takımları için takım asistanı (bağımlılık yok; bu dosya sadece 'npm test' kısayolu için)",
   "scripts": {
-    "test": "node --test \"testler/*.test.js\""
+    "test": "node --test \"testler/*.test.js\"",
+    "test:pdf": "node araclar/tutanak-pdf-test.js"
   }
 }

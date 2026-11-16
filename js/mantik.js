@@ -317,6 +317,7 @@ function faaliyetOzeti(etkinlikler, toplantilar, baslangic, bitis) {
 // Node'da (testlerde) require() ile yüklenebilsin diye. Tarayıcıda atlanır.
 if (typeof module !== "undefined") {
   module.exports = {
+    AYLAR, GUNLER,
     htmlKacis, tarihMetni, bugun, kalanGun, kalanGunMetni, aciliyet, tarihYaz, gunEkle,
     tariheGoreSirala, GOREV_DURUMLARI, gorevGecikti, gorevSayilari,
     satirlaraAyir, kararlariBirlestir,
