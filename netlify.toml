@@ -1,0 +1,35 @@
+# Netlify yayın ayarları. Adım adım anlatım: YAYIN.md
+#
+# Bu projede derleme (build) yok; site, depodaki dosyaların kendisidir.
+# Tek "derleme" adımı, Netlify panelindeki ortam değişkenlerini tarayıcının
+# okuyabileceği js/ayarlar.js dosyasına yazmaktır (araclar/env-aktar.js).
+# Hiç değişken tanımlamazsan VERI_KATMANI=yerel olur; site localStorage ile çalışır.
+
+[build]
+  command = "node araclar/env-aktar.js"
+  publish = "."
+
+# Güvenlik başlıkları (bütün sayfalar için)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Tarayıcı dosya türünü tahmin etmesin
+    X-Content-Type-Options = "nosniff"
+    # Site başka bir sitenin içine (iframe) gömülemesin
+    X-Frame-Options = "DENY"
+    # Başka siteye gidilirken adres bilgisi gönderilmesin
+    Referrer-Policy = "no-referrer"
+    # Uygulama kamera, mikrofon, konum kullanmaz
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # İçerik Güvenlik Politikası (CSP): sayfa yalnızca KENDİ dosyalarını
+    # çalıştırabilir ve yalnızca kendi adresiyle + Supabase ile konuşabilir.
+    # Bir XSS açığı olsa bile dışarıdan betik yüklenemez, veri başka adrese
+    # gönderilemez. (style-src 'unsafe-inline': birkaç satır içi style="" için.)
+    # Site açılmıyorsa F12 > Console'da "Content Security Policy" hatasına bak.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+
+# Service worker her zaman güncel gelsin (eski sürümde takılıp kalmasın)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

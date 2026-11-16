@@ -356,3 +356,29 @@ Giriş ve veri istekleri sahte sunucuyla test edildi. İlk gerçek kurulumda
 `SUPABASE_KURULUM.md > 7. Güvenliği dene` mutlaka yapılmalı.
 
 **Nasıl çalıştırılır:** `SUPABASE_KURULUM.md`. Yapmazsan uygulama yerel çalışır.
+
+## Tur 2 / Aşama 8 — Yayın yapılandırması
+
+**Ne yaptım:** `netlify.toml` (derleme komutu, yayın klasörü, güvenlik
+başlıkları) ve `YAYIN.md`.
+
+**Neden böyle:**
+- *Netlify seçildi* çünkü ortam değişkenlerini okuyup `js/ayarlar.js` üreten
+  tek satırlık komutu çalıştırabiliyor ve güvenlik başlıklarını dosyadan alıyor.
+- *Tek "derleme" adımı ayar dosyasını yazmak.* Kod derlenmiyor; yayındaki
+  dosyalar depodakilerle aynı.
+- *İçerik Güvenlik Politikası (CSP).* Sayfa yalnızca kendi betiklerini
+  çalıştırabilir ve yalnızca kendi adresi + Supabase ile konuşabilir. Bir XSS
+  açığı kalmış olsa bile dışarıdan betik yüklenemez, jeton başka adrese
+  gönderilemez. Kodda satır içi betik olmaması (tema.js ayrı dosya) bunu mümkün kıldı.
+
+**Nasıl doğrulandı:** Netlify hesabı olmadığı için, `netlify.toml`'daki
+başlıkları birebir gönderen geçici bir yerel sunucu yazdım ve uygulamayı
+onunla açtım: 9 ekran, form, tema, yedek indirme, service worker kurulumu
+çalıştı; hiç CSP ihlali olmadı; `example.com`'a istek engellendi. Sunucuyu
+kapatınca uygulama önbellekten açıldı (çevrimdışı).
+
+**Doğrulanamayan:** Netlify'ın kendisinde yayın (derleme komutunun orada
+çalışması, başlıkların uygulanması). `YAYIN.md > Yayın sonrası kontrol` bunun için.
+
+**Nasıl çalıştırılır:** `YAYIN.md`.
