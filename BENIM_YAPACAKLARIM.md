@@ -47,7 +47,7 @@ Sıra önemli. Her adımın sonunda "✅ Olduysa" satırındaki şeyi görmelisi
 
   ✅ Olduysa: `pass 182`, `fail 0`.
 
-- [ ] **GitHub'a gönder** (YAYIN.md → 1. adım). Depoda gerçek görünen telefon
+- [x] **GitHub'a gönder** (YAYIN.md → 1. adım). Depoda gerçek görünen telefon
   numarası ve referans dosyasındaki ad/numara olmadığını `npm test` denetliyor
   (`testler/guvenlik.test.js`); göndermeden önce testlerin geçtiğini gör.
 
@@ -92,6 +92,12 @@ Ayrıntı: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md). Kısaca:
   geçince **Ayarlar → Yedekten yükle**.
 
 ## 4. Yayın (15 dakika)
+
+> **Durum (17 Kasım 2026):** Yapıldı. Kod GitHub'da (`dvlp-omer/takim-asistani`),
+> site Vercel'de: <https://takim-asistani.vercel.app>. Üç ortam değişkeni
+> Vercel paneline girildi, Supabase Site URL bu adrese çevrildi. Giriş
+> yapmadan veri istekleri "permission denied" alıyor. Artık `git push`
+> yaptıkça Vercel kendiliğinden yeniden yayınlar.
 
 Ayrıntı: [YAYIN.md](YAYIN.md). İki yoldan birini seç:
 
