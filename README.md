@@ -6,13 +6,7 @@ bağımlılık yok.
 
 **[Türkçe](#türkçe)** · **[English](#english)**
 
-<!-- EKRAN GÖRÜNTÜSÜ 1 — kapak
-     Özet ekranı, masaüstü, açık tema, örnek veriyle. Önerilen genişlik: 1200 piksel.
-     Dosyayı docs/ekran/ozet.png olarak kaydet ve aşağıdaki satırın yorumunu kaldır:
-![Özet ekranı](docs/ekran/ozet.png)
--->
-
-> 📷 _Ekran görüntüsü yeri: Özet ekranı_
+![Özet ekranı: en yakın son tarih, görev sayıları ve önümüzdeki 7 gün](docs/ekran/ozet.png)
 
 ---
 
@@ -43,23 +37,17 @@ sorusuna cevap aranır. Takım Asistanı bunları tek sayfada toplar.
 
 Kişisel veri olarak yalnızca **ad ve rol** tutulur. Ücretli servis kullanılmaz.
 
-<!-- EKRAN GÖRÜNTÜLERİ 2–5
-     docs/ekran/ klasörüne kaydedip aşağıdaki satırların yorumunu kaldır.
-     2: Görev panosu (masaüstü)            docs/ekran/gorevler.png
-     3: Toplantı tutanağı (kâğıt görünümü) docs/ekran/tutanak.png
-     4: Takvim, koyu tema                  docs/ekran/takvim-koyu.png
-     5: Telefonda Özet + alt menü          docs/ekran/mobil.png  (genişlik ~390 piksel)
-
-| Görev panosu | Toplantı tutanağı |
+| Takvim | Görev panosu (koyu tema) |
 |---|---|
-| ![Görev panosu](docs/ekran/gorevler.png) | ![Tutanak](docs/ekran/tutanak.png) |
+| ![Takvim: son tarihler, toplantılar ve etkinlikler tek ayda](docs/ekran/takvim.png) | ![Görev panosu, koyu tema](docs/ekran/gorevler-koyu.png) |
 
-| Takvim (koyu tema) | Telefonda |
+| Etkinlikler | Dar ekran |
 |---|---|
-| ![Takvim](docs/ekran/takvim-koyu.png) | ![Mobil](docs/ekran/mobil.png) |
--->
+| ![Etkinlik listesi](docs/ekran/etkinlikler.png) | <img src="docs/ekran/mobil.png" alt="Dar ekranda görev panosu ve alt menü" width="300"> |
 
-> 📷 _Ekran görüntüsü yerleri: görev panosu · tutanak · takvim (koyu tema) · telefon görünümü_
+<!-- Görüntüler örnek veriyle, araçla alındı (index.html?ornek=1).
+     Toplantı tutanağının ve kendi takımının görüntüsünü eklemek istersen
+     docs/ekran/ klasörüne koyup bu tabloya satır ekle. -->
 
 ### Nasıl çalıştırılır?
 
@@ -73,7 +61,9 @@ python -m http.server 8765
 
 Sonra tarayıcıda `http://localhost:8765`.
 
-İlk açılışta **Örnek veriyle dene** düğmesi hayali bir takım yükler.
+İlk açılışta **Örnek veriyle dene** düğmesi hayali bir takım yükler. Adresin
+sonuna `?ornek=1` eklersen (ör. `index.html?ornek=1`) örnek takım kendiliğinden
+yüklenir; demo bağlantısı olarak paylaşmak için kullanışlıdır.
 
 Veriler varsayılan olarak **tarayıcının localStorage alanında** durur: yalnızca
 o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
@@ -187,7 +177,8 @@ Double-click `index.html`, or serve the folder (needed for install / offline):
 python -m http.server 8765
 ```
 
-Data lives in the browser's **localStorage** by default.
+Data lives in the browser's **localStorage** by default. Append `?ornek=1` to
+the URL to load a fictional demo team automatically.
 
 ### Tests
 

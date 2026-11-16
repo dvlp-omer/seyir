@@ -42,10 +42,9 @@ iyi duracağını düşündüm. **Bu senin kararın;** istemezsen README'deki o 
 ### 5. "ROTA İSAS ekibinde kullanıldı" bölümü boş
 Ekip gerçekten kullandıktan sonra sen dolduracaksın. Uydurma bir şey yazmadım.
 
-### 6. Ekran görüntüleri
-README'de beş ekran görüntüsü için yer ve dosya adları hazır (yorum satırı
-olarak). Görüntüleri `docs/ekran/` klasörüne koyup yorumları kaldırman yeterli.
-Ben eklemedim; senin gerçek ekranından alınması daha doğru.
+### 6. Ekran görüntüleri (eklendi; istersen değiştir)
+README'ye örnek veriyle alınmış beş görüntü koydum (`docs/ekran/`). Toplantı
+tutanağının ve kendi takımının görüntüsünü eklemek istersen aynı klasöre koy.
 
 ### 7. İkinci turda bir test dosyası indirildi
 Yedek indirmeyi denerken tarayıcı `takim-asistani-yedek-2026-11-16.json` adlı,

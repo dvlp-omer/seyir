@@ -246,11 +246,23 @@ async function baslat() {
   if (!girisGerekli()) {
     try {
       await takimlariYukle();
+      await demoBaglantisiniIsle();
     } catch (hata) {
       if (!girisGerekli()) return baslatmaHatasi("Veri deposuna bağlanılamadı.", hata);
     }
   }
   await yenile();
+}
+
+// Demo bağlantısı: adresin sonuna ?ornek=1 eklenirse ve henüz hiç takım yoksa
+// örnek takım kendiliğinden yüklenir. CV'ye ya da README'ye konan bağlantıya
+// tıklayan kişi boş ekran yerine dolu bir uygulama görsün diye.
+// Yalnızca yerel kayıtta çalışır; ortak (Supabase) veriye örnek kayıt eklemez.
+async function demoBaglantisiniIsle() {
+  const istendi = new URLSearchParams(location.search).has("ornek");
+  if (!istendi || durum.depo.tur !== "yerel" || durum.takimlar.length > 0) return;
+  const takim = await ornekVeriYukle(durum.depo, bugun());
+  await takimSec(takim.id);
 }
 
 // Service worker'ı kaydeder (sw.js): uygulama dosyalarını önbelleğe alır,

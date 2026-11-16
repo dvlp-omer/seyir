@@ -404,8 +404,23 @@ kapatınca uygulama önbellekten açıldı (çevrimdışı).
 - Gerçek yazdırma penceresi / PDF dosyası (yalnızca yazdırma kuralları denendi).
 - Gerçek telefon ve "ana ekrana ekle" (yalnızca dar ekran benzetimi; manifest
   ve ikonlar testle denetlendi).
-- `index.html`'e çift tıklayarak (file://) açma.
 - Ekran okuyucuyla gerçek deneme (etiketler ve odak kodla denetlendi).
 
 **Nasıl çalıştırılır:** `index.html`'e çift tıkla ya da `python -m http.server 8765`.
 Testler: `npm test`.
+
+## Tur 3 — Bitiriş
+
+**Ne yaptım:**
+- Demo bağlantısı: adrese `?ornek=1` eklenince örnek takım kendiliğinden
+  yüklenir (yalnızca yerel kayıtta ve hiç takım yokken).
+- README'ye beş ekran görüntüsü (`docs/ekran/`); başsız (penceresiz) Edge ile,
+  doğrudan `index.html` dosyasından alındı.
+- `CV_METNI.md`: CV'ye konabilecek hazır metinler (TR + EN).
+
+**Bu sırada doğrulanan:** Ekran görüntüleri `file://` adresinden alındığı için
+**`index.html`'e çift tıklayarak açma artık doğrulanmış oldu** (örnek veri
+yüklendi, ekranlar çizildi, koyu ve açık tema çalıştı).
+
+**Hâlâ senin yapman gerekenler:** GitHub'a gönderme, Netlify'da yayın,
+gerçek Supabase kurulumu, ekipte kullanım. Bkz. QUESTIONS.md > A.
