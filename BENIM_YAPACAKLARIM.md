@@ -55,8 +55,8 @@ Sıra önemli. Her adımın sonunda "✅ Olduysa" satırındaki şeyi görmelisi
 
 Ayrıntı: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md). Kısaca:
 
-- [x] Proje açıldı: **takim-asistani** (`dlzcmnpaccfwfvtrhmix`, AB). Var olan
-  "TABULA-SUB TRACKER" projesine dokunulmadı. Proje açılırken "yeni tabloları
+- [x] Proje açıldı: **takim-asistani** (AB bölgesi). Hesaptaki diğer
+  projelere dokunulmadı. Proje açılırken "yeni tabloları
   otomatik açma" kapatıldı, "otomatik RLS" açıldı.
 - [x] Veritabanı şifresi Supabase'in "Generate a password" düğmesiyle üretildi;
   kimse görmedi, uygulamada kullanılmaz. Gerekirse Project Settings →
