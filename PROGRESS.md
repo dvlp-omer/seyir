@@ -611,3 +611,68 @@ görünüyordu; dar ekranda kişi tablosu sıkışıyordu (satır kartlarına ç
 
 **Nasıl çalıştırılır:** menüden **Kişiler** ve **Mesajlar**. Demo:
 `index.html?ornek=1`. Testler: `npm test` (168).
+
+## 5.2 — Güvenlik ve kişisel veri
+
+**Ne yaptım:**
+- `supabase/schema.sql` → yeni bölüm 5 "Kayıt yalnızca davetle":
+  `profiller` (hesap + rol) ve `izinli_epostalar` (davet listesi) tabloları;
+  `auth.users` üzerinde iki tetikleyici: **kayıt kapısı** (hesap oluşmadan
+  önce: hiç hesap yoksa geçir, e-posta davet listesindeyse geçir, değilse
+  hata) ve **yeni hesap** (profil yaz, ilk hesap yönetici, davette takım
+  varsa üye yap). Davet listesini yalnızca yönetici görür/yazar (RLS).
+  Var olan hesaplı bir projede çalıştırılırsa en eski hesap yönetici olur.
+- Ziyaretçi (anon) için: bütün tablolardan yetki geri alındı; bundan sonra
+  eklenecek tablo ve fonksiyonlar da varsayılan olarak kapalı başlar.
+- `js/oturum.js`: `rolum`, `davetleriListele`, `davetEkle`, `davetSil`;
+  davetsiz kayıtta "Bu e-posta davet listesinde yok…" Türkçe mesajı.
+- **Ayarlar → Erişim** (yalnızca Supabase kipinde): rolün; yöneticiysen davet
+  ekle/çıkar ("… takımına da üye olsun" seçeneğiyle). Giriş ekranında
+  "hesap açmak davetlidir" notu.
+- `testler/guvenlik.test.js` (8 test): şema dosyasında **her** tabloda RLS
+  açık, en az bir kural var, ziyaretçiden yetki alınmış, hiçbir kural/yetki
+  ziyaretçiye verilmemiş, takım tablolarında kural `uye_mi(takim_id)`, kayıt
+  tetikleyicileri yerinde; depoda gerçek görünen telefon numarası yok;
+  referans dosyasındaki ad/numaralar depoda yok; Netlify ve Vercel aynı
+  güvenlik başlıklarını gönderiyor.
+
+**Neden böyle:**
+- *Kontrol veritabanında.* Saldırgan uygulamayı kullanmak zorunda değil;
+  anon anahtarla doğrudan Supabase'e kayıt isteği atabilir. Tetikleyici bunu
+  da durdurur. Uygulamadaki Erişim kartı yalnızca kolaylık.
+- *İlk hesap yönetici:* kurulumu yapan kişi ayrıca SQL yazmadan yönetici olur.
+  Bu yüzden BENIM_YAPACAKLARIM.md "ilk hesabı sen aç" diyor.
+- *Yöneticinin tek ayrıcalığı davet listesi.* Takım verisinde ayrıcalık yok;
+  yönetici de yalnızca üyesi olduğu takımları görür (en az yetki).
+- *Şema testi metin üzerinden:* gerçek PostgreSQL olmadan SQL'in doğru
+  çalıştığını kanıtlayamam; ama "yeni tablo ekledim, RLS'i unuttum" hatasını
+  her `npm test`'te yakalar. Denedim: bir numarayı geçici bir dosyaya
+  yazınca kişisel veri testi kırıldı.
+
+**Denenmeyenler:** gerçek Supabase'de tetikleyiciler (özellikle `auth.users`
+üzerindeki BEFORE INSERT tetikleyicisinin Supabase'in güncel sürümünde
+hata mesajını nasıl döndürdüğü). Erişim kartı tarayıcıda sahte oturumla
+denendi (yönetici: ekle, çıkar, liste; üye: yalnızca rol yazısı).
+
+## 5.3 — Supabase ve yayın hazırlığı
+
+**Durum:** Supabase veri katmanı, `.env` ile seçim (`VERI_KATMANI`),
+`schema.sql` ve `SUPABASE_KURULUM.md` önceki turlardan vardı; bu turda yeni
+tablolar ve davet sistemiyle güncellendi. Yeni koleksiyonlar iki depoda da
+aynı sözleşme testinden geçiyor (iç içe alıcı listesi dahil).
+
+**Ne yaptım:**
+- `vercel.json`: Netlify ile aynı derleme komutu ve güvenlik başlıkları
+  (bir test ikisinin aynı kalmasını denetler).
+- `SUPABASE_KURULUM.md`: 13 tablo, tetikleyici kontrolü, ilk hesap ve
+  davetler, "Güvenliği dene" tablosuna 3 yeni madde (davetsiz kayıt, kişiler
+  tablosuna anonim erişim, üyenin davet listesini görememesi), sorun giderme.
+- `YAYIN.md`: Vercel, CLI ile yayın adımları, yerel kipte kişi verisi notu.
+- `BENIM_YAPACAKLARIM.md`: senin hesabınla yapılacak her adım, sırasıyla.
+
+**Yapamadıklarım:** Netlify ya da Vercel CLI bu bilgisayarda kurulu değildi;
+global paket kurmak kurallara aykırı olduğu için dağıtımı denemedim (adımlar
+YAYIN.md ve BENIM_YAPACAKLARIM.md'de). Gerçek Supabase projesi açmadım
+(senin hesabın gerekir).
+
+**Nasıl çalıştırılır:** `npm test` (182 test) · `npm run test:pdf`.

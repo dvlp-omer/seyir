@@ -7,7 +7,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 4.600 satır JavaScript, 600 satır CSS, 146 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 182 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -33,13 +33,14 @@ js/
   ekranlar/                Her ekran bir dosya
     ozet.js  gorevler.js  sontarihler.js  takvim.js  toplantilar.js
     tutanaklar.js          Resmî tutanak ekranı (mantığı: js/tutanak.js, Word: js/docx.js)
+    kisiler.js mesajlar.js Kişi rehberi ve WhatsApp mesajları (mantığı: js/kisiler.js)
     etkinlikler.js  duyuru.js  takim.js  ayarlar.js  giris.js
 
 supabase/schema.sql        Tablolar ve satır düzeyinde güvenlik kuralları
 araclar/env-aktar.js       Ortam değişkenlerini js/ayarlar.js'e yazar
 araclar/ikon-uret.py       İkonları üretir
 netlify.toml               Yayın ayarları ve güvenlik başlıkları
-testler/                   146 test (Node'un kendi test aracı)
+testler/                   182 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar
@@ -140,6 +141,9 @@ Altı koleksiyon; her kayıtta `id` ve `olusturma`, takım dışındakilerde `ta
 | `son_tarihler` | baslik, tur, tarih, aciklama, tamamlandi |
 | `toplantilar` | baslik, tarih, saat, yer, katilimci_idler → uye[], yazan_id → uye, gundem[], kararlar[{metin, gorev_id}], notlar |
 | `etkinlikler` | ad, tarih, yer, katilimci_sayisi, katilimci_idler → uye[], aciklama |
+| `kisiler` | ad, ilk_ad, telefon (90XXXXXXXXXX), etiket, aciklama |
+| `sablonlar` | ad, tur (kabul / davet / hatirlatma / duyuru), metin |
+| `kampanyalar` | ad, sablon_id, mesaj, alicilar[{kisi_id, ad, ilk_ad, telefon, gonderildi, zaman}] |
 | `tutanaklar` | kurum, alt_baslik, numara, toplanti_tarihi, tutanak_tarihi, sonraki_toplanti, ek_etiket, ek_deger, katilimcilar[], devreden_giris, devreden[{metin, atif}], kararlar[], gorevler[], alt_bilgi, sayfa_altligi |
 
 Tek doğru kaynak: `js/yedek.js > YEDEK_SEMASI`. `supabase/schema.sql` aynı

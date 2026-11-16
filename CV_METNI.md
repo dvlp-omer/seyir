@@ -12,8 +12,9 @@ Hepsi **şu an doğru olan** şeyleri söyler. Köşeli parantezli yerleri doldu
 
 ## Kısa (CV'de tek satır)
 
-**Takım Asistanı** — Öğrenci takımları için görev, son tarih, toplantı tutanağı
-ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 146 otomatik test,
+**Takım Asistanı** — Öğrenci takımları için görev, son tarih, toplantı tutanağı,
+etkinlik, kişi rehberi ve WhatsApp mesajı yönetimi yapan web uygulaması.
+Düz JavaScript, 182 otomatik test,
 çevrimdışı çalışabilen PWA. `[GitHub bağlantısı]`
 
 ## Orta (CV'de proje bölümü)
@@ -23,17 +24,20 @@ ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 146 otomatik test,
 
 - Teknofest su altı takımımda yaşadığım sorunlardan yola çıkarak; görev panosu,
   son tarih geri sayımı, takvim, toplantı tutanağı (PDF), yoklama, faaliyet
-  raporu ve WhatsApp duyuru metni üreten tek sayfalık bir uygulama geliştirdim.
+  raporu, A4 resmî tutanak (PDF ve Word çıktısı), kişi rehberi ve WhatsApp
+  mesaj gönderim listeleri olan tek sayfalık bir uygulama geliştirdim.
 - Framework ve derleme adımı kullanmadan, veri katmanını tek bir arayüzün
   arkasına aldım; aynı arayüzü hem tarayıcı kaydı (localStorage) hem bulut
   (Supabase REST) için uyguladım ve iki uygulamayı aynı testlerden geçirdim.
-- 146 otomatik test yazdım (tarih mantığı, veri katmanı, giriş, yedekleme,
+- 182 otomatik test yazdım (tarih mantığı, veri katmanı, giriş, yedekleme,
   renk kontrastı); testler ek paket gerektirmeden Node ile çalışıyor.
 - Kendi kodumu denetleyip 29 sorun belgeledim ve 26'sını düzelttim (çift
   kayıt, klavye odağı, kontrast gibi); erişilebilirlik ve mobil kullanım
   için koyu tema, 44 piksel dokunma hedefleri ve klavye desteği ekledim.
-- Güvenlik için kullanıcı girdisini kaçırma (XSS), içerik güvenlik politikası
-  (CSP) ve veritabanında satır düzeyinde güvenlik (RLS) kuralları tasarladım.
+- Telefon numarası gibi kişisel veri için güvenliği veritabanında kurdum:
+  satır düzeyinde güvenlik (RLS), giriş yapmayana tam kapalı tablolar ve
+  yalnızca davetle hesap açılabilen kayıt (PostgreSQL tetikleyicisi); ayrıca
+  XSS'e karşı çıktı kaçırma ve içerik güvenlik politikası (CSP).
 
 *(Beş madde çok gelirse ilk üçünü kullan.)*
 
@@ -44,23 +48,27 @@ ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 146 otomatik test,
 
 - Built a single-page app for student engineering teams — task board, deadline
   countdowns, calendar, printable meeting minutes, attendance, activity reports
-  and announcement templates — based on problems I saw in my own Teknofest team.
+  announcement templates, formal A4 minutes with PDF/Word export, a contact list
+  and per-person WhatsApp send lists — based on problems I saw in my own
+  Teknofest team.
 - No framework or build step: put the data layer behind one interface and
   implemented it twice (localStorage and Supabase REST), verified by a shared
   contract test suite.
-- Wrote 146 automated tests (date logic, data layer, auth, backup validation,
+- Wrote 182 automated tests (date logic, data layer, auth, backup validation,
   colour contrast) that run on plain Node with no dependencies.
 - Audited my own code, documented 29 issues and fixed 26 (double submission,
   keyboard focus loss, insufficient contrast); added dark theme, offline
   support and accessible keyboard navigation.
-- Designed security measures: output escaping against XSS, a Content Security
-  Policy, and row-level security rules in PostgreSQL.
+- Protected personal data (phone numbers) in the database itself: row-level
+  security, no anonymous access, and invite-only sign-up enforced by a
+  PostgreSQL trigger; plus output escaping against XSS and a Content Security
+  Policy.
 
 ## LinkedIn / GitHub profili için bir cümle
 
-Öğrenci takımım için geliştirdiğim, framework kullanmadan yazılmış ve 100
+Öğrenci takımım için geliştirdiğim, framework kullanmadan yazılmış ve 182
 testle doğrulanan bir takım yönetimi uygulaması: görevler, son tarihler,
-tutanaklar ve etkinlikler tek yerde.
+tutanaklar, etkinlikler ve WhatsApp mesajları tek yerde.
 
 ---
 

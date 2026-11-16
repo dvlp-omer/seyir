@@ -1,7 +1,7 @@
 # Takım Asistanı
 
-Öğrenci takımları için görev, son tarih, toplantı tutanağı, etkinlik ve duyuru
-asistanı. Düz HTML, CSS ve JavaScript — framework yok, derleme adımı yok,
+Öğrenci takımları için görev, son tarih, toplantı tutanağı, etkinlik, kişi
+rehberi ve WhatsApp mesajı asistanı. Düz HTML, CSS ve JavaScript — framework yok, derleme adımı yok,
 bağımlılık yok.
 
 **[Türkçe](#türkçe)** · **[English](#english)**
@@ -31,12 +31,18 @@ sorusuna cevap aranır. Takım Asistanı bunları tek sayfada toplar.
 | **Resmî tutanak (PDF / Word)** | Kulübün resmî toplantı tutanağı: A4, çerçeveli, imza bölümlü. Formu elle doldur, notlarını yapıştır ya da .txt / .docx yükle; numara kendiliğinden artar, devreden kararlar önceki tutanaklardan atfıyla seçilir. PDF ve Word (.docx) çıktısı. |
 | **Yoklama** | Toplantı ve etkinliklere kim katıldı; üye bazında katılım yüzdesi. |
 | **Etkinlik ve faaliyet raporu** | Etkinlik kaydı; seçilen tarih aralığı için yazdırılabilir rapor taslağı. |
+| **Kişiler** | Rehber: ad, hitap adı, telefon, etiket (başvuran, kabul edildi, üye…), not. CSV dosyası, Excel'den yapıştırma ya da "kabul mesajları" HTML dosyasından önizlemeli içe aktarma. Numaralar tek biçime çevrilir (`0532…`, `+90…`, `0090…` → `90…`); geçersiz ve yinelenenler gösterilir. |
+| **WhatsApp mesajları** | Kaydedilebilir şablonlar (`{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`); kişileri süzüp seç, her biri için mesajı hazır açan **WhatsApp'ta aç** düğmesi, gönderildi işareti ve sayaç (12/72); her gönderim ayrı kayıt. Gruba duyuru: kopyala ya da WhatsApp'ta paylaş. Resmî tutanaktan tek tıkla toplantı hatırlatması. Otomatik toplu gönderim **yok** (WhatsApp resmî olarak desteklemez). |
 | **Duyuru şablonu** | Toplantı daveti, özeti ya da hatırlatma için WhatsApp'a yapıştırılmaya hazır metin (yapay zekâ yok, düz şablon). |
 | **Yedekleme** | Bütün veriyi JSON olarak indir, başka cihazda geri yükle. |
 | **Koyu / açık tema** | Cihaza uyar ya da elle seçilir. |
 | **Ana ekrana eklenebilir** | Telefonda uygulama gibi açılır; internet yokken de çalışır (PWA). |
 
-Kişisel veri olarak yalnızca **ad ve rol** tutulur. Ücretli servis kullanılmaz.
+**Kişisel veri:** kadroda yalnızca ad ve rol; rehberde ayrıca telefon. Ortak
+kullanımda (Supabase) giriş zorunlu, hesap açmak yalnızca davetle, her kayıt
+yalnızca kendi takımına görünür. Örnek veri, testler ve ekran görüntülerinde
+gerçek kişi yok (numaralar kullanılmayan `0500 000 00 xx` aralığında; bir test
+depoda gerçek görünen numara arar). Ücretli servis kullanılmaz.
 
 | Takvim | Görev panosu (koyu tema) |
 |---|---|
@@ -75,10 +81,13 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-146 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
-yoklama, rapor, duyuru şablonları, iki veri deposu, giriş, yedekleme, resmî
-tutanak (numara, atıf, not ayrıştırma, Word okuma/yazma), renk kontrastı ve
-PWA dosya listesi denetlenir.
+182 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
+yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
+giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
+ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
+aktarma, şablon, wa.me bağlantısı), veritabanı şemasının güvenliği (her
+tabloda RLS ve ziyaretçi yasağı), depoda kişisel veri olmaması, renk
+kontrastı ve PWA dosya listesi denetlenir.
 
 ```bash
 npm run test:pdf
@@ -112,10 +121,14 @@ Ayrıntı: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 Veriyi buluta taşıyıp ekibin aynı veriyi görmesi için Supabase kurulabilir.
 Giriş (e-posta + şifre) gerekir; her hesap yalnızca üyesi olduğu takımın
-verisini görür. Bu kural veritabanında uygulanır.
+verisini görür; giriş yapmayan hiçbir şey göremez. **Kayıt herkese açık
+değildir:** ilk hesap yönetici olur, diğerleri yalnızca yöneticinin davet
+listesine eklediği e-postayla hesap açabilir. Bu kuralların hepsi
+veritabanında uygulanır (`supabase/schema.sql`).
 
 - Kurulum: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md)
-- Yayına alma: [YAYIN.md](YAYIN.md)
+- Yayına alma (Netlify ya da Vercel): [YAYIN.md](YAYIN.md)
+- Senin yapman gereken adımlar: [BENIM_YAPACAKLARIM.md](BENIM_YAPACAKLARIM.md)
 
 > **Durum:** Supabase tarafı sahte sunucuyla test edildi; **gerçek bir Supabase
 > projesiyle henüz denenmedi.** İlk kurulumda rehberdeki "Güvenliği dene"
@@ -130,16 +143,21 @@ verisini görür. Bu kural veritabanında uygulanır.
 | [PROGRESS.md](PROGRESS.md) | Aşama aşama ne yapıldı, neden öyle yapıldı |
 | [QUESTIONS.md](QUESTIONS.md) | Yapılan varsayımlar ve karar bekleyen konular |
 | [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md) | Supabase kurulum rehberi |
-| [YAYIN.md](YAYIN.md) | Netlify'da yayına alma |
-| [MULAKAT.md](MULAKAT.md) | Proje hakkında sorulabilecek 20 soru |
+| [YAYIN.md](YAYIN.md) | Netlify ya da Vercel'de yayına alma |
+| [BENIM_YAPACAKLARIM.md](BENIM_YAPACAKLARIM.md) | Hesap açma, anahtar, giriş: senin yapacağın adımlar |
+| [MULAKAT.md](MULAKAT.md) | Proje hakkında sorulabilecek 25 soru |
 
 ### Bilinen sınırlar
 
 - Supabase kipi gerçek bir projeyle denenmedi (yukarıdaki not).
 - Otomatik arayüz testi yok; arayüz tarayıcıda elle denendi.
 - Aynı kaydı iki kişi aynı anda düzenlerse son kaydeden kazanır.
-- Takım içinde yetki ayrımı yok: her üye her şeyi yapabilir.
+- Takım içinde yetki ayrımı yok: her üye her şeyi yapabilir ("yönetici"nin
+  tek ayrıcalığı davet listesi).
 - PDF, tarayıcının "Yazdır → PDF olarak kaydet" özelliğiyle alınır.
+- WhatsApp mesajları tek tek gönderilir (her kişi için bir tık); "gönderildi"
+  işareti tıklamayla konur, gerçekten gönderildiğini doğrulamaz.
+- Yalnızca Türkiye cep numaraları kabul edilir.
 
 ### ROTA İSAS ekibinde kullanıldı
 
@@ -174,11 +192,17 @@ Plain HTML, CSS and JavaScript — no framework, no build step, no dependencies.
 - **Official minutes (PDF / Word)** — the club's formal A4 minutes with page frame, numbered articles and a signature block. Fill the form, paste free-text notes, or upload a .txt / .docx; numbering auto-increments and carried-over decisions are picked from earlier minutes with citations. Exports to PDF (browser print engine) and .docx (hand-written ZIP + WordprocessingML, no library).
 - **Attendance** — who attended each meeting or event; attendance rate per member.
 - **Events & activity report** — event log and a printable draft report for a chosen date range.
+- **Contacts** — name, salutation, phone, tag, note. Import from CSV, pasted spreadsheet rows, or the "acceptance messages" HTML page (the array is parsed as data, never executed). Phone numbers are normalised to `90XXXXXXXXXX`; invalid and duplicate rows are listed before anything is saved.
+- **WhatsApp messages** — saved templates with `{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`; filter and pick contacts, then a per-person **Open in WhatsApp** (`wa.me`) button with a sent marker and a 12/72 progress counter; every send list is stored. Group announcements via copy or `wa.me/?text=`. One-click meeting reminder from an official minutes record. No automated bulk sending (WhatsApp does not officially support it).
 - **Announcement templates** — ready-to-paste WhatsApp text (plain templates, no AI).
 - **Backup** — export / import all data as JSON.
 - **Light / dark theme**, **installable PWA** with offline support.
 
-Only **name and role** are stored about people.
+Team roster: name and role only. The contact list also stores phone numbers;
+in shared (Supabase) mode sign-in is required, sign-up is **invite-only** (the
+first account becomes admin), and row-level security limits every row to its
+team. Demo data, tests and screenshots contain no real people (a test scans
+the repo for real-looking phone numbers).
 
 ### Running it
 
@@ -197,7 +221,9 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-146 tests with Node's built-in test runner (Node 18+, nothing to install).
+182 tests with Node's built-in test runner (Node 18+, nothing to install),
+including a static check of `schema.sql` (RLS enabled, a policy and no
+anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF
 with the locally installed Edge/Chrome and checks page count, Turkish
 characters and the serif font.
@@ -211,7 +237,8 @@ characters and the serif font.
 - `js/mantik.js` — pure functions (dates, calendar grid, attendance, report, templates).
 - `js/ekranlar/*.js` — one file per screen; each registers itself and the menu is built from that registry.
 - `js/oturum.js` — Supabase Auth over REST (sign in, token refresh), used only in Supabase mode.
-- `supabase/schema.sql` — tables and row-level security: a user sees only the teams they belong to.
+- `supabase/schema.sql` — tables and row-level security: a user sees only the teams they belong to; triggers on `auth.users` make sign-up invite-only.
+- `js/kisiler.js` — pure logic for contacts and WhatsApp (phone normalisation, CSV/HTML import, templates, `wa.me` links, send-list progress).
 - After every change the current screen re-reads its data and re-renders.
 
 Details (in Turkish): [ARCHITECTURE.md](ARCHITECTURE.md). A self-audit of v1 with
@@ -220,7 +247,8 @@ Details (in Turkish): [ARCHITECTURE.md](ARCHITECTURE.md). A self-audit of v1 wit
 ### Optional: shared data with Supabase, and deployment
 
 See [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md) and [YAYIN.md](YAYIN.md) (Turkish).
-`netlify.toml` includes security headers with a Content Security Policy.
+`netlify.toml` and `vercel.json` send the same security headers with a Content
+Security Policy (a test keeps them in sync).
 
 > **Status:** the Supabase backend and auth are covered by tests against a fake
 > server and the security headers were exercised locally, but the app has
@@ -229,7 +257,8 @@ See [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md) and [YAYIN.md](YAYIN.md) (Turkish
 ### Known limitations
 
 No automated UI tests; last write wins on concurrent edits; no per-role
-permissions inside a team.
+permissions inside a team (the admin role only manages the invite list);
+WhatsApp messages are opened one by one and "sent" is marked on click.
 
 ### Used by the ROTA İSAS team
 

@@ -28,6 +28,15 @@ Tarayıcı (uygulama)  ──giriş──►  Supabase Auth      (kim olduğunu 
 Güvenliği uygulama değil **veritabanı** sağlar. Tarayıcıdaki kod değiştirilse
 bile başka takımın verisi dönmez (`supabase/schema.sql` içindeki RLS kuralları).
 
+Rehberde telefon numaraları olduğu için üç kat koruma var:
+
+1. **Giriş yapmayan hiçbir şey göremez** (anon rolüne hiçbir tablo açık değil).
+2. **Giriş yapan yalnızca kendi takımını görür** (her tabloda RLS kuralı).
+3. **Herkes hesap açamaz:** ilk hesap yönetici olur; sonrakiler yalnızca
+   yöneticinin davet listesine eklediği e-postayla hesap açabilir. Bu kontrol
+   de veritabanında (`auth.users` tetikleyicisi); uygulamayı atlayıp doğrudan
+   Supabase'e kayıt isteği atmak da işe yaramaz.
+
 ---
 
 ## 1. Supabase projesi aç
@@ -46,9 +55,16 @@ bile başka takımın verisi dönmez (`supabase/schema.sql` içindeki RLS kurall
 2. Bu depodaki [supabase/schema.sql](supabase/schema.sql) dosyasının
    **tamamını** kopyalayıp yapıştır.
 3. **Run**. "Success. No rows returned" görmelisin.
-4. Sol menüden **Table Editor**'a bak: 11 tablo olmalı — `takimlar`,
+4. Sol menüden **Table Editor**'a bak: 13 tablo olmalı — `takimlar`,
    `takim_uyelikleri`, `uyeler`, `gorevler`, `son_tarihler`, `toplantilar`,
-   `etkinlikler`, `tutanaklar`, `kisiler`, `sablonlar`, `kampanyalar`. Her birinin yanında RLS'in **açık** olduğu yazmalı.
+   `etkinlikler`, `tutanaklar`, `kisiler`, `sablonlar`, `kampanyalar`,
+   `profiller`, `izinli_epostalar`. Her birinin yanında RLS'in **açık**
+   olduğu yazmalı.
+5. **Database → Triggers** (ya da Table Editor'da şema olarak `auth` seç →
+   `users`): `kayit_kapisi` ve `yeni_hesap` tetikleyicileri görünmeli.
+
+> Bu dosyayı daha önce (davet sistemi yokken) çalıştırdıysan ve zaten
+> hesaplar varsa: dosya en eski hesabı yönetici yapar, diğerlerini üye.
 
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 
@@ -113,13 +129,22 @@ Sol altta **Project Settings** → **API** (ya da **API Keys**):
 `.env` ve `js/ayarlar.js` depoya girmez (`.gitignore`). Yerel kayda dönmek
 için `.env` içinde `VERI_KATMANI=yerel` yapıp betiği yeniden çalıştır.
 
-## 6. İlk hesap ve takım
+## 6. İlk hesap (yönetici), takım ve davetler
 
 1. **Yeni hesap aç** ile e-posta ve şifre gir (şifre en az 8 karakter).
    "Confirm email" açıksa e-postandaki bağlantıya tıkla, sonra **Giriş yap**.
+   **Bu ilk hesap kendiliğinden yönetici olur.** Bu adımı başkasından önce sen yap.
 2. Takımını oluştur. Takımı oluşturan hesap otomatik olarak o takıma erişir.
-3. **Takım** ekranında **Davet kodu** görünür. Takım arkadaşlarına bu kodu ver.
-4. Arkadaşların: hesap açar → **Davet koduyla katıl** → kodu yazar.
+3. **Ayarlar → Erişim** bölümünde takım arkadaşlarının e-postalarını ekle.
+   "… takımına da üye olsun" kutusu işaretliyse hesap açtıklarında takıma
+   kendiliğinden girerler.
+4. Arkadaşların uygulamayı açar → **Yeni hesap aç** → davet edilen e-postayla
+   kayıt olur. Listede olmayan e-postayla denerse "davet listesinde yok" der.
+5. Davet kodu hâlâ çalışır (**Takım** ekranı): hesabı olan biri başka bir
+   takıma kodla katılabilir. Ama hesap açmak için önce davet gerekir.
+
+Başka birini yönetici yapmak: SQL Editor →
+`update profiller set rol = 'yonetici' where eposta = 'ornek@ornek.com';`
 
 **Eski verini taşımak için:** `VERI_KATMANI=yerel` iken **Ayarlar → Yedeği
 indir**; sonra Supabase'e geçip giriş yap ve **Ayarlar → Yedekten yükle**.
@@ -135,11 +160,15 @@ Kuralların gerçekten çalıştığını kendi gözünle gör. İki hesap gerek
 | 2 | Çıkış yap. B hesabıyla giriş yap. | **Hiç takım görünmez**; "Hoş geldin" ekranı çıkar. |
 | 3 | B ile "Davet koduyla katıl" → yanlış bir kod yaz. | "Davet kodu geçersiz". |
 | 4 | B ile doğru kodu yaz. | "Takım A" ve görevi görünür. |
-| 5 | Gizli pencerede, **giriş yapmadan** şu adresi aç: `https://xxxxxxxx.supabase.co/rest/v1/gorevler?apikey=ANON_ANAHTARIN` | Boş liste `[]` ya da "permission denied". **Görev görünmemeli.** |
+| 5 | Gizli pencerede, **giriş yapmadan** şu adresi aç: `https://xxxxxxxx.supabase.co/rest/v1/kisiler?apikey=ANON_ANAHTARIN` | Boş liste `[]` ya da "permission denied". **Numara görünmemeli.** (Aynısını `gorevler` için de dene.) |
+| 6 | Davet listesinde olmayan bir e-postayla **Yeni hesap aç**. | "Bu e-posta davet listesinde yok" — Supabase → Authentication → Users'ta bu e-posta **yok**. |
+| 7 | Yönetici olarak Ayarlar → Erişim'den o e-postayı ekle, tekrar dene. | Hesap açılır. |
+| 8 | Yönetici olmayan (B) hesapla Ayarlar'a bak. | Erişim bölümünde yalnızca "Rolün: Üye" yazar; davet listesi görünmez. |
 
-5\. adım en önemlisi: giriş yapmayan biri, anon anahtarı bilse bile veri
-alamamalı. Görev listesi geliyorsa 2. adımı (schema.sql) yeniden çalıştır ve
-Table Editor'da RLS'in açık olduğunu kontrol et.
+5\. ve 6. adımlar en önemlisi: giriş yapmayan biri anon anahtarı bilse bile
+veri alamamalı; davetsiz biri hesap açamamalı. Liste geliyorsa ya da hesap
+açılıyorsa 2. adımı (schema.sql) yeniden çalıştır, Table Editor'da RLS'in
+açık olduğunu ve tetikleyicilerin kurulduğunu kontrol et.
 
 ## 8. Yayına al
 
@@ -162,13 +191,18 @@ Bkz. [YAYIN.md](YAYIN.md). Özet: aynı üç değişkeni Netlify paneline yazars
 | Takım oluşturunca "row-level security" hatası | `takimlar` kuralları eksik | schema.sql'i yeniden çalıştır; hata sürerse mesajı not al |
 | "column ... does not exist" | Şema eski sürümden kalma | schema.sql'in güncel hâlini çalıştır |
 | Kayıt eklenirken "new row violates check constraint" | Beklenmeyen bir değer (ör. 200 karakterden uzun başlık) | Hata mesajındaki sütuna bak |
+| "Bu e-posta davet listesinde yok" | Kayıt kapısı çalışıyor (beklenen) | Yönetici Ayarlar → Erişim'den e-postayı eklesin |
+| Herkes hâlâ hesap açabiliyor | Tetikleyiciler kurulmamış | schema.sql'in tamamını yeniden çalıştır; 2. adım → 5'teki kontrol |
+| Ayarlar → Erişim "Rol bilgisi alınamadı" | `rolum` fonksiyonu yok (eski şema) | schema.sql'i yeniden çalıştır |
 
 Hata mesajının tamamı tarayıcıda **F12 → Console** sekmesinde görünür.
 
 ## Bilinen sınırlar
 
 - Takımın her üyesi o takımda her şeyi yapabilir (silme dahil). "Kaptan"
-  yalnızca kadroda görünen bir etikettir.
+  yalnızca kadroda görünen bir etikettir. "Yönetici"nin tek ayrıcalığı davet
+  listesidir; o da yalnızca üyesi olduğu takımların verisini görür.
+- Davet listesinden çıkarmak açılmış hesabı silmez (Authentication → Users).
 - Davet kodu değiştirilemez. Kod sızarsa: verinin yedeğini al, yeni takım
   oluştur, yedeği oraya yükle.
 - Şifremi unuttum akışı yok. Şimdilik: Supabase paneli → Authentication →

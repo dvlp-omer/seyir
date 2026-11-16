@@ -1,4 +1,4 @@
-# Mülakat hazırlığı — 20 soru
+# Mülakat hazırlığı — 25 soru
 
 Aşağıdaki cevaplar **taslaktır**. Ezberleme; her birini kodu açıp doğrula,
 sonra kendi cümlelerinle yeniden yaz. Mülakatçı ezber cevabı ikinci soruda
@@ -120,7 +120,7 @@ bir gün kaymasın diye.
 ## C. Kalite
 
 ### 10. Nasıl test ettin? Neyi test etmedin?
-146 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
+182 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
 fonksiyonlarını ve veri katmanını kapsıyor. Supabase ve giriş için sahte
 sunucu, jeton süresi için sahte saat kullandım. Test etmediğim şey arayüz:
 tıklama, odak, mobil görünüm tarayıcıda elle denendi. Bir sonraki adım
@@ -261,6 +261,84 @@ parametre eklendi.
 
 ---
 
+## F. Kişiler, WhatsApp ve kişisel veri
+
+### 21. Uygulama WhatsApp mesajlarını nasıl gönderiyor?
+Göndermiyor; bilerek. WhatsApp otomatik toplu gönderimi resmî olarak
+desteklemez (resmî yol, ücretli ve onaylı bir işletme hesabı gerektiren
+Business API'dir). Resmî olmayan otomasyon araçları hesabın kapatılmasına yol
+açabilir. Onun yerine WhatsApp'ın herkese açık "tıkla ve sohbet et"
+bağlantısını kullanıyorum: `https://wa.me/905XXXXXXXXX?text=...`. Bağlantı,
+mesajı o kişiyle hazır açar; Gönder'e kullanıcı basar. Uygulama her kişi için
+bu bağlantıyı üretir, tıklananı "gönderildi" işaretler ve "12/72" gibi
+ilerlemeyi tutar. Gruba duyuru için kişisiz `wa.me/?text=` bağlantısı:
+WhatsApp açılınca grup seçilir. Bu sınırı ekranda da yazdım; kullanıcı
+"neden tek tek?" diye sormasın.
+
+📂 `js/kisiler.js > waLinki, kampanyaHazirla, aliciIsaretle` · `js/ekranlar/mesajlar.js`
+
+### 22. Telefon numaralarını neden tek biçime çeviriyorsun? Nasıl?
+wa.me bağlantısı numarayı ülke koduyla, boşluksuz ister: `905000000001`
+(örnek). İnsanlar ise `0532 …`, `+90 …`, `0090…`, `532…` diye yazar. Önce
+rakam dışındaki her şeyi siliyorum, sonra başa bakıyorum: `00` varsa atıyorum,
+11 hane ve `0` ile başlıyorsa `9` ekliyorum, 10 haneyse `90` ekliyorum. Sonuç
+12 hane ve `905` ile başlamalı; değilse nedenini söyleyip reddediyorum (sabit
+hat, eksik hane, yabancı numara). Tek biçimin ikinci faydası: aynı kişi farklı
+yazımla iki kez eklenmeye çalışılınca yakalanıyor. Veritabanında da aynı kural
+var (`check (telefon ~ '^90[0-9]{10}$')`).
+
+📂 `js/kisiler.js > telefonNormallestir` · `testler/kisiler.test.js`
+
+> 🛠️ **Kendin yap:** `telefonNormallestir("+90 (500) 000-00-01")` sonucunu
+> kâğıt üzerinde adım adım bul, sonra testle karşılaştır.
+
+### 23. "Kabul mesajları" HTML dosyasını içe aktarırken neye dikkat ettin?
+Dosyanın içinde kişiler bir JavaScript dizisi olarak duruyor. En kolay yol
+dosyayı çalıştırmak olurdu ama dışarıdan gelen bir dosyadaki kodu asla
+çalıştırmam (`eval` yok). Diziyi metin olarak buluyorum (`[{"ad": ...}]`) ve
+`JSON.parse` ile okuyorum; JSON yalnızca veri olabilir, kod olamaz. Denemede
+dosyaya bir komut koydum; çalışmadığını gördüm. İkinci kural: içe aktarma
+önce **önizleme** gösterir (kaç kişi eklenecek, hangi satır neden hatalı,
+hangi numara zaten var); kullanıcı görmeden hiçbir şey kaydedilmez. Üçüncü:
+dosyadaki gerçek ad ve numaralar hiçbir zaman koda, teste ya da örnek veriye
+girmedi; bir test bunu her seferinde denetliyor.
+
+📂 `js/kisiler.js > htmlKisiDizisiOku, kisileriHazirla` · `testler/guvenlik.test.js`
+
+### 24. Herkes hesap açıp numaralara ulaşamaz mı?
+Açamaz. Supabase'de kayıt varsayılan olarak herkese açık; bunu veritabanında
+kapattım. `auth.users` tablosuna, hesap oluşmadan **önce** çalışan bir
+tetikleyici ekledim: hiç hesap yoksa (ilk kurulum) geçirir ve o hesap yönetici
+olur; sonrakilerde e-posta davet listesinde değilse hata verir ve hesap hiç
+oluşmaz. Davet listesini yalnızca yönetici görür ve yazar (RLS). Bunu
+uygulamada değil veritabanında yaptım, çünkü saldırgan uygulamayı kullanmak
+zorunda değil; anon anahtarla doğrudan Supabase'e kayıt isteği atabilir. Hesap
+açılsa bile ikinci kat var: her tabloda "satırın takımı, üyesi olduğun takım
+mı?" kuralı ve giriş yapmayana hiçbir tablonun açık olmaması.
+
+📂 `supabase/schema.sql` (bölüm 3, 4, 5) · `testler/guvenlik.test.js`
+
+### 25. Veritabanı kurallarını nasıl test ettin?
+Dürüst cevap: gerçek bir Supabase projesinde henüz denemedim; bunun için
+adım adım bir deneme listesi yazdım (SUPABASE_KURULUM.md → 7. adım). Kodda iki
+katman test var. (1) İstemci tarafı: sahte bir sunucuyla, isteklerin doğru
+adrese, doğru yöntemle ve kullanıcının jetonuyla (anon anahtarla değil)
+gittiğini; "davet listesinde yok" hatasının Türkçe gösterildiğini test
+ediyorum. (2) Şema dosyası: `schema.sql`'i metin olarak okuyup her tabloda
+RLS'in açık olduğunu, en az bir kural bulunduğunu, ziyaretçiden yetkinin geri
+alındığını ve hiçbir kuralın ziyaretçiye verilmediğini denetliyorum. Bu test
+en sık hatayı yakalar: yeni tablo ekleyip RLS'i unutmak. Ama SQL'in
+**doğru çalıştığını** kanıtlamaz; bunun için gerçek PostgreSQL gerekir
+(sonraki adım: pgTAP ya da yerel Supabase).
+
+📂 `testler/guvenlik.test.js` · `testler/oturum.test.js`
+
+> 🛠️ **Kendin yap:** `schema.sql`'de `kisiler` tablosunun
+> `enable row level security` satırını geçici olarak sil, `npm test` çalıştır
+> ve hangi testin kırıldığını gör. Sonra geri koy.
+
+---
+
 ## Mülakattan önce: kendin yap listesi
 
 Bunları yaptıysan yukarıdaki cevapların hepsini kendi deneyiminle verebilirsin.
@@ -277,3 +355,5 @@ Bunları yaptıysan yukarıdaki cevapların hepsini kendi deneyiminle verebilirs
 - [ ] `RAPOR.md`'yi oku; her bulgunun kodda nasıl düzeltildiğini bul.
 - [ ] Resmî tutanak ekranında kendi notlarını yapıştır; hangi satırların yerleşmediğine bak ve `notlariAyristir`'da nedenini bul.
 - [ ] `npm run test:pdf` çalıştır, `testler/cikti/ornek-tutanak.pdf` dosyasını aç; referans tutanakla yan yana koyup farkları not et.
+- [ ] Örnek veriyle (`?ornek=1`) Mesajlar → Yeni gönderim yap; açılan wa.me adresini incele (`text=` kısmını `decodeURIComponent` ile çöz).
+- [ ] Supabase'i kurduktan sonra davetsiz bir e-postayla hesap açmayı dene; Authentication → Users'ta hesabın oluşmadığını gör.

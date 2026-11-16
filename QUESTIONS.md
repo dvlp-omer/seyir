@@ -202,6 +202,35 @@ Eski **Duyuru** ekranı (toplantıdan özet metni üretme) aynen duruyor; yeni
 **Mesajlar** ekranı kişiye özel gönderim için. İkisini birleştirmedim
 (kapsamı aşmamak için).
 
+### 31. Yerel kipte giriş yok
+"Uygulama giriş gerektirsin" isteğini Supabase kipinde uyguladım (giriş
+zorunlu, kayıt davetli). Yerel kipte (localStorage) giriş eklemedim: veri
+sunucuya hiç gitmez, yalnızca o tarayıcıda durur; tarayıcıda tutulan bir
+şifre gerçek koruma sağlamazdı (kod ve veri aynı yerde). Ekibin gerçek
+rehberi için Supabase kipi öneriliyor (YAYIN.md'de not var). İstersen yerel
+kipte Kişiler/Mesajlar ekranlarını tamamen kapatabilirim.
+
+### 32. Davetli kayıt için auth.users tetikleyicisi seçtim
+Supabase'de iki yol var: (a) `auth.users` tablosuna tetikleyici, (b) panelden
+"Before User Created" Auth Hook. (a)'yı seçtim çünkü tamamı `schema.sql`
+içinde, tek dosyayla kurulur ve panelde ayar gerektirmez. Bedeli: davetsiz
+kayıtta Supabase genel bir hata ("Database error saving new user") döner;
+uygulama bunu "davet listesinde yok" olarak çevirir. Gerçek projede denenmedi;
+mesaj farklı gelirse `js/oturum.js > OTURUM_HATALARI`'na eklenir.
+Alternatif olarak panelde **Allow new users to sign up** tamamen kapatılıp
+kullanıcılar panelden "Invite user" ile davet edilebilir; o zaman uygulamadaki
+"Yeni hesap aç" düğmesi çalışmaz.
+
+### 33. Rol değiştirme yalnızca SQL ile
+Birini yönetici yapmak ya da yöneticiliği almak için arayüz yok (SQL Editor'da
+tek satır; SUPABASE_KURULUM.md 6. adım). Yanlışlıkla bütün yöneticilerin
+yetkisini almak gibi kazalar olmasın diye bilerek basit bıraktım.
+
+### 34. Vercel yapılandırması yazıldı ama denenmedi
+`vercel.json` Netlify ile aynı başlıkları gönderir (test ediliyor). Vercel'in
+`installCommand: ""` ve `framework: null` ayarlarıyla düz klasörü yayınlaması
+beklenir; ilk yayında YAYIN.md'deki kontrol listesini uygula.
+
 ---
 
 ## C. v1'de verilen kararlar (hâlâ geçerli)

@@ -119,3 +119,16 @@ test("kişisel veri: referans dosyasındaki adlar ve numaralar depoya girmemiş 
   }
   assert.deepEqual(bulunan, []);
 });
+
+/* ---------- Yayın yapılandırması ---------- */
+
+test("yayın: Netlify ve Vercel aynı güvenlik başlıklarını gönderir", () => {
+  const netlify = fs.readFileSync(path.join(KOK, "netlify.toml"), "utf8");
+  const vercel = JSON.parse(fs.readFileSync(path.join(KOK, "vercel.json"), "utf8"));
+  const tumSayfalar = vercel.headers.find((h) => h.source === "/(.*)").headers;
+  for (const { key, value } of tumSayfalar) {
+    assert.ok(netlify.includes(key + ' = "' + value + '"'), key + " iki dosyada farklı");
+  }
+  assert.ok(tumSayfalar.some((h) => h.key === "Content-Security-Policy" && h.value.includes("script-src 'self'")));
+  assert.equal(vercel.buildCommand, "node araclar/env-aktar.js");
+});
