@@ -241,3 +241,36 @@ Testler: `npm test` (58 test).
 ## YARIM KALAN (ikinci tur burada kesildi)
 
 Bkz. QUESTIONS.md en üstteki "İkinci tur yarım kaldı" bölümü.
+
+## Tur 2 / Aşama 3 — Yoklama
+
+**Ne yaptım:** Takım ekranına "Yoklama: katılım oranları" kartı. Toplantı ve
+etkinlik formlarındaki "katılanlar" listesi yoklamanın kendisi.
+
+**Neden böyle:**
+- *Ayrı bir yoklama ekranı yok.* Toplantıda kimin olduğu zaten tutanağa
+  yazılıyordu; aynı bilgiyi ikinci kez girdirmek yerine onu kullandım.
+- *Hangi buluşmalar sayılır?* Tarihi geçmiş (ya da bugün) VE en az bir kişinin
+  işaretlendiği toplantı/etkinlikler. Gelecekteki toplantı ya da yoklaması
+  alınmamış etkinlik kimsenin yüzdesini düşürmez. Kural `katilimOranlari`
+  fonksiyonunda ve testlerinde yazılı.
+- *Hiç buluşma yoksa* yüzde `null` döner; ekranda "%0" yerine açıklama görünür.
+
+**Nasıl çalıştırılır:** "Takım" ekranının altındaki tablo.
+
+## Tur 2 / Aşama 4 — Takvim
+
+**Ne yaptım:** `js/ekranlar/takvim.js` — son tarihler, toplantılar ve
+etkinlikler tek ay ızgarasında; güne basınca o günün kayıtları.
+
+**Neden böyle:**
+- *Izgara hesabı saf fonksiyonda* (`ayIzgarasi`): ayın hangi gün başladığı,
+  kaç hafta sürdüğü, artık yıl. En hata yapılan kısım bu olduğu için ayrı
+  test edildi (4, 5 ve 6 haftalık aylar).
+- *Gerçek `<table>`.* Ekran okuyucu satır/sütun başlıklarını okur; her gün
+  düğmesinin tam cümle etiketi var ("18 Kasım 2026 Çarşamba, 2 kayıt").
+- *Renk + şekil.* Türler kare / daire / baklava ile de ayrılıyor; renk körü
+  kullanıcılar için.
+- *Dar ekranda* başlıklar yerine sadece noktalar görünür; ayrıntı alttaki listede.
+
+**Nasıl çalıştırılır:** "Takvim" → ◀ ▶ ile ay değiştir, güne bas.
