@@ -47,6 +47,80 @@ async function yedektenYukle(dosya) {
   bildir(eklenen + " kayıt eklendi" + (atlanan ? ", " + atlanan + " kayıt zaten vardı" : ""));
 }
 
+/* ---------- Erişim (yalnızca Supabase) ----------
+   Hesap açmak davetlidir (schema.sql > bölüm 5). Yönetici burada davet
+   listesini yönetir. Asıl denetim veritabanındadır; bu kart yalnızca arayüzdür:
+   yönetici olmayan biri listeyi açmaya çalışsa da veritabanı boş döner. */
+async function erisimKartiniDoldur(kart) {
+  const icerik = kart.querySelector(".erisim-icerik");
+  let rol;
+  try {
+    rol = await durum.oturum.rolum();
+  } catch (hata) {
+    icerik.innerHTML = '<p class="soluk">Rol bilgisi alınamadı: ' + htmlKacis(hata.message) +
+      "</p><p class=\"soluk kucuk-yazi\">Veritabanına schema.sql'in son hâli uygulanmamış olabilir (SUPABASE_KURULUM.md).</p>";
+    return;
+  }
+  if (rol !== "yonetici") {
+    icerik.innerHTML = "<p>Rolün: <b>Üye</b>.</p><p class=\"soluk kucuk-yazi\">Uygulamaya yeni kişileri yönetici davet eder. " +
+      "Takımına yeni birini eklemek istersen yöneticiden onu davet etmesini iste; hesabı açıldıktan sonra takımın davet koduyla da katılabilir.</p>";
+    return;
+  }
+
+  const davetler = await durum.oturum.davetleriListele();
+  const takimAdi = (id) => { const t = durum.takimlar.find((x) => x.id === id); return t ? t.ad : ""; };
+  icerik.innerHTML =
+    "<p>Rolün: <b>Yönetici</b>. Hesap açmak yalnızca davetle: aşağıdaki listede olmayan e-posta ile kimse hesap açamaz.</p>" +
+    '<form class="satir-form" id="davet-formu" novalidate style="margin:12px 0 6px">' +
+    '<label class="gizli" for="davet-eposta">Davet edilecek e-posta</label>' +
+    '<input id="davet-eposta" type="email" placeholder="ornek@ornek.com" maxlength="254" autocomplete="off">' +
+    '<button class="dugme ana" type="submit">Davet et</button></form>' +
+    (durum.takim
+      ? '<label class="kucuk-yazi" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="davet-takim" checked> ' +
+        "Hesabını açınca “" + htmlKacis(durum.takim.ad) + "” takımına da üye olsun</label>"
+      : "") +
+    '<p class="form-hata" id="davet-hata" role="alert" hidden></p>' +
+    (davetler.length
+      ? '<ul class="davet-liste">' + davetler.map((d) =>
+          "<li><span>" + htmlKacis(d.eposta) +
+          '<span class="soluk kucuk-yazi">' + (d.kullanildi ? "hesap açıldı" : "bekliyor") +
+          (d.takim_id && takimAdi(d.takim_id) ? " · " + htmlKacis(takimAdi(d.takim_id)) : "") + "</span></span>" +
+          '<button class="dugme kucuk tehlike" type="button" data-davet-sil="' + htmlKacis(d.eposta) + '" aria-label="Davetten çıkar: ' +
+          htmlKacis(d.eposta) + '">Çıkar</button></li>').join("") + "</ul>"
+      : '<p class="soluk kucuk-yazi" style="margin-top:8px">Davet listesi boş.</p>') +
+    '<p class="soluk kucuk-yazi" style="margin-top:8px">Listeden çıkarmak, açılmış hesabı silmez; hesabı Supabase panelinden ' +
+    "(Authentication → Users) silebilirsin. Bir hesabı takımdan çıkarmak şimdilik Supabase panelinden yapılır (takim_uyelikleri tablosu).</p>";
+
+  const hataKutusu = icerik.querySelector("#davet-hata");
+  icerik.querySelector("#davet-formu").onsubmit = async (olay) => {
+    olay.preventDefault();
+    hataKutusu.hidden = true;
+    const takimKutusu = icerik.querySelector("#davet-takim");
+    try {
+      const eposta = await durum.oturum.davetEkle(icerik.querySelector("#davet-eposta").value,
+        takimKutusu && takimKutusu.checked ? durum.takim.id : null);
+      bildir(eposta + " davet listesine eklendi. Artık bu e-postayla hesap açabilir.");
+      await erisimKartiniDoldur(kart);
+    } catch (hata) {
+      hataKutusu.textContent = hata.message;
+      hataKutusu.hidden = false;
+    }
+  };
+  icerik.onclick = async (olay) => {
+    const dugme = olay.target.closest("[data-davet-sil]");
+    if (!dugme) return;
+    const eposta = dugme.dataset.davetSil;
+    if (!confirm(eposta + " davet listesinden çıkarılsın mı?")) return;
+    try {
+      await durum.oturum.davetSil(eposta);
+      bildir("Davet kaldırıldı");
+      await erisimKartiniDoldur(kart);
+    } catch (hata) {
+      hataGoster(hata);
+    }
+  };
+}
+
 async function ayarlarEkraniCiz(kok) {
   const supabase = durum.depo.tur === "supabase";
   const kullanici = durum.oturum ? durum.oturum.kullanici() : null;
@@ -85,6 +159,10 @@ async function ayarlarEkraniCiz(kok) {
         '<p class="soluk kucuk-yazi">Ekip olarak ortak kullanmak için Supabase kurulabilir: SUPABASE_KURULUM.md</p>') +
     "</section>" +
 
+    (supabase && kullanici
+      ? '<section class="kart" id="erisim-karti"><h3>Erişim</h3><div class="erisim-icerik"><p class="soluk">Yükleniyor…</p></div></section>'
+      : "") +
+
     '<section class="kart"><h3>Uygulama</h3>' +
     "<p>Takım Asistanı — sürüm 2</p>" +
     '<p class="soluk kucuk-yazi">Telefonda tarayıcı menüsünden “Ana ekrana ekle” ile uygulama gibi kullanılabilir. ' +
@@ -92,6 +170,8 @@ async function ayarlarEkraniCiz(kok) {
     "</section>" +
 
     "</div>";
+
+  if (sec("#erisim-karti")) erisimKartiniDoldur(sec("#erisim-karti"));
 
   sec("#tema-secenekleri").onchange = (olay) => {
     temaSec(olay.target.value);

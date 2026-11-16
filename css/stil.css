@@ -532,6 +532,11 @@ details[open] > .sablon-onizleme { display: block; }
 #pencere summary { cursor: pointer; font-size: 14px; font-weight: 600; }
 .arac-cubugu input[type="search"] { min-height: 40px; padding: 8px 10px; border: 1px solid var(--giris-cizgi); border-radius: 8px; background: var(--giris-zemin); }
 
+.davet-liste { margin-top: 10px; }
+.davet-liste li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--cizgi); }
+.davet-liste li > span { min-width: 0; overflow-wrap: anywhere; }
+.davet-liste .soluk { display: block; }
+
 /* ---------- 6) Form penceresi (dialog) ---------- */
 dialog {
   width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);

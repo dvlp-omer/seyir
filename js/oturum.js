@@ -28,7 +28,16 @@ const OTURUM_HATALARI = {
   "Invalid login credentials": "E-posta ya da şifre hatalı.",
   "Email not confirmed": "E-posta adresin henüz onaylanmamış. Gelen kutundaki onay bağlantısına tıkla.",
   "User already registered": "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.",
+  // Kayıt kapısı (schema.sql > kayit_kapisi) hesabı reddedince Supabase bu genel mesajı döner
+  "Database error saving new user": "Bu e-posta davet listesinde yok. Hesap açabilmen için takım yöneticisinin " +
+    "e-postanı Ayarlar > Erişim bölümünden eklemesi gerekir.",
 };
+
+// Davet listesine eklenecek e-posta: küçük harf, boşluksuz, "@" ve nokta içeren
+function davetEpostasi(metin) {
+  const eposta = String(metin || "").trim().toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta) && eposta.length <= 254 ? eposta : null;
+}
 
 function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...args), simdi = () => Date.now()) {
   const taban = url.replace(/\/+$/, "");
@@ -59,20 +68,25 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
     depolama.removeItem(OTURUM_ANAHTARI);
   }
 
-  async function gonder(yol, govde, jeton) {
+  // yontem: "POST" (varsayılan), "GET" ya da "DELETE". GET/DELETE'te gövde gönderilmez.
+  async function gonder(yol, govde, jeton, yontem = "POST") {
     const yanit = await istek(taban + yol, {
-      method: "POST",
+      method: yontem,
       headers: {
         apikey: anahtar,
         Authorization: "Bearer " + (jeton || anahtar),
         "Content-Type": "application/json",
+        // Tabloya yazarken eklenen satırı geri isteme (rpc ve auth adreslerinde etkisiz bırakılır)
+        ...(yol.startsWith("/rest/v1/") && !yol.startsWith("/rest/v1/rpc/") ? { Prefer: "return=minimal" } : {}),
       },
-      body: JSON.stringify(govde || {}),
+      body: yontem === "POST" ? JSON.stringify(govde || {}) : undefined,
     });
-    // Çıkış gibi bazı istekler gövdesiz (204) döner
+    // Çıkış, silme gibi istekler gövdesiz (204/201) dönebilir
     const cevap = yanit.status === 204 ? null : await yanit.json().catch(() => null);
     if (!yanit.ok) {
       const ham = (cevap && (cevap.msg || cevap.error_description || cevap.message)) || ("Hata " + yanit.status);
+      // Aynı e-posta ikinci kez eklenince veritabanı "duplicate key" der
+      if (cevap && cevap.code === "23505") throw new Error("Bu e-posta zaten davet listesinde.");
       throw new Error(OTURUM_HATALARI[ham] || ham);
     }
     return cevap;
@@ -136,9 +150,35 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
     async takimaKatil(kod) {
       return gonder("/rest/v1/rpc/takima_katil", { kod: kod.trim() }, await this.jeton());
     },
+
+    /* ---- Erişim: rol ve davet listesi (schema.sql > bölüm 5) ----
+       Bu istekleri veritabanı da denetler: yönetici olmayan biri listeyi
+       okumaya ya da yazmaya çalışırsa boş liste / hata döner (RLS). */
+
+    // "yonetici" ya da "uye"
+    async rolum() {
+      return (await gonder("/rest/v1/rpc/rolum", {}, await this.jeton())) || "uye";
+    },
+
+    async davetleriListele() {
+      return (await gonder("/rest/v1/izinli_epostalar?select=eposta,takim_id,kullanildi,olusturma&order=olusturma.desc",
+        null, await this.jeton(), "GET")) || [];
+    },
+
+    // takimId verilirse davetli, hesabını açınca o takıma kendiliğinden üye olur
+    async davetEkle(eposta, takimId) {
+      const temiz = davetEpostasi(eposta);
+      if (!temiz) throw new Error("Geçerli bir e-posta adresi yaz.");
+      await gonder("/rest/v1/izinli_epostalar", { eposta: temiz, takim_id: takimId || null }, await this.jeton());
+      return temiz;
+    },
+
+    async davetSil(eposta) {
+      await gonder("/rest/v1/izinli_epostalar?eposta=eq." + encodeURIComponent(eposta), null, await this.jeton(), "DELETE");
+    },
   };
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { oturumOlustur, OTURUM_ANAHTARI };
+  module.exports = { oturumOlustur, OTURUM_ANAHTARI, davetEpostasi };
 }

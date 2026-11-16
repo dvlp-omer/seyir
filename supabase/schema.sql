@@ -18,8 +18,12 @@
 --   takim_uyelikleri : uygulamaya GİRİŞ YAPAN hesaplar ve erişebildikleri takımlar.
 --
 -- KİŞİSEL VERİ
---   Uygulama tablolarında yalnızca ad ve rol vardır. Giriş için kullanılan
---   e-posta Supabase'in kendi auth.users tablosunda durur; bu şemaya girmez.
+--   kisiler tablosunda TELEFON NUMARASI vardır. Bu yüzden:
+--     * giriş yapmamış ziyaretçi (anon) hiçbir tabloyu göremez (bölüm 3),
+--     * giriş yapan da yalnızca üyesi olduğu takımın satırlarını görür (bölüm 4),
+--     * herkes hesap açamaz: yalnızca davet listesindeki e-postalar (bölüm 5).
+--   Giriş e-postası Supabase'in auth.users tablosunda durur; davet listesi ve
+--   profil tablosunda da e-posta vardır, onları yalnızca yöneticiler görür.
 --
 -- Sütun adları uygulamadaki alan adlarıyla birebir aynıdır (js/yedek.js >
 -- YEDEK_SEMASI); bu yüzden js/veri.js içinde ad çevirisi yapılmaz.
@@ -378,10 +382,167 @@ create policy kampanyalar_takim_uyesi on kampanyalar for all to authenticated
 
 
 -- ---------------------------------------------------------------------------
--- 5) BİLİNEN SINIRLAR (bilerek basit bırakıldı)
+-- 5) KAYIT YALNIZCA DAVETLE (herkes hesap açamasın)
+-- ---------------------------------------------------------------------------
+-- Sorun: Supabase'de kayıt varsayılan olarak herkese açıktır. Rehberde telefon
+-- numaraları olduğu için "isteyen hesap açsın" kabul edilemez.
+-- Çözüm:
+--   * İLK hesap kendiliğinden YÖNETİCİ olur (kurulumu yapan kişi).
+--   * Sonrakiler yalnızca davet listesindeki (izinli_epostalar) e-postayla
+--     hesap açabilir. Listeye yalnızca yöneticiler ekler (Ayarlar > Erişim).
+--   * Davette takım da seçildiyse hesap açılınca o takıma kendiliğinden üye olur.
+-- Kontrol veritabanında, auth.users tablosuna eklenen tetikleyiciyle yapılır:
+-- uygulamanın kodu değiştirilse ya da doğrudan Supabase'e istek atılsa bile
+-- listede olmayan e-posta için hesap OLUŞMAZ.
+
+-- Uygulama hesapları: rol burada tutulur (yonetici / uye)
+create table if not exists profiller (
+  kullanici_id uuid primary key references auth.users (id) on delete cascade,
+  eposta       text not null,
+  rol          text not null default 'uye' check (rol in ('yonetici', 'uye')),
+  olusturma    timestamptz not null default now()
+);
+
+-- Davet listesi: bu e-postalar hesap açabilir
+create table if not exists izinli_epostalar (
+  eposta     text primary key check (eposta = lower(eposta) and eposta like '%_@_%'),
+  takim_id   text references takimlar (id) on delete set null,   -- isteğe bağlı: hesap açınca bu takıma üye yap
+  ekleyen    uuid default auth.uid(),
+  kullanildi boolean not null default false,                       -- bu e-postayla hesap açıldı mı
+  olusturma  timestamptz not null default now()
+);
+
+-- "İstek atan hesap yönetici mi?" (uye_mi ile aynı mantık: security definer)
+create or replace function yonetici_mi()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from profiller where kullanici_id = auth.uid() and rol = 'yonetici');
+$$;
+
+-- Uygulama giriş yapan hesabın rolünü buradan öğrenir (Ayarlar > Erişim)
+create or replace function rolum()
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce((select rol from profiller where kullanici_id = auth.uid()), 'uye');
+$$;
+
+-- Kayıt kapısı: hesap OLUŞMADAN ÖNCE çalışır. İzin yoksa hata verir ve
+-- Supabase hesabı oluşturmaz (uygulama "davet listesinde yok" mesajı gösterir).
+create or replace function kayit_kapisi()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  -- Henüz hiç hesap yoksa bu ilk hesaptır: izin ver (yönetici olacak)
+  if not exists (select 1 from profiller) then
+    return new;
+  end if;
+  if exists (select 1 from izinli_epostalar where eposta = lower(new.email)) then
+    return new;
+  end if;
+  raise exception 'KAYIT_DAVETLI_DEGIL';
+end;
+$$;
+
+drop trigger if exists kayit_kapisi on auth.users;
+create trigger kayit_kapisi
+  before insert on auth.users
+  for each row execute function kayit_kapisi();
+
+-- Hesap oluştuktan SONRA: profili yaz; ilk hesap yönetici; davette takım varsa üye yap
+create or replace function yeni_hesap()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  davet izinli_epostalar%rowtype;
+begin
+  insert into profiller (kullanici_id, eposta, rol)
+  values (new.id, lower(new.email),
+          case when exists (select 1 from profiller) then 'uye' else 'yonetici' end)
+  on conflict (kullanici_id) do nothing;
+
+  select * into davet from izinli_epostalar where eposta = lower(new.email);
+  if found then
+    update izinli_epostalar set kullanildi = true where eposta = davet.eposta;
+    if davet.takim_id is not null then
+      insert into takim_uyelikleri (takim_id, kullanici_id)
+      values (davet.takim_id, new.id)
+      on conflict do nothing;
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists yeni_hesap on auth.users;
+create trigger yeni_hesap
+  after insert on auth.users
+  for each row execute function yeni_hesap();
+
+-- Bu şema, hesapları zaten olan bir projede çalıştırılırsa: var olan hesaplara
+-- profil aç; hiç yönetici yoksa EN ESKİ hesabı yönetici yap. (Tekrar çalışınca bir şey değişmez.)
+insert into profiller (kullanici_id, eposta, rol)
+select id, lower(coalesce(email, '')), 'uye' from auth.users
+on conflict (kullanici_id) do nothing;
+
+update profiller set rol = 'yonetici'
+where kullanici_id = (select id from auth.users order by created_at limit 1)
+  and not exists (select 1 from profiller where rol = 'yonetici');
+
+-- Yetkiler: ziyaretçi hiçbir şey; hesap kendi profilini, yönetici hepsini görür.
+revoke all on profiller, izinli_epostalar from anon;
+revoke all on profiller, izinli_epostalar from authenticated;
+grant select on profiller to authenticated;                         -- rol değişikliği yalnızca SQL Editor'dan
+grant select, insert, delete on izinli_epostalar to authenticated;
+
+alter table profiller        enable row level security;
+alter table izinli_epostalar enable row level security;
+
+drop policy if exists profil_oku on profiller;
+create policy profil_oku on profiller for select to authenticated
+  using (kullanici_id = auth.uid() or yonetici_mi());
+
+drop policy if exists davet_yonetici on izinli_epostalar;
+create policy davet_yonetici on izinli_epostalar for all to authenticated
+  using (yonetici_mi()) with check (yonetici_mi());
+
+revoke all on function yonetici_mi() from public, anon;
+revoke all on function rolum() from public, anon;
+grant execute on function rolum() to authenticated;
+revoke all on function kayit_kapisi() from public, anon, authenticated;
+revoke all on function yeni_hesap() from public, anon, authenticated;
+grant execute on function yonetici_mi() to authenticated;
+
+-- Bundan sonra eklenecek tablo ve fonksiyonlar da ziyaretçiye KAPALI başlasın
+-- (Supabase varsayılanı açıktır; unutulan bir tablo sızıntı olmasın).
+alter default privileges in schema public revoke all on tables from anon;
+alter default privileges in schema public revoke execute on functions from anon, public;
+
+
+-- ---------------------------------------------------------------------------
+-- 6) BİLİNEN SINIRLAR (bilerek basit bırakıldı)
 -- ---------------------------------------------------------------------------
 -- * Takımın her üyesi o takımda her şeyi yapabilir (silme dahil). "Kaptan"
 --   rolü yalnızca kadroda görünen bir etikettir, veritabanında yetki değildir.
 -- * Davet kodu değiştirilemez. Kod sızarsa: yeni takım oluşturup veriyi
 --   yedekten oraya taşımak gerekir.
 -- * Kuralların doğruluğunu sınamak için: SUPABASE_KURULUM.md > "Güvenliği dene".
+-- * Yöneticinin tek yetkisi davet listesidir; takım verisinde yöneticinin de
+--   ayrıcalığı yoktur (o da yalnızca üyesi olduğu takımları görür).
+-- * Rol değiştirmek (birini yönetici yapmak) yalnızca SQL Editor'dan:
+--     update profiller set rol = 'yonetici' where eposta = 'ornek@ornek.com';
+-- * Davet listesinden silmek, açılmış hesabı silmez; hesap Supabase panelinden
+--   (Authentication > Users) silinir.

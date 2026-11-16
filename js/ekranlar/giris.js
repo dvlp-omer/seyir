@@ -12,7 +12,7 @@ function girisEkraniCiz(kok) {
   kok.innerHTML =
     '<form class="kart giris-kart" id="giris-formu" novalidate>' +
     "<h2>Giriş yap</h2>" +
-    '<p class="soluk" style="margin:6px 0 16px">Takımının verisi bulutta saklanıyor. Görmek için giriş yap ya da yeni hesap aç.</p>' +
+    '<p class="soluk" style="margin:6px 0 16px">Takımının verisi bulutta saklanıyor. Görmek için giriş yap.</p>' +
     '<label class="alan"><span>E-posta</span><input type="email" name="email" autocomplete="email" required></label>' +
     '<label class="alan"><span>Şifre</span><input type="password" name="sifre" autocomplete="current-password" minlength="' + SIFRE_EN_AZ + '" required>' +
     "<small>En az " + SIFRE_EN_AZ + " karakter.</small></label>" +
@@ -20,7 +20,10 @@ function girisEkraniCiz(kok) {
     '<div class="form-dugmeler" style="justify-content:flex-start">' +
     '<button type="submit" class="dugme ana" data-islem="giris">Giriş yap</button>' +
     '<button type="submit" class="dugme" data-islem="kayit">Yeni hesap aç</button>' +
-    "</div></form>";
+    "</div>" +
+    // Kayıt herkese açık değil (schema.sql > bölüm 5). Kullanıcı neden hesap açamadığını bilsin.
+    '<p class="soluk kucuk-yazi" style="margin-top:14px">Hesap açmak <b>davetlidir</b>: e-postanı önce takım yöneticisi ' +
+    "davet listesine eklemelidir. Uygulamayı kuran ilk kişinin hesabı yönetici olur.</p></form>";
 
   const form = sec("#giris-formu");
   const mesaj = form.querySelector(".form-hata");

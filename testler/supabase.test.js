@@ -173,6 +173,23 @@ for (const [ad, depoOlustur] of Object.entries(depolar)) {
     assert.equal((await depo.oku("gorevler", "sabit-1")).baslik, "C");
   });
 
+  test("sözleşme (" + ad + "): kişi ve gönderim listesi (iç içe alıcı listesi) gidiş-dönüş", async () => {
+    const depo = depoOlustur();
+    // Uydurma kişi; numara kullanılmayan 0500 aralığında
+    const kisi = await depo.ekle("kisiler", { takim_id: "t1", ad: "Ece Demir", ilk_ad: "Ece", telefon: "905000000001", etiket: "üye", aciklama: "" });
+    const kampanya = await depo.ekle("kampanyalar", {
+      takim_id: "t1", ad: "Davet", sablon_id: "", mesaj: "Merhaba {ad}",
+      alicilar: [{ kisi_id: kisi.id, ad: kisi.ad, ilk_ad: "Ece", telefon: kisi.telefon, gonderildi: false, zaman: "" }],
+    });
+    const isaretli = kampanya.alicilar.map((a) => ({ ...a, gonderildi: true, zaman: "2026-03-12T10:00:00Z" }));
+    await depo.guncelle("kampanyalar", kampanya.id, { alicilar: isaretli });
+    const okunan = await depo.oku("kampanyalar", kampanya.id);
+    assert.deepEqual(okunan.alicilar, isaretli);
+    assert.equal(okunan.mesaj, "Merhaba {ad}");
+    assert.deepEqual((await depo.listele("kisiler", { takim_id: "t1" })).map((k) => k.telefon), ["905000000001"]);
+    assert.deepEqual(await depo.listele("kisiler", { takim_id: "baska-takim" }), []);
+  });
+
   test("sözleşme (" + ad + "): örnek veri uçtan uca yüklenir", async () => {
     const depo = depoOlustur();
     const takim = await ornekVeriYukle(depo, "2026-11-16");

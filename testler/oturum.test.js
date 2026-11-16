@@ -4,7 +4,7 @@
 // taklit eden sahte bir sunucu; saatin yerine elle ilerletilen bir sayaç kullanılır.
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { oturumOlustur, OTURUM_ANAHTARI } = require("../js/oturum.js");
+const { oturumOlustur, OTURUM_ANAHTARI, davetEpostasi } = require("../js/oturum.js");
 
 const ADRES = "https://ornek.supabase.co";
 const ANAHTAR = "anon-anahtar";
@@ -45,13 +45,25 @@ function sahteAuth(secenekler = {}) {
       if (govde.refresh_token === gecerliYenileme) return cevap(200, yeniOturum("ayse@ornek.com"));
       return cevap(400, { error_description: "Invalid Refresh Token" });
     }
-    if (adres.endsWith("/auth/v1/signup")) {
+    if (adres.endsWith("/auth/v1/signup") && govde.email !== "davetsiz@ornek.com") {
       if (govde.email === "ayse@ornek.com") return cevap(422, { msg: "User already registered" });
       return secenekler.epostaOnayi
         ? cevap(200, { id: "u2", email: govde.email })   // jeton yok: önce e-posta onaylanmalı
         : cevap(200, yeniOturum(govde.email));
     }
     if (adres.endsWith("/auth/v1/logout")) return { ok: true, status: 204, json: async () => null };
+    // Kayıt kapısı: davet listesinde olmayan e-posta (schema.sql > kayit_kapisi)
+    if (adres.endsWith("/auth/v1/signup") && govde.email === "davetsiz@ornek.com") {
+      return cevap(500, { code: 500, error_code: "unexpected_failure", msg: "Database error saving new user" });
+    }
+    if (adres.endsWith("/rest/v1/rpc/rolum")) return cevap(200, secenekler.rol || "uye");
+    if (adres.includes("/rest/v1/izinli_epostalar")) {
+      if (ayar.method === "GET") return cevap(200, [{ eposta: "ece@ornek.com", takim_id: null, kullanildi: false }]);
+      if (ayar.method === "DELETE") return { ok: true, status: 204, json: async () => null };
+      if (govde.eposta === "var@ornek.com") return cevap(409, { code: "23505", message: "duplicate key value violates unique constraint" });
+      if (secenekler.rol !== "yonetici") return cevap(403, { code: "42501", message: "new row violates row-level security policy for table \"izinli_epostalar\"" });
+      return { ok: true, status: 201, json: async () => { throw new Error("gövde yok"); } };
+    }
     if (adres.endsWith("/rest/v1/rpc/takima_katil")) {
       return govde.kod === "dogrukod" ? cevap(200, "takim-1") : cevap(400, { message: "Davet kodu geçersiz" });
     }
@@ -199,4 +211,49 @@ test("takimaKatil: kodu kullanıcının jetonuyla gönderir; geçersiz kodda sun
   assert.equal(istek.headers.Authorization, "Bearer jeton-1");
 
   await assert.rejects(() => oturum.takimaKatil("yanlis"), /Davet kodu geçersiz/);
+});
+
+/* ---------- Davetle kayıt ve davet listesi (schema.sql > bölüm 5) ---------- */
+
+test("kayitOl: davet listesinde olmayan e-postada anlaşılır Türkçe hata, oturum açılmaz", async () => {
+  const sunucu = sahteAuth();
+  const oturum = oturumOlustur(ADRES, ANAHTAR, sahteDepolama(), sunucu.sahteFetch);
+  await assert.rejects(() => oturum.kayitOl("davetsiz@ornek.com", "uzun-bir-sifre"), /davet listesinde yok/);
+  assert.equal(oturum.kullanici(), null);
+});
+
+test("davetEpostasi: küçük harfe çevirir, geçersizi reddeder", () => {
+  assert.equal(davetEpostasi("  Ece.Demir@Ornek.COM "), "ece.demir@ornek.com");
+  for (const kotu of ["", "ece", "ece@", "@ornek.com", "ece @ornek.com", "ece@ornek"]) assert.equal(davetEpostasi(kotu), null, kotu);
+});
+
+test("rolum, davetleriListele, davetEkle, davetSil: doğru adres, yöntem ve kullanıcının jetonu", async () => {
+  const sunucu = sahteAuth({ rol: "yonetici" });
+  const oturum = oturumOlustur(ADRES, ANAHTAR, sahteDepolama(), sunucu.sahteFetch);
+  await oturum.girisYap("ayse@ornek.com", "dogru-sifre");
+
+  assert.equal(await oturum.rolum(), "yonetici");
+  assert.deepEqual((await oturum.davetleriListele()).map((d) => d.eposta), ["ece@ornek.com"]);
+  assert.equal(await oturum.davetEkle(" Yeni@Ornek.com ", "takim-1"), "yeni@ornek.com");
+  await oturum.davetSil("yeni+etiket@ornek.com");
+
+  const son = sunucu.istekler.slice(-4);
+  assert.ok(son[0].adres.endsWith("/rest/v1/rpc/rolum"));
+  assert.match(son[1].adres, /\/rest\/v1\/izinli_epostalar\?select=.*&order=olusturma\.desc$/);
+  assert.deepEqual(son[2].govde, { eposta: "yeni@ornek.com", takim_id: "takim-1" });
+  assert.equal(son[2].headers.Prefer, "return=minimal");
+  assert.ok(son[3].adres.endsWith("izinli_epostalar?eposta=eq.yeni%2Betiket%40ornek.com")); // + ve @ kodlanır
+  for (const istek of son) assert.equal(istek.headers.Authorization, "Bearer jeton-1"); // anon anahtarı değil
+});
+
+test("davetEkle: yinelenen e-posta ve yönetici olmayan kullanıcı anlaşılır hata alır", async () => {
+  const yonetici = oturumOlustur(ADRES, ANAHTAR, sahteDepolama(), sahteAuth({ rol: "yonetici" }).sahteFetch);
+  await yonetici.girisYap("ayse@ornek.com", "dogru-sifre");
+  await assert.rejects(() => yonetici.davetEkle("var@ornek.com"), /zaten davet listesinde/);
+  await assert.rejects(() => yonetici.davetEkle("gecersiz"), /Geçerli bir e-posta/);
+
+  const uye = oturumOlustur(ADRES, ANAHTAR, sahteDepolama(), sahteAuth({ rol: "uye" }).sahteFetch);
+  await uye.girisYap("ayse@ornek.com", "dogru-sifre");
+  assert.equal(await uye.rolum(), "uye");
+  await assert.rejects(() => uye.davetEkle("yeni@ornek.com"), /row-level security/);
 });
