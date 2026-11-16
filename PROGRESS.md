@@ -464,3 +464,32 @@ gerçek Supabase kurulumu, ekipte kullanım. Bkz. QUESTIONS.md > A.
 görünüm, istekte yazılı biçim tarifine göre yapıldı. Bkz. QUESTIONS.md.
 
 **Nasıl çalıştırılır:** `npm test` · `npm run test:pdf` (çıktı: `testler/cikti/ornek-tutanak.pdf`)
+
+## Tutanak / Aşama 2 — Word (.docx) okuma ve yazma
+
+**Ne yaptım:** `js/docx.js` — .docx dosyasından düz yazı çıkarma ve tutanaktan
+.docx üretme; `testler/docx.test.js` (13 test).
+
+**Neden böyle:**
+- *Hazır kütüphane yerine yaklaşık 300 satır kendi kodum.* Bir .docx aslında
+  içinde XML dosyaları olan bir ZIP arşividir. Okumak için arşivden
+  `word/document.xml`'i çıkarıp `<w:t>` etiketlerindeki yazıyı toplamak
+  yetiyor; sıkıştırmayı tarayıcının kendi `DecompressionStream` özelliği açıyor.
+  Yazmak için dosyaları sıkıştırmadan arşive koymak yetiyor. Böylece dışarıdan
+  dosya indirmedim, uygulama internetsiz çalışmaya devam ediyor ve kodun
+  tamamı okunup anlatılabilir. (İstekte "kütüphane kullan" deniyordu; neden
+  farklı yaptığım QUESTIONS.md'de.)
+- *Gerçek Word ile denendi.* Üretilen dosyayı bu bilgisayardaki Word ile açtım
+  (onarım istemeden açıldı: 2 sayfa, Times New Roman, çerçeve, altlıkta
+  "Sayfa N"). Tersini de denedim: Word'ün kendi yazdığı, otomatik numaralı
+  liste içeren bir dosyayı uygulamanın okuyucusu doğru okudu.
+- *Gidiş-dönüş testi:* tutanağı Word'e aktar → Word dosyasını geri oku →
+  ayrıştır → bütün alanlar aynı mı? Bu tek test hem yazıcıyı, hem okuyucuyu,
+  hem not ayrıştırıcıyı birlikte sınıyor.
+- *Word'ün otomatik numaralı paragraflarında* numara yazının içinde olmaz;
+  okuyucu bunları "- " ile başlatır ki ayrıştırıcı madde olarak görsün.
+- *Kullanıcı metni XML'e kaçırılarak yazılır* (`xmlKacis`); yasak denetim
+  karakterleri atılır, yoksa Word dosyayı "bozuk" diye açmazdı.
+
+**Nasıl çalıştırılır:** `npm test`. Elle görmek için: `npm run test:pdf`
+çalıştırdıktan sonra `testler/cikti/` klasörüne bak.

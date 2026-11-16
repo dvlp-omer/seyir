@@ -317,10 +317,28 @@ function notlariAyristir(metin) {
     }
   };
 
+  let altBaslikBekleniyor = false; // "TOPLANTI TUTANAĞI" başlığından hemen sonraki satır alt başlıktır
+
   for (const hamSatir of String(metin || "").split(/\r?\n/)) {
     const satir = hamSatir.replace(/\t/g, " ").trim();
     if (!satir) continue;
     const sade = etiketSade(satir);
+
+    // 0) Belgenin kendi başlığı (bu uygulamanın ürettiği Word/PDF'ten kopyalanan metin):
+    //    üstündeki tek satır kurum adıdır, altındaki satır alt başlıktır.
+    if (sade === etiketSade(TUTANAK_BASLIGI)) {
+      if (sonuc.artan.length === 1 && !sonuc.kurum) sonuc.kurum = sonuc.artan.pop();
+      altBaslikBekleniyor = true;
+      continue;
+    }
+    if (altBaslikBekleniyor) {
+      altBaslikBekleniyor = false;
+      const etiketli = satir.match(/^([^:：]{2,45})[:：]/);
+      if (!bolumBul(sade) && !NOT_ALANLARI[sade] && !(etiketli && NOT_ALANLARI[etiketSade(etiketli[1])])) {
+        sonuc.alt_baslik = satir;
+        continue;
+      }
+    }
 
     // 1) Tek başına bölüm başlığı mı?  ("KARARLAR", "MADDE 2 — ...")
     const yeniBolum = bolumBul(sade);
@@ -379,7 +397,9 @@ function notlariAyristir(metin) {
 
   function bolumSatiriEkle(satir) {
     if (bolum === "katilimcilar") {
-      sonuc.katilimcilar.push(...adlariAyir(satir));
+      // Ad listesinin içindeki uzun satır ad olamaz; imza bölümünden sonraki alt bilgi satırıdır.
+      if (satir.length > 60) sonuc.alt_bilgi = satir;
+      else sonuc.katilimcilar.push(...adlariAyir(satir));
       return;
     }
     const numara = satir.match(/^\s*(?:[-•*]|\(?\d+[.)])\s+(.*)$/);
@@ -396,6 +416,13 @@ function notlariAyristir(metin) {
     }
     return maddeler;
   };
+
+  // Devreden kararlarda, ilk numaralı maddeden ÖNCE gelen numarasız satırlar giriş cümlesidir.
+  if (ham.devreden.some((s) => s.numarali)) {
+    const giris = [];
+    while (ham.devreden.length && !ham.devreden[0].numarali) giris.push(ham.devreden.shift().metin);
+    if (giris.length) sonuc.devreden_giris = giris.join(" ");
+  }
 
   sonuc.kararlar = maddelestir(ham.kararlar);
   sonuc.gorevler = maddelestir(ham.gorevler);
