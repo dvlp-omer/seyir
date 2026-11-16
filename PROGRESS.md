@@ -208,7 +208,7 @@ Bunları yapmazsan uygulama localStorage ile çalışmaya devam eder.
 
 ## Tur 2 / Aşama 1 — Denetim ve düzeltmeler
 
-**Ne yaptım:** Bütün kodu okuyup `RAPOR.md`'yi yazdım (27 bulgu), sonra
+**Ne yaptım:** Bütün kodu okuyup `RAPOR.md`'yi yazdım (29 bulgu), sonra
 bulguları düzelttim: çift kayıt, çizim yarışı, klavye odağı, kontrast,
 dokunma hedefleri, tarih ve uzunluk sınırları, boş durum yönlendirmeleri.
 
@@ -237,10 +237,6 @@ yazdırma kurallarını kullanıyor.
 
 **Nasıl çalıştırılır:** "Etkinlik" → "+ Yeni etkinlik" → "Faaliyet raporu".
 Testler: `npm test` (58 test).
-
-## YARIM KALAN (ikinci tur burada kesildi)
-
-Bkz. QUESTIONS.md en üstteki "İkinci tur yarım kaldı" bölümü.
 
 ## Tur 2 / Aşama 3 — Yoklama
 
@@ -382,3 +378,34 @@ kapatınca uygulama önbellekten açıldı (çevrimdışı).
 çalışması, başlıkların uygulanması). `YAYIN.md > Yayın sonrası kontrol` bunun için.
 
 **Nasıl çalıştırılır:** `YAYIN.md`.
+
+## Tur 2 / Aşama 9 — Mülakat belgeleri ve son doğrulama
+
+**Ne yaptım:**
+- `ARCHITECTURE.md`: klasör yapısı, katmanlar, veri akışı, altı karar ve bedelleri.
+- `MULAKAT.md`: 15 soru, taslak cevaplar, kodda kanıt yerleri, "kendin yap" listesi.
+- `README.md` güncellendi; ekran görüntüsü yerleri bırakıldı.
+- `RAPOR.md`: her bulgunun durumu işlendi (29 bulgu: 26 düzeltildi, 3 bilerek bırakıldı).
+- `QUESTIONS.md` baştan yazıldı.
+
+**Son doğrulama (tarayıcıda, temiz başlangıçla):**
+- 320 piksel genişlikte 9 ekran, hem boş takımla hem örnek veriyle: hata yok,
+  yatay taşma yok. Tutanak, faaliyet raporu ve form penceresi de sığıyor.
+- En küçük düğme 44 piksel.
+- Koyu temada yazdırma kuralları: kâğıt beyaz, yazı siyah, düğme ve menü yok.
+- Yedek: dışa aktar → takımı sil → içe aktar → kayıt sayıları aynı.
+- Giriş akışı sahte sunucuyla: kısa şifre, yanlış şifre, giriş, davet kodu, çıkış.
+- Güvenlik başlıklarıyla (CSP) bütün ekranlar; service worker; sunucu kapalıyken açılma.
+- `npm test`: 100 test geçiyor.
+
+**Doğrulanamayanlar (hepsi QUESTIONS.md'de):**
+- Gerçek Supabase projesi (şema hiç çalıştırılmadı).
+- Netlify'da yayın.
+- Gerçek yazdırma penceresi / PDF dosyası (yalnızca yazdırma kuralları denendi).
+- Gerçek telefon ve "ana ekrana ekle" (yalnızca dar ekran benzetimi; manifest
+  ve ikonlar testle denetlendi).
+- `index.html`'e çift tıklayarak (file://) açma.
+- Ekran okuyucuyla gerçek deneme (etiketler ve odak kodla denetlendi).
+
+**Nasıl çalıştırılır:** `index.html`'e çift tıkla ya da `python -m http.server 8765`.
+Testler: `npm test`.

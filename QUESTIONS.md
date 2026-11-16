@@ -1,99 +1,125 @@
 # QUESTIONS — Sorular ve yaptığım varsayımlar
 
-Ömer uyurken durmamak için aşağıdaki kararları kendim verdim. Her biri
-sonradan değiştirilebilir. Katılmadığın bir şey varsa söyle. En önemlileri
-üstte.
+Sen yokken durmamak için aşağıdaki kararları kendim verdim. Her biri sonradan
+değiştirilebilir. Katılmadığın bir şey varsa söyle. En önemlileri üstte.
 
-## İkinci tur yarım kaldı (kullanım sınırı doldu)
+---
 
-**Bitenler:** RAPOR.md, denetim düzeltmeleri, etkinlik kaydı + faaliyet raporu.
+## A. Senin yapman / karar vermen gerekenler
 
-**Başlanmadı:** yoklama ekranı (hesap fonksiyonu `katilimOranlari` ve testi
-hazır, Takım ekranına kart eklenmedi), takvim ekranı (`ayIzgarasi` ve testi
-hazır, ekran yok), JSON yedekleme, tema düğmesi (koyu tema renkleri CSS'te
-hazır ama onu açan `js/tema.js` yok), PWA, Supabase RLS + giriş,
-SUPABASE_KURULUM.md, yayın yapılandırması, ARCHITECTURE.md, MULAKAT.md,
-README güncellemesi, RAPOR.md'deki "Durum" sütunu.
+### 1. Supabase gerçek bir projeyle hiç denenmedi  ⚠️ en önemlisi
+Gerçek anahtar istemediğim için:
+- `supabase/schema.sql` **hiçbir veritabanında çalıştırılmadı.** Kuralları
+  dikkatle yazdım ve okuyarak kontrol ettim, ama SQL'de "çalıştırmadan emin
+  olmak" diye bir şey yok. Bir yazım ya da yetki hatası çıkabilir.
+- Giriş, jeton yenileme ve veri istekleri **sahte bir sunucuyla** test edildi
+  (testlerde ve tarayıcıda). Bu, isteklerin doğru biçimde gittiğini gösterir;
+  Supabase'in onlara gerçekten beklediğim cevabı verdiğini göstermez.
 
-**Dikkat:**
-- `supabase/sema.sql` içinde `etkinlikler` tablosu henüz YOK; Supabase ile
-  etkinlik eklenemez. Yerel kayıtta sorun yok.
-- "Örnek veriyle dene" son denemede örnek etkinlikleri göstermedi; büyük
-  olasılıkla tarayıcı eski `ornek-veri.js`'yi önbellekten aldı. Doğrulanmadı.
+**Yapman gereken:** `SUPABASE_KURULUM.md`'yi izle; özellikle **7. Güvenliği
+dene** tablosunu atlama. Bir adım takılırsa hata mesajını bana getir.
 
-## Karar bekleyenler (bakmanı istediklerim)
+Yalnızca localStorage ile kullanacaksan bu maddenin hiçbir etkisi yok.
 
-### 1. Supabase'de giriş yok → veri herkese açık
-v1'de kullanıcı hesabı/giriş yok (istenmedi, kapsamı büyütürdü). Bu yüzden
-`supabase/sema.sql` içindeki erişim kuralları anon anahtarına sahip **herkese
-okuma ve yazma** izni veriyor. Site adresini bilen biri veriyi görebilir ve
-değiştirebilir.
-- **Varsayımım:** Küçük, kapalı bir ekip ve "sadece ad + rol" verisi için v1'de
-  kabul edilebilir. Uyarı SQL dosyasında ve README'de yazıyor.
-- **Sorum:** Uygulamayı herkese açık bir adreste Supabase ile yayınlayacak
-  mısın? Öyleyse önce giriş (Supabase Auth) eklenmeli. Sadece localStorage ile
-  kullanacaksan sorun yok.
-
-### 2. Supabase sürümü gerçek bir projeyle denenmedi
-Gerçek anahtar istemediğim için Supabase deposunu yalnızca **sahte sunucuyla**
-test ettim (`testler/supabase.test.js`): istek adresleri, başlıklar ve yerel
-depoyla aynı davranış doğrulandı. Gerçek Supabase projesinde `sema.sql`'i
-çalıştırıp bir kez elle denemen gerekiyor. Adımlar README'de.
+### 2. Netlify'da henüz yayınlanmadı
+`netlify.toml`'daki güvenlik başlıklarını yerelde eşdeğer bir sunucuyla
+denedim (her şey çalıştı), ama Netlify'ın kendisinde yayın yapılmadı.
+**Yapman gereken:** `YAYIN.md` → "Yayın sonrası kontrol".
 
 ### 3. Git yazar bilgisi
-Bu bilgisayarda genel (global) git kimliği tanımlı değildi. Global ayara
-dokunmadım; sadece **bu depoya özel** olarak ad = "Ömer", e-posta = Claude
-hesabındaki e-posta adresi yaptım.
-- GitHub'a göndermeden önce kontrol et: `git config user.name` ve `git config user.email`
+Bu bilgisayarda genel git kimliği yoktu. Yalnızca **bu depoya özel** olarak
+ad = "Ömer", e-posta = Claude hesabındaki adres yaptım.
+- GitHub'a göndermeden önce bak: `git log -1 --format="%an <%ae>"`
 - Commit'lerin GitHub profilinde görünmesi için e-posta GitHub hesabındakiyle
-  aynı olmalı. Yanlışsa, göndermeden önce söyle; düzeltmesi kolay.
+  aynı olmalı. Yanlışsa göndermeden **önce** söyle; sonradan düzeltmek zahmetli.
 
-### 4. "ROTA İSAS ekibinde kullanıldı" notu
-README'de bu bölüm boş bırakıldı. Ekip gerçekten kullandıktan sonra sen
-dolduracaksın (ne zaman, kaç kişi, ne işe yaradı). Ben uydurma bir şey yazmadım.
+### 4. README'ye "yapay zekâ asistanıyla geliştirildi" notu ekledim
+README'nin sonuna (TR ve EN) tek cümlelik bir "Nasıl yapıldı?" bölümü koydum;
+`MULAKAT.md`'nin başında da bunu nasıl anlatabileceğine dair bir not var.
+Commit'lerde zaten `Co-Authored-By` satırı bulunduğu için açık olmanın daha
+iyi duracağını düşündüm. **Bu senin kararın;** istemezsen README'deki o bölümü sil.
 
-## Kendim karar verdiklerim (bilgin olsun)
+### 5. "ROTA İSAS ekibinde kullanıldı" bölümü boş
+Ekip gerçekten kullandıktan sonra sen dolduracaksın. Uydurma bir şey yazmadım.
 
-### 5. Anahtarlar tarayıcıya nasıl ulaşıyor?
-Tarayıcı `.env` okuyamaz ve derleme adımı istenmedi. Çözüm: `.env` →
-`node araclar/env-aktar.js` → `js/ayarlar.js` (gitignore'da). Uygulama açılırken
-bu dosyayı arar; yoksa localStorage ile çalışır. Dosya yokken tarayıcı
-konsolunda bir "404 js/ayarlar.js" satırı görünür; bu beklenen bir durumdur.
+### 6. Ekran görüntüleri
+README'de beş ekran görüntüsü için yer ve dosya adları hazır (yorum satırı
+olarak). Görüntüleri `docs/ekran/` klasörüne koyup yorumları kaldırman yeterli.
+Ben eklemedim; senin gerçek ekranından alınması daha doğru.
 
-### 6. ES modülü yerine klasik `<script>`
-`index.html` çift tıklanınca (file://) da çalışsın diye. ES modülleri dosyadan
-açılınca tarayıcı tarafından engellenir ve sunucu gerektirir. Bedeli:
-fonksiyonlar global; dosya sırası `index.html`'de önemli.
+### 7. İkinci turda bir test dosyası indirildi
+Yedek indirmeyi denerken tarayıcı `takim-asistani-yedek-2026-11-16.json` adlı,
+örnek veriyi içeren bir dosyayı İndirilenler klasörüne kaydetmiş olabilir.
+İçinde gerçek veri yok; silebilirsin.
 
-### 7. Birden fazla takım
-"Takım oluştur" dendiği için birden fazla takım destekleniyor; sağ üstten
-seçilir. Seçili takım tarayıcıda hatırlanır.
+---
 
-### 8. Görevleri taşımak: sürükle-bırak yok, ◀ ▶ düğmeleri var
-Telefonda daha kullanışlı, kod daha kısa. İstenirse sonra eklenebilir.
+## B. Bu turda kendim karar verdiklerim
 
-### 9. Gündem/kararlar "her satıra bir madde"
-Madde madde ekleme düğmeleri yerine tek metin kutusu. Toplantı sırasında hızlı
-yazmaya uygun.
+### 8. Yoklama için ayrı ekran yok
+Toplantı ve etkinlik formundaki "katılanlar" listesi yoklamanın kendisi;
+yüzdeler Takım ekranında. Aynı bilgiyi iki kez girdirmemek için.
+**Sayım kuralı:** tarihi geçmiş (ya da bugün) ve en az bir kişi işaretlenmiş
+buluşmalar sayılır. Yan etkisi: takıma sonradan katılan biri, katılmadan
+önceki toplantılarda "yok" sayılır. Düzeltmek için üyeye "katılma tarihi"
+eklemek gerekirdi; kapsamı büyütmemek için yapmadım.
 
-### 10. Son tarihlerde "Tamamlandı" işareti
-Listede yoktu ama teslim edilmiş bir raporun sonsuza kadar "gecikti" görünmesi
-yanıltıcı olurdu. Küçük bir ekleme.
+### 9. Supabase için giriş (e-posta + şifre) eklendi
+"Kullanıcı sadece kendi takımını görsün" kuralı giriş olmadan uygulanamaz;
+veritabanının kimin istek attığını bilmesi gerekir. Bu yüzden istenmemiş olsa
+da gerekliydi. localStorage kullanılırken giriş ekranı hiç çıkmaz.
+- E-posta, uygulama tablolarında **tutulmaz**; Supabase'in kendi hesap
+  tablosunda durur. Uygulama verisinde hâlâ yalnızca ad ve rol var.
+- "Şifremi unuttum" akışı yok (Supabase panelinden gönderilebilir).
 
-### 11. "Örnek veriyle dene" düğmesi
-İlk açılışta uygulamayı dolu görmek ve mülakatta göstermek için hayali bir
-takım yükler. Adlar uydurmadır. Yüklenen takım "Takım" ekranından silinebilir.
+### 10. Takıma katılma: davet kodu
+Başka bir hesabı takıma almanın en basit yolu olarak seçtim. Kod Takım
+ekranında görünür. Sınırı: kod değiştirilemez; sızarsa yeni takım açıp veriyi
+yedekle taşımak gerekir.
 
-### 12. Tarihler veritabanında metin
-`"2026-11-25"` biçiminde metin olarak tutuluyor (Supabase'de de `text`).
-Boş tarih sorun çıkarmıyor, sıralama doğru çalışıyor, saat dilimi hatası olmuyor.
+### 11. Takım içinde yetki ayrımı yok
+Her üye her şeyi yapabilir (silme dahil). "Kaptan" yalnızca kadroda görünen
+bir etiket. Rol bazlı yetki ayrı bir özellik olurdu.
 
-### 13. Duyuruda "WhatsApp'ta aç" bağlantısı yok
-Sadece "Kopyala" var. Metni bağlantıya koymak, üye adlarını adres çubuğuna
-taşımak demek olurdu; gerek görmedim.
+### 12. İçe aktarma hiçbir şeyin üzerine yazmaz
+Yedekteki bir kayıt depoda zaten varsa atlanır. Yani yedek, eksikleri
+tamamlar; "eski hâline döndür" yapmaz. Bilerek: yanlışlıkla veri ezmek,
+eksik geri yüklemekten çok daha kötü.
 
-## v2 için fikirler (yapmadım)
-- Faaliyet raporu, yoklama (zaten v2 olarak belirtilmişti)
-- Giriş sistemi ve takım bazlı erişim kuralları
-- Verileri JSON olarak yedekle / geri yükle (localStorage silinirse veri gider)
-- Sürükle-bırak, karanlık tema
+### 13. Yalnızca Netlify yapılandırıldı
+"Vercel veya Netlify" dendiği için birini seçtim. Vercel ve GitHub Pages için
+`YAYIN.md`'de kısa notlar var ama dosyaları hazır değil.
+
+### 14. Faaliyet raporu bir "taslak"
+Etkinlik listesi, sayılar ve açıklamalardan oluşur; düzenlenebilir bir belge
+değil, yazdırılır/PDF alınır. Resmi bir şablondan kopyalanmadı.
+
+### 15. `js/ayarlar.js` yokken konsolda 404 görünür (bilerek bırakıldı)
+Dosya gizli ayarlar için `.gitignore`'da olduğundan depoda yok. Bir kez
+`node araclar/env-aktar.js` çalıştırınca oluşur ve 404 kaybolur. Yayında her
+zaman üretilir.
+
+---
+
+## C. v1'de verilen kararlar (hâlâ geçerli)
+
+- **Klasik `<script>`**, ES modülü değil: çift tıklayınca çalışsın diye.
+- **Birden fazla takım** desteklenir; sağ üstten seçilir.
+- **Görev taşıma ◀ ▶ düğmeleriyle;** sürükle-bırak yok.
+- **Gündem ve kararlar "her satıra bir madde".**
+- **Son tarihlerde "Tamamlandı" işareti** (listede yoktu, eklendi).
+- **"Örnek veriyle dene" düğmesi;** adlar uydurmadır.
+- **Tarihler metin** (`"2026-11-25"`), veritabanında da.
+- **Duyuruda "WhatsApp'ta aç" bağlantısı yok;** yalnızca "Kopyala".
+
+---
+
+## D. Yapmadıklarım / sonraki adım fikirleri
+
+- Otomatik arayüz testi (ör. Playwright). En değerli sonraki adım bu olurdu.
+- `schema.sql` için gerçek PostgreSQL üzerinde otomatik güvenlik testi.
+  (Bunun için bir paket indirmem gerekirdi; iznin olmadan indirmedim.)
+- Takvimde ok tuşlarıyla gezinme (şimdilik Tab ile).
+- Aynı anda düzenlemede çakışma uyarısı.
+- Rol bazlı yetki, şifre sıfırlama, davet kodunu yenileme.
+- Supabase kipinde çevrimdışıyken veri gösterme.
