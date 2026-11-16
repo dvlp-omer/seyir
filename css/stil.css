@@ -427,8 +427,10 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 .secenekler label { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--giris-cizgi); border-radius: 999px; background: var(--giris-zemin); cursor: pointer; font-size: 14px; }
 .secenekler label:has(input:checked) { background: var(--rozet-z); color: var(--rozet-y); border-color: var(--su); }
 
-/* Giriş ekranı (yalnızca Supabase kullanılırken görünür) */
+/* Giriş ekranı (yalnızca Supabase kullanılırken görünür).
+   Giriş yapılmamışken menü ve takım seçici gizlenir. */
 .giris-kart { max-width: 420px; }
+.oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
 
 /* ---------- 6) Form penceresi (dialog) ---------- */
 dialog {

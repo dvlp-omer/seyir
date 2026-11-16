@@ -4,8 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Takım Asistanı</title>
-  <meta name="description" content="Öğrenci takımları için görev, son tarih, toplantı tutanağı ve duyuru asistanı.">
+  <meta name="description" content="Öğrenci takımları için görev, son tarih, toplantı tutanağı, etkinlik ve duyuru asistanı.">
+
+  <!-- Ana ekrana eklenebilir uygulama (PWA) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b2231">
+  <link rel="icon" href="ikonlar/ikon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="ikonlar/ikon-192.png">
+
   <link rel="stylesheet" href="css/stil.css">
+  <!-- Tema, sayfa çizilmeden önce uygulanmalı; bu yüzden burada (bkz. js/tema.js) -->
+  <script src="js/tema.js"></script>
 </head>
 <body>
   <!-- Sayfa iki parçadan oluşur: yan menü (.yan) ve içerik (.govde).
@@ -29,6 +38,7 @@
 
     <div class="govde">
       <header class="ust">
+        <!-- tabindex="-1": ekran değişince odak buraya taşınır (ekran okuyucu yeni ekranı okur) -->
         <h1 id="ekran-baslik" tabindex="-1">Takım Asistanı</h1>
         <label>
           <span class="gizli">Etkin takım</span>
@@ -43,10 +53,14 @@
   <dialog id="pencere"></dialog>
   <div id="bildirim" role="status" aria-live="polite"></div>
 
-  <!-- Sıra önemli: önce veri ve mantık, sonra ortak arayüz, sonra ekranlar,
-       en son hepsini başlatan uygulama.js. -->
+  <!-- Sıra önemli: önce veri ve mantık, sonra ortak arayüz, sonra ekranlar
+       (menüdeki sıra da bu sıradır), en son hepsini başlatan uygulama.js.
+       Buraya dosya eklersen sw.js içindeki KABUK listesine de ekle
+       (testler/pwa.test.js unutursan uyarır). -->
   <script src="js/veri.js"></script>
+  <script src="js/oturum.js"></script>
   <script src="js/mantik.js"></script>
+  <script src="js/yedek.js"></script>
   <script src="js/arayuz.js"></script>
   <script src="js/ornek-veri.js"></script>
   <script src="js/ekranlar/ozet.js"></script>
@@ -57,6 +71,8 @@
   <script src="js/ekranlar/etkinlikler.js"></script>
   <script src="js/ekranlar/duyuru.js"></script>
   <script src="js/ekranlar/takim.js"></script>
+  <script src="js/ekranlar/ayarlar.js"></script>
+  <script src="js/ekranlar/giris.js"></script>
   <script src="js/uygulama.js"></script>
 </body>
 </html>

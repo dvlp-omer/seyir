@@ -14,6 +14,7 @@ const AKTIF_TAKIM_ANAHTARI = "takim-asistani:aktif-takim";
 // Uygulamanın o anki durumu. Bütün ekranlar buradan okur.
 const durum = {
   depo: null,       // veri katmanı (js/veri.js)
+  oturum: null,     // giriş yönetimi (js/oturum.js); localStorage kullanılırken null
   takimlar: [],     // bütün takımlar
   takim: null,      // seçili takım
   ekran: null,      // açık ekranın adı (ilk çizimden önce null)
@@ -107,7 +108,24 @@ function odagiGeriVer(kok, tarif) {
 
 /* ---------- Ekranı çizme ---------- */
 
+// Supabase kullanılıyor ve giriş yapılmamış mı?
+function girisGerekli() {
+  return durum.oturum !== null && durum.oturum.kullanici() === null;
+}
+
+// Giriş ekranını gösterir; menü ve takım seçici gizlenir (stil.css > .oturumsuz).
+function girisEkraninaDon(kok) {
+  document.body.classList.add("oturumsuz");
+  durum.ekran = null;
+  sec("#ekran-baslik").textContent = "Takım Asistanı";
+  document.title = "Giriş · Takım Asistanı";
+  girisEkraniCiz(kok);
+}
+
 async function ekraniCiz() {
+  if (girisGerekli()) return girisEkraninaDon(sec("#ekran"));
+  document.body.classList.remove("oturumsuz");
+
   let ad = location.hash.slice(1);
   if (!EKRANLAR[ad]) ad = EKRAN_SIRASI[0];
   // Hiç takım yoksa diğer ekranların anlamı yok; takım ekranına yönlendir.
@@ -129,6 +147,8 @@ async function ekraniCiz() {
     await EKRANLAR[ad].ciz(kok);
   } catch (hata) {
     console.error(hata);
+    // Oturum bu sırada bittiyse (jeton yenilenemedi) giriş ekranına dön.
+    if (girisGerekli()) return girisEkraninaDon(kok);
     kok.innerHTML = '<div class="hata-kutusu" role="alert"><b>Veri yüklenemedi.</b><br>' + htmlKacis(hata.message) + "</div>";
   }
 
@@ -178,10 +198,19 @@ async function baslat() {
   const ayarlar = await ayarlariYukle();
   try {
     // Bazı gizli modlarda localStorage'a erişmek bile hata fırlatır (RAPOR.md > H6).
-    durum.depo = depoSec(ayarlar, window.localStorage);
     localStorage.getItem(AKTIF_TAKIM_ANAHTARI);
   } catch (hata) {
     return baslatmaHatasi("Tarayıcı bu sayfanın veri saklamasına izin vermiyor. Gizli moddaysan normal pencerede aç.", hata);
+  }
+
+  try {
+    // Supabase seçildiyse giriş yönetimini kur; depo her istekte jetonu oradan alır.
+    if (veriKatmaniTuru(ayarlar) === "supabase") {
+      durum.oturum = oturumOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY, window.localStorage);
+    }
+    durum.depo = depoSec(ayarlar, window.localStorage, { jetonGetir: () => durum.oturum.jeton() });
+  } catch (hata) {
+    return baslatmaHatasi("Ayarlar hatalı (js/ayarlar.js).", hata);
   }
 
   sec("#depo-rozet").textContent =
@@ -210,12 +239,28 @@ async function baslat() {
     await yenile();
   });
 
-  try {
-    await takimlariYukle();
-  } catch (hata) {
-    return baslatmaHatasi("Veri deposuna bağlanılamadı.", hata);
+  cevrimdisiDestegiKur();
+
+  // Giriş gerekiyorsa veri isteği atma; yenile() giriş ekranını çizer.
+  // Girişten sonra takımları giris.js yükler.
+  if (!girisGerekli()) {
+    try {
+      await takimlariYukle();
+    } catch (hata) {
+      if (!girisGerekli()) return baslatmaHatasi("Veri deposuna bağlanılamadı.", hata);
+    }
   }
   await yenile();
+}
+
+// Service worker'ı kaydeder (sw.js): uygulama dosyalarını önbelleğe alır,
+// böylece internet yokken de açılır ve "ana ekrana ekle" çalışır.
+// Yalnızca http(s) üzerinde çalışır; dosyadan (file://) açınca atlanır.
+function cevrimdisiDestegiKur() {
+  if (!("serviceWorker" in navigator) || !location.protocol.startsWith("http")) return;
+  navigator.serviceWorker.register("sw.js").catch((hata) => {
+    console.warn("Çevrimdışı desteği kurulamadı:", hata);
+  });
 }
 
 baslat();

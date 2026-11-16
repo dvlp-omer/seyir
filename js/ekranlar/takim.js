@@ -88,6 +88,30 @@ function takimAdiFormu(takim) {
   });
 }
 
+/* ---------- Davet kodu (yalnızca Supabase) ----------
+   Supabase'de bir takımın verisini yalnızca o takıma "katılmış" hesaplar
+   görebilir. Takımı oluşturan otomatik olarak katılmış sayılır; diğerleri
+   takımın davet kodunu yazarak katılır. Kod veritabanında üretilir
+   (schema.sql). localStorage kullanılırken bunların hiçbiri görünmez. */
+function davetKoduHtml(takim) {
+  if (!takim.davet_kodu) return "";
+  return '<p style="margin-top:14px">Davet kodu<br><span class="davet-kodu">' + htmlKacis(takim.davet_kodu) + "</span></p>" +
+    '<p class="soluk kucuk-yazi">Takım arkadaşların hesap açtıktan sonra bu kodla takıma katılır. Kodu yalnızca ekiple paylaş.</p>';
+}
+
+function davetKoduFormu() {
+  formAc({
+    baslik: "Davet koduyla katıl",
+    alanlar: [{ ad: "kod", etiket: "Davet kodu", tur: "metin", zorunlu: true, ipucu: "Takım kaptanından iste. Takım ekranında yazar." }],
+    kaydetYazi: "Katıl",
+    kaydet: async (degerler) => {
+      const takimId = await durum.oturum.takimaKatil(degerler.kod);
+      await takimSec(takimId);
+      bildir("Takıma katıldın");
+    },
+  });
+}
+
 /* ---------- Çizim ---------- */
 
 function karsilamaCiz(kok) {
@@ -102,6 +126,10 @@ function karsilamaCiz(kok) {
     "</form>" +
     '<p class="kucuk-yazi" style="margin-top:16px">Önce nasıl göründüğünü mü merak ediyorsun? ' +
     '<button class="dugme kucuk" type="button" data-eylem="ornek">Örnek veriyle dene</button></p>' +
+    (durum.oturum
+      ? '<p class="kucuk-yazi" style="margin-top:8px">Takımın zaten kayıtlı mı? ' +
+        '<button class="dugme kucuk" type="button" data-eylem="koda-katil">Davet koduyla katıl</button></p>'
+      : "") +
     "</div>";
 
   sec("#ilk-takim").onsubmit = async (olay) => {
@@ -120,6 +148,7 @@ function karsilamaCiz(kok) {
       bildir("Örnek takım yüklendi");
       ekranaGit("ozet");
     },
+    "koda-katil": davetKoduFormu,
   });
 }
 
@@ -187,8 +216,10 @@ async function takimEkraniCiz(kok) {
     '<div class="dikey">' +
     '<button class="dugme" data-eylem="takim-ad">Adını değiştir</button>' +
     '<button class="dugme" data-eylem="takim-yeni">+ Yeni takım oluştur</button>' +
+    (durum.oturum ? '<button class="dugme" data-eylem="koda-katil">Davet koduyla başka takıma katıl</button>' : "") +
     '<button class="dugme tehlike" data-eylem="takim-sil">Bu takımı sil</button>' +
     "</div>" +
+    davetKoduHtml(durum.takim) +
     '<p class="soluk kucuk-yazi" style="margin-top:14px">Üyeler hakkında yalnızca ad ve rol tutulur.</p>' +
     "</section>" +
     katilimKartiHtml(uyeler, toplantilar, etkinlikler) +
@@ -205,6 +236,7 @@ async function takimEkraniCiz(kok) {
     "takim-ad": () => takimAdiFormu(durum.takim),
     "takim-yeni": () => takimAdiFormu(null),
     "takim-sil": takimSil,
+    "koda-katil": davetKoduFormu,
   });
 }
 

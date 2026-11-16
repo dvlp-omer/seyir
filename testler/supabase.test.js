@@ -64,7 +64,7 @@ function sahteDepolama() {
 
 test("istekler doğru adrese, anahtar başlıklarıyla gider", async () => {
   const sunucu = sahteSupabase();
-  const depo = supabaseDepoOlustur(ADRES + "/", ANAHTAR, sunucu.sahteFetch); // sondaki / sorun olmamalı
+  const depo = supabaseDepoOlustur(ADRES + "/", ANAHTAR, { istek: sunucu.sahteFetch }); // sondaki / sorun olmamalı
 
   await depo.listele("gorevler", { takim_id: "t1" });
 
@@ -77,7 +77,7 @@ test("istekler doğru adrese, anahtar başlıklarıyla gider", async () => {
 
 test("guncelle: PATCH gövdesinde id ve olusturma gönderilmez", async () => {
   const sunucu = sahteSupabase();
-  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, sunucu.sahteFetch);
+  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, { istek: sunucu.sahteFetch });
   const gorev = await depo.ekle("gorevler", { baslik: "Rapor", durum: "yapilacak" });
 
   await depo.guncelle("gorevler", gorev.id, { durum: "bitti", id: "baska", olusturma: "x" });
@@ -89,22 +89,48 @@ test("guncelle: PATCH gövdesinde id ve olusturma gönderilmez", async () => {
 
 test("sunucu hata dönerse anlaşılır bir hata fırlatır", async () => {
   const hataliFetch = async () => ({ ok: false, status: 401, text: async () => "Invalid API key" });
-  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, hataliFetch);
+  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, { istek: hataliFetch });
   await assert.rejects(() => depo.listele("gorevler"), /Supabase hatası \(401\).*Invalid API key/);
 });
 
 test("bilinmeyen koleksiyon adı istek atılmadan reddedilir", async () => {
   const sunucu = sahteSupabase();
-  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, sunucu.sahteFetch);
+  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, { istek: sunucu.sahteFetch });
   await assert.rejects(() => depo.listele("gorevlerr"));
   assert.equal(sunucu.istekler.length, 0);
 });
 
-test("depoSec: ayar varsa Supabase, yoksa yerel depo", () => {
-  assert.equal(depoSec({}, sahteDepolama()).tur, "yerel");
+test("depoSec: VERI_KATMANI ortam değişkeni depoyu seçer", () => {
+  const supabaseAyar = { VERI_KATMANI: "supabase", SUPABASE_URL: ADRES, SUPABASE_ANON_KEY: ANAHTAR };
+  assert.equal(depoSec({}, sahteDepolama()).tur, "yerel");               // hiç ayar yok
   assert.equal(depoSec(undefined, sahteDepolama()).tur, "yerel");
-  assert.equal(depoSec({ SUPABASE_URL: ADRES }, sahteDepolama()).tur, "yerel"); // anahtar eksik
-  assert.equal(depoSec({ SUPABASE_URL: ADRES, SUPABASE_ANON_KEY: ANAHTAR }, sahteDepolama()).tur, "supabase");
+  assert.equal(depoSec({ VERI_KATMANI: "yerel" }, sahteDepolama()).tur, "yerel");
+  assert.equal(depoSec(supabaseAyar, sahteDepolama()).tur, "supabase");
+  // Anahtarlar dursa bile VERI_KATMANI=yerel ise yerel depo kullanılır
+  assert.equal(depoSec({ ...supabaseAyar, VERI_KATMANI: "yerel" }, sahteDepolama()).tur, "yerel");
+});
+
+test("depoSec: yanlış ya da eksik ayar sessizce geçilmez, açık hata verir", () => {
+  assert.throws(() => depoSec({ VERI_KATMANI: "supabase" }, sahteDepolama()), /eksik/);
+  assert.throws(() => depoSec({ VERI_KATMANI: "supabase", SUPABASE_URL: ADRES }, sahteDepolama()), /eksik/);
+  assert.throws(() => depoSec({ VERI_KATMANI: "firebase" }, sahteDepolama()), /yerel.*supabase/);
+});
+
+test("jetonGetir verilirse isteklerde kullanıcının jetonu gider, anon anahtar değil", async () => {
+  const sunucu = sahteSupabase();
+  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, { istek: sunucu.sahteFetch, jetonGetir: async () => "kullanici-jetonu" });
+  await depo.listele("gorevler");
+  assert.equal(sunucu.istekler[0].headers.apikey, ANAHTAR);
+  assert.equal(sunucu.istekler[0].headers.Authorization, "Bearer kullanici-jetonu");
+});
+
+test("jetonGetir hata verirse (oturum bitti) istek hiç gönderilmez", async () => {
+  const sunucu = sahteSupabase();
+  const depo = supabaseDepoOlustur(ADRES, ANAHTAR, {
+    istek: sunucu.sahteFetch, jetonGetir: async () => { throw new Error("Oturumun süresi doldu."); },
+  });
+  await assert.rejects(() => depo.listele("gorevler"), /süresi doldu/);
+  assert.equal(sunucu.istekler.length, 0);
 });
 
 /* ---------- Sözleşme testi ----------
@@ -112,7 +138,7 @@ test("depoSec: ayar varsa Supabase, yoksa yerel depo", () => {
    hangi deponun kullanıldığını bilmeden çalışabilir demektir. */
 const depolar = {
   yerel: () => yerelDepoOlustur(sahteDepolama()),
-  supabase: () => supabaseDepoOlustur(ADRES, ANAHTAR, sahteSupabase().sahteFetch),
+  supabase: () => supabaseDepoOlustur(ADRES, ANAHTAR, { istek: sahteSupabase().sahteFetch }),
 };
 
 for (const [ad, depoOlustur] of Object.entries(depolar)) {

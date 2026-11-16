@@ -134,9 +134,17 @@ function yerelDepoOlustur(depolama, onEk = "takim-asistani:") {
      sil      -> DELETE  ?id=eq.xyz
    Tablolar için: supabase/sema.sql
 
-   "istek" parametresi normalde fetch'tir; testlerde sahtesini veriyoruz.
+   Seçenekler:
+     istek      : normalde fetch; testlerde sahtesini veriyoruz.
+     jetonGetir : giriş yapan kullanıcının jetonunu veren fonksiyon
+                  (js/oturum.js). Veritabanı bu jetona bakarak "bu kullanıcı
+                  hangi takımların üyesi" sorusunu cevaplar ve yalnızca o
+                  takımların satırlarını gösterir (schema.sql > RLS).
+                  Verilmezse herkese açık anon anahtar kullanılır.
    -------------------------------------------------------------------------- */
-function supabaseDepoOlustur(url, anahtar, istek = (...args) => fetch(...args)) {
+function supabaseDepoOlustur(url, anahtar, secenekler = {}) {
+  const istek = secenekler.istek || ((...args) => fetch(...args));
+  const jetonGetir = secenekler.jetonGetir || (async () => anahtar);
   const taban = url.replace(/\/+$/, "") + "/rest/v1/";
 
   // Bütün isteklerin geçtiği tek yer: başlıkları ekler, hatayı yakalar.
@@ -144,8 +152,8 @@ function supabaseDepoOlustur(url, anahtar, istek = (...args) => fetch(...args)) 
     const yanit = await istek(taban + yol, {
       method: yontem,
       headers: {
-        apikey: anahtar,
-        Authorization: "Bearer " + anahtar,
+        apikey: anahtar,                                   // hangi proje
+        Authorization: "Bearer " + (await jetonGetir()),   // hangi kullanıcı
         "Content-Type": "application/json",
         // Eklenen/güncellenen satırı cevapta geri iste
         Prefer: "return=representation",
@@ -207,13 +215,26 @@ function supabaseDepoOlustur(url, anahtar, istek = (...args) => fetch(...args)) 
 
 /* --------------------------------------------------------------------------
    Hangi depo kullanılacak?
-   Supabase adresi ve anahtarı verilmişse Supabase, verilmemişse localStorage.
+   VERI_KATMANI ortam değişkeni belirler (.env -> js/ayarlar.js):
+     VERI_KATMANI=yerel     (varsayılan) -> localStorage
+     VERI_KATMANI=supabase               -> Supabase (adres ve anahtar da gerekir)
    Uygulamanın geri kalanı bu seçimden habersizdir; sadece "depo" kullanır.
    Ayarların nereden geldiği: js/uygulama.js > ayarlariYukle
    -------------------------------------------------------------------------- */
-function depoSec(ayarlar, depolama) {
-  if (ayarlar && ayarlar.SUPABASE_URL && ayarlar.SUPABASE_ANON_KEY) {
-    return supabaseDepoOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY);
+function veriKatmaniTuru(ayarlar) {
+  const tur = (ayarlar && ayarlar.VERI_KATMANI) || "yerel";
+  if (tur !== "yerel" && tur !== "supabase") {
+    throw new Error('VERI_KATMANI "yerel" ya da "supabase" olmalı (gelen: "' + tur + '").');
+  }
+  if (tur === "supabase" && !(ayarlar.SUPABASE_URL && ayarlar.SUPABASE_ANON_KEY)) {
+    throw new Error("VERI_KATMANI=supabase seçilmiş ama SUPABASE_URL ya da SUPABASE_ANON_KEY eksik.");
+  }
+  return tur;
+}
+
+function depoSec(ayarlar, depolama, secenekler) {
+  if (veriKatmaniTuru(ayarlar) === "supabase") {
+    return supabaseDepoOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY, secenekler);
   }
   return yerelDepoOlustur(depolama);
 }
@@ -222,6 +243,7 @@ function depoSec(ayarlar, depolama) {
 // diye bir şey yoktur; orada fonksiyonlar zaten globaldir.
 if (typeof module !== "undefined") {
   module.exports = {
-    KOLEKSIYONLAR, kimlikUret, filtreyeUyar, yerelDepoOlustur, supabaseDepoOlustur, depoSec,
+    KOLEKSIYONLAR, kimlikUret, filtreyeUyar, yerelDepoOlustur, supabaseDepoOlustur,
+    veriKatmaniTuru, depoSec,
   };
 }

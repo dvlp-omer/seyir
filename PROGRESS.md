@@ -274,3 +274,48 @@ etkinlikler tek ay ızgarasında; güne basınca o günün kayıtları.
 - *Dar ekranda* başlıklar yerine sadece noktalar görünür; ayrıntı alttaki listede.
 
 **Nasıl çalıştırılır:** "Takvim" → ◀ ▶ ile ay değiştir, güne bas.
+
+## Tur 2 / Aşama 5 — Veri yedekleme
+
+**Ne yaptım:** `js/yedek.js` (dışa aktar, denetle, içe aktar), Ayarlar
+ekranında "Yedeği indir" ve "Yedekten yükle", 10 test.
+
+**Neden böyle:**
+- *Dışarıdan gelen dosyaya güvenilmez.* `yedekCoz` her kaydı `YEDEK_SEMASI`'na
+  göre tek tek denetler; şemada olmayan alanları atar; tek bozuk kayıtta bütün
+  dosyayı reddeder (yarım yükleme olmaz) ve hangi kaydın bozuk olduğunu söyler.
+- *İçe aktarma hiçbir şeyin üzerine yazmaz.* Kayıtlar kendi kimlikleriyle
+  eklenir; aynı kimlik varsa atlanır. Aynı dosyayı iki kez yüklemek zararsızdır.
+  Bunun için `ekle()` artık kayıtta `id` varsa onu koruyor.
+- *Gidiş-dönüş testi:* örnek veri → dışa aktar → içe aktar → birebir aynı mı?
+- *Şema aynı zamanda veri modelinin belgesi.* Yeni koleksiyon eklenip şemaya
+  yazılmazsa bir test kırılır.
+
+**Nasıl çalıştırılır:** "Ayarlar" → "Yedeği indir (.json)" / "Yedekten yükle…".
+
+## Tur 2 / Aşama 6 — Koyu/açık tema ve PWA
+
+**Ne yaptım:** `js/tema.js`, `manifest.webmanifest`, `sw.js`, `ikonlar/`,
+`araclar/ikon-uret.py`, PWA ve tema testleri.
+
+**Neden böyle:**
+- *Tema = sadece CSS değişkenleri.* `<html data-tema="koyu">` olunca renk
+  değişkenleri değişir; başka hiçbir kural değişmez. Kontrast testi iki temayı
+  da denetler.
+- *`tema.js` `<head>` içinde.* Sayfa çizilmeden önce uygulanmazsa koyu tema
+  kullanan kişi her açılışta bir an beyaz ekran görür.
+- *Service worker "önce ağ, olmazsa önbellek".* İnternet varken her zaman
+  güncel dosya gelir (eski sürümde takılma olmaz), yokken son kopya açılır.
+  Supabase isteklerine dokunmaz.
+- *İkonlar betikle üretildi* (resim kütüphanesi kurmadan, yalnızca Python'un
+  kendi kütüphanesiyle).
+- *`testler/pwa.test.js`:* index.html'e eklenen bir dosya `sw.js` listesine
+  eklenmezse test kırılır.
+
+**Nasıl çalıştırılır:** Tema: "Ayarlar" → Görünüm. Ana ekrana ekleme yalnızca
+http(s) adresinde çalışır (yayınlanmış site ya da `python -m http.server`);
+dosyadan çift tıklayınca service worker devreye girmez, uygulama yine çalışır.
+
+**Geliştirirken dikkat:** `python -m http.server` dosyaları tarayıcıya
+"önbelleğe alınabilir" gönderir. Bir dosyayı değiştirince eski hâli gelirse
+sayfayı Ctrl+Shift+R ile yenile.
