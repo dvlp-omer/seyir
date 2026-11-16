@@ -28,10 +28,16 @@ const OTURUM_HATALARI = {
   "Invalid login credentials": "E-posta ya da şifre hatalı.",
   "Email not confirmed": "E-posta adresin henüz onaylanmamış. Gelen kutundaki onay bağlantısına tıkla.",
   "User already registered": "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.",
-  // Kayıt kapısı (schema.sql > kayit_kapisi) hesabı reddedince Supabase bu genel mesajı döner
-  "Database error saving new user": "Bu e-posta davet listesinde yok. Hesap açabilmen için takım yöneticisinin " +
-    "e-postanı Ayarlar > Erişim bölümünden eklemesi gerekir.",
 };
+
+// Kayıt kapısı (schema.sql > kayit_kapisi) hesabı reddedince gelen mesajlar.
+// Gerçek Supabase'de denendi: tetikleyicinin kendi mesajı döner
+// ({"code":"P0001","message":"KAYIT_DAVETLI_DEGIL"}). Bazı sürümler bunun
+// yerine genel "Database error saving new user" mesajını döndürebilir.
+const DAVETSIZ_KAYIT = "Bu e-posta davet listesinde yok. Hesap açabilmen için takım yöneticisinin " +
+  "e-postanı Ayarlar > Erişim bölümünden eklemesi gerekir.";
+OTURUM_HATALARI["KAYIT_DAVETLI_DEGIL"] = DAVETSIZ_KAYIT;
+OTURUM_HATALARI["Database error saving new user"] = DAVETSIZ_KAYIT;
 
 // Davet listesine eklenecek e-posta: küçük harf, boşluksuz, "@" ve nokta içeren
 function davetEpostasi(metin) {

@@ -214,8 +214,8 @@ kipte Kişiler/Mesajlar ekranlarını tamamen kapatabilirim.
 Supabase'de iki yol var: (a) `auth.users` tablosuna tetikleyici, (b) panelden
 "Before User Created" Auth Hook. (a)'yı seçtim çünkü tamamı `schema.sql`
 içinde, tek dosyayla kurulur ve panelde ayar gerektirmez. Bedeli: davetsiz
-kayıtta Supabase genel bir hata ("Database error saving new user") döner;
-uygulama bunu "davet listesinde yok" olarak çevirir. Gerçek projede denenmedi;
+kayıtta Supabase tetikleyicinin mesajını (`KAYIT_DAVETLI_DEGIL`) döner (gerçek projede denendi; bazı sürümler genel "Database error saving new user" mesajını döndürebilir, ikisi de karşılanıyor);
+uygulama bunu "davet listesinde yok" olarak çevirir.
 mesaj farklı gelirse `js/oturum.js > OTURUM_HATALARI`'na eklenir.
 Alternatif olarak panelde **Allow new users to sign up** tamamen kapatılıp
 kullanıcılar panelden "Invite user" ile davet edilebilir; o zaman uygulamadaki

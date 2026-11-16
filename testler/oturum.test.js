@@ -45,7 +45,7 @@ function sahteAuth(secenekler = {}) {
       if (govde.refresh_token === gecerliYenileme) return cevap(200, yeniOturum("ayse@ornek.com"));
       return cevap(400, { error_description: "Invalid Refresh Token" });
     }
-    if (adres.endsWith("/auth/v1/signup") && govde.email !== "davetsiz@ornek.com") {
+    if (adres.endsWith("/auth/v1/signup") && !govde.email.startsWith("davetsiz")) {
       if (govde.email === "ayse@ornek.com") return cevap(422, { msg: "User already registered" });
       return secenekler.epostaOnayi
         ? cevap(200, { id: "u2", email: govde.email })   // jeton yok: önce e-posta onaylanmalı
@@ -54,6 +54,11 @@ function sahteAuth(secenekler = {}) {
     if (adres.endsWith("/auth/v1/logout")) return { ok: true, status: 204, json: async () => null };
     // Kayıt kapısı: davet listesinde olmayan e-posta (schema.sql > kayit_kapisi)
     if (adres.endsWith("/auth/v1/signup") && govde.email === "davetsiz@ornek.com") {
+      // Gerçek Supabase'in verdiği cevap (17.11.2026'da denendi)
+      return cevap(500, { code: "P0001", message: "KAYIT_DAVETLI_DEGIL" });
+    }
+    if (adres.endsWith("/auth/v1/signup") && govde.email === "davetsiz-eski@ornek.com") {
+      // Bazı Supabase sürümlerinin genel mesajı
       return cevap(500, { code: 500, error_code: "unexpected_failure", msg: "Database error saving new user" });
     }
     if (adres.endsWith("/rest/v1/rpc/rolum")) return cevap(200, secenekler.rol || "uye");
@@ -219,6 +224,7 @@ test("kayitOl: davet listesinde olmayan e-postada anlaşılır Türkçe hata, ot
   const sunucu = sahteAuth();
   const oturum = oturumOlustur(ADRES, ANAHTAR, sahteDepolama(), sunucu.sahteFetch);
   await assert.rejects(() => oturum.kayitOl("davetsiz@ornek.com", "uzun-bir-sifre"), /davet listesinde yok/);
+  await assert.rejects(() => oturum.kayitOl("davetsiz-eski@ornek.com", "uzun-bir-sifre"), /davet listesinde yok/);
   assert.equal(oturum.kullanici(), null);
 });
 

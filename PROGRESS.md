@@ -696,3 +696,13 @@ karşılaştırdım; üçü de aynı çıktı.
 
 **Henüz denenmeyenler:** hesap açma, davetsiz kaydın reddedilmesi, takım ve
 kişi ekleme. İlk hesap yönetici olacağı için onu senin açman gerekiyor.
+
+**Güncelleme — ilk hesap ve davetsiz kayıt (gerçek projede denendi):**
+- İlk hesabı sen açtın: rolü **yönetici**, e-postası onaylı, tek hesap.
+- Davet listesinde olmayan bir e-postayla (`davetsiz-deneme@example.com`)
+  doğrudan Supabase'e kayıt isteği attım: **reddedildi** (HTTP 500,
+  `KAYIT_DAVETLI_DEGIL`); veritabanında bu e-postayla hesap **oluşmadı**.
+- Bulunan hata: Supabase genel "Database error…" mesajını değil,
+  tetikleyicinin kendi mesajını döndürüyormuş; uygulama bu yüzden kullanıcıya
+  ham kodu gösterecekti. `js/oturum.js` iki mesajı da Türkçe açıklamaya
+  çeviriyor; test gerçek cevap biçimine göre güncellendi (182 test geçiyor).
