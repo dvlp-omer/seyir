@@ -28,6 +28,7 @@ sorusuna cevap aranır. Takım Asistanı bunları tek sayfada toplar.
 | **Son tarih takibi** | Rapor, izin, etkinlik tarihleri için geri sayım; yaklaşan ve geciken vurgulanır. |
 | **Takvim** | Son tarihler, toplantılar ve etkinlikler tek ayda. |
 | **Toplantı tutanağı** | Tarih, yer, katılanlar, gündem, kararlar, görevler. Karardan tek tıkla görev. Yazdırılabilir / PDF. |
+| **Resmî tutanak (PDF / Word)** | Kulübün resmî toplantı tutanağı: A4, çerçeveli, imza bölümlü. Formu elle doldur, notlarını yapıştır ya da .txt / .docx yükle; numara kendiliğinden artar, devreden kararlar önceki tutanaklardan atfıyla seçilir. PDF ve Word (.docx) çıktısı. |
 | **Yoklama** | Toplantı ve etkinliklere kim katıldı; üye bazında katılım yüzdesi. |
 | **Etkinlik ve faaliyet raporu** | Etkinlik kaydı; seçilen tarih aralığı için yazdırılabilir rapor taslağı. |
 | **Duyuru şablonu** | Toplantı daveti, özeti ya da hatırlatma için WhatsApp'a yapıştırılmaya hazır metin (yapay zekâ yok, düz şablon). |
@@ -74,9 +75,18 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-100 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
-yoklama, rapor, duyuru şablonları, iki veri deposu, giriş, yedekleme, renk
-kontrastı ve PWA dosya listesi denetlenir.
+146 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
+yoklama, rapor, duyuru şablonları, iki veri deposu, giriş, yedekleme, resmî
+tutanak (numara, atıf, not ayrıştırma, Word okuma/yazma), renk kontrastı ve
+PWA dosya listesi denetlenir.
+
+```bash
+npm run test:pdf
+```
+
+Uydurma bir örnek tutanağı gerçekten PDF'e çevirir (bilgisayarda kurulu Edge
+ya da Chrome ile) ve üç şeyi denetler: sayfa sayısı, Türkçe harfler, serif
+yazı tipi. Çıktı: `testler/cikti/ornek-tutanak.pdf`.
 
 ### Mimari (kısaca)
 
@@ -121,7 +131,7 @@ verisini görür. Bu kural veritabanında uygulanır.
 | [QUESTIONS.md](QUESTIONS.md) | Yapılan varsayımlar ve karar bekleyen konular |
 | [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md) | Supabase kurulum rehberi |
 | [YAYIN.md](YAYIN.md) | Netlify'da yayına alma |
-| [MULAKAT.md](MULAKAT.md) | Proje hakkında sorulabilecek 15 soru |
+| [MULAKAT.md](MULAKAT.md) | Proje hakkında sorulabilecek 20 soru |
 
 ### Bilinen sınırlar
 
@@ -161,6 +171,7 @@ Plain HTML, CSS and JavaScript — no framework, no build step, no dependencies.
 - **Deadline tracking** — countdowns; upcoming and overdue items are highlighted.
 - **Calendar** — deadlines, meetings and events in one month view.
 - **Meeting minutes** — agenda, decisions, tasks; turn a decision into a task in one click; printable / PDF.
+- **Official minutes (PDF / Word)** — the club's formal A4 minutes with page frame, numbered articles and a signature block. Fill the form, paste free-text notes, or upload a .txt / .docx; numbering auto-increments and carried-over decisions are picked from earlier minutes with citations. Exports to PDF (browser print engine) and .docx (hand-written ZIP + WordprocessingML, no library).
 - **Attendance** — who attended each meeting or event; attendance rate per member.
 - **Events & activity report** — event log and a printable draft report for a chosen date range.
 - **Announcement templates** — ready-to-paste WhatsApp text (plain templates, no AI).
@@ -186,7 +197,10 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-100 tests with Node's built-in test runner (Node 18+, nothing to install).
+146 tests with Node's built-in test runner (Node 18+, nothing to install).
+`npm run test:pdf` renders a fictional sample of the official minutes to PDF
+with the locally installed Edge/Chrome and checks page count, Turkish
+characters and the serif font.
 
 ### Architecture
 

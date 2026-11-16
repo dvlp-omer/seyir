@@ -371,17 +371,21 @@ function notlariAyristir(metin) {
       }
     }
 
-    // 3) Etiketi bir üst satırda kalmış değer mi?  (Word tablosundan gelen metin böyledir)
-    if (bekleyenAlan && bekleyenAlan.alan !== "katilimcilar") {
-      alanaYaz(bekleyenAlan.alan, bekleyenAlan.etiket, satir);
-      bekleyenAlan = null;
-      continue;
-    }
-
-    // 3b) İki nokta OLMADAN yazılmış etiket ("Toplantı Tarihi" tek başına)
+    // 3) İki nokta OLMADAN yazılmış etiket ("Toplantı Tarihi" tek başına).
+    //    Değer kuralından ÖNCE bakılır: önceki etiketin değeri boş bırakılmışsa
+    //    sıradaki etiket onun değeri sanılmasın.
     if (NOT_ALANLARI[sade]) {
       bolum = NOT_ALANLARI[sade] === "katilimcilar" ? "katilimcilar" : null;
       bekleyenAlan = { alan: NOT_ALANLARI[sade], etiket: satir };
+      continue;
+    }
+
+    // 3b) Etiketi bir üst satırda kalmış değer mi?  (Word tablosundan gelen metin böyledir)
+    if (bekleyenAlan && bekleyenAlan.alan !== "katilimcilar") {
+      // Tek başına "—" belgedeki "boş" işaretidir; değer değildir.
+      if (/^[—–-]$/.test(satir)) { bekleyenAlan = null; continue; }
+      alanaYaz(bekleyenAlan.alan, bekleyenAlan.etiket, satir);
+      bekleyenAlan = null;
       continue;
     }
 

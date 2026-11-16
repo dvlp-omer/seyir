@@ -13,7 +13,7 @@ Hepsi **şu an doğru olan** şeyleri söyler. Köşeli parantezli yerleri doldu
 ## Kısa (CV'de tek satır)
 
 **Takım Asistanı** — Öğrenci takımları için görev, son tarih, toplantı tutanağı
-ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 100 otomatik test,
+ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 146 otomatik test,
 çevrimdışı çalışabilen PWA. `[GitHub bağlantısı]`
 
 ## Orta (CV'de proje bölümü)
@@ -27,7 +27,7 @@ ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 100 otomatik test,
 - Framework ve derleme adımı kullanmadan, veri katmanını tek bir arayüzün
   arkasına aldım; aynı arayüzü hem tarayıcı kaydı (localStorage) hem bulut
   (Supabase REST) için uyguladım ve iki uygulamayı aynı testlerden geçirdim.
-- 100 otomatik test yazdım (tarih mantığı, veri katmanı, giriş, yedekleme,
+- 146 otomatik test yazdım (tarih mantığı, veri katmanı, giriş, yedekleme,
   renk kontrastı); testler ek paket gerektirmeden Node ile çalışıyor.
 - Kendi kodumu denetleyip 29 sorun belgeledim ve 26'sını düzelttim (çift
   kayıt, klavye odağı, kontrast gibi); erişilebilirlik ve mobil kullanım
@@ -48,7 +48,7 @@ ve etkinlik takibi yapan web uygulaması. Düz JavaScript, 100 otomatik test,
 - No framework or build step: put the data layer behind one interface and
   implemented it twice (localStorage and Supabase REST), verified by a shared
   contract test suite.
-- Wrote 100 automated tests (date logic, data layer, auth, backup validation,
+- Wrote 146 automated tests (date logic, data layer, auth, backup validation,
   colour contrast) that run on plain Node with no dependencies.
 - Audited my own code, documented 29 issues and fixed 26 (double submission,
   keyboard focus loss, insufficient contrast); added dark theme, offline

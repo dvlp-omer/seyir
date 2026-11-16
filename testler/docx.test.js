@@ -153,3 +153,14 @@ test("gidiş-dönüş: indirilen Word dosyası geri yüklenince bütün alanlar 
   }
   assert.deepEqual(okunan.artan, []); // hiçbir satır açıkta kalmadı
 });
+
+test("gidiş-dönüş: tarih kutuları boş bırakılmış tutanak da doğru okunur", async () => {
+  // Boş kutu Word'de "etiket, (boş), sonraki etiket, —" diye çıkar; etiketler birbirinin değeri sanılmamalı.
+  const asil = { ...bosTutanak(), numara: "ROTA/İSAS-2026/07", toplanti_tarihi: "2026-04-09", kararlar: ["Bütçe tablosunun güncellenmesine"] };
+  const okunan = notlariAyristir(await d.docxOku(d.tutanakDocx(asil)));
+  assert.equal(okunan.toplanti_tarihi, "2026-04-09");
+  assert.equal(okunan.tutanak_tarihi, "");
+  assert.equal(okunan.sonraki_toplanti, "");
+  assert.deepEqual(okunan.kararlar, asil.kararlar);
+  assert.deepEqual(okunan.artan, []);
+});

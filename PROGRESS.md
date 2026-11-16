@@ -493,3 +493,46 @@ görünüm, istekte yazılı biçim tarifine göre yapıldı. Bkz. QUESTIONS.md.
 
 **Nasıl çalıştırılır:** `npm test`. Elle görmek için: `npm run test:pdf`
 çalıştırdıktan sonra `testler/cikti/` klasörüne bak.
+
+## Tutanak / Aşama 3 — Ekran, bağlama ve tarayıcı denemesi
+
+**Ne yaptım:** `js/ekranlar/tutanaklar.js` — "Tutanak" ekranı. Üç görünümü var:
+liste (aç, düzenle, kopyala, sil), kâğıt görünümü ("PDF indir", "Word indir")
+ve düzenleme formu. Ekranı `index.html` ve `sw.js` dosya listesine ekledim,
+önbellek adını `v3` yaptım. `dosyaIndir` artık dosya türünü de alıyor.
+README, MULAKAT.md (5 yeni soru), ARCHITECTURE.md ve QUESTIONS.md güncellendi.
+
+**Neden böyle:**
+- *Üç giriş yolu tek forma varıyor.* Elle doldurma, not yapıştırma ve dosya
+  yükleme aynı düzenlenebilir formu doldurur. Dosyadan okunan metin önce
+  "Notlar" kutusuna yazılır ki ne okunduğunu göresin; sonra aynı ayrıştırıcıdan
+  geçer. Böylece tek bir ayrıştırıcı, tek bir form, tek bir kaydetme yolu var.
+- *Ayrıştırıcı var olanı silmez.* Notlar forma yerleştirilirken yalnızca
+  notta bulunan alanlar değişir; yerleşmeyen satırlar sarı kutuda gösterilir.
+- *Ekranın kendi durumu var* (`tutanakEkrani`: liste / görüntüle / düzenle).
+  Devreden karar satırı eklemek gibi işlemlerde form önce okunur, sonra ekran
+  yeniden çizilir; yazdıkların kaybolmaz.
+- *Devreden kararlar bir pencereden seçilir;* atıf ("ROTA/İSAS-2026/01,
+  Karar 2") kendiliğinden gelir, istersen elle düzeltirsin.
+- *Aynı numara ikinci kez kullanılırsa* engellemiyorum, soruyorum (bazen bir
+  tutanağın düzeltilmiş hâli aynı numarayla saklanmak istenebilir).
+
+**Denemede bulunan hata (düzeltildi):** Tarih kutuları boş bir tutanağın Word
+dosyasını geri yükleyince "Tutanak Tarihi" etiketinin değeri olarak bir
+sonraki etiket ("Sonraki Toplantı") alınıyordu. Ayrıştırıcıda etiket kuralını
+değer kuralının önüne aldım ve tek başına "—" satırını "boş" saydım; bunun
+için bir test eklendi (toplam 146 test).
+
+**Tarayıcıda elle denenenler:** yeni tutanak (numara 01, kopyada 02 ve "İkinci
+Toplantı"), not yapıştırma, .docx / .txt yükleme, eski .doc ve bozuk dosyada
+anlaşılır hata, devreden karar seçimi, kaydet, görüntüle, Word indirme (dosya
+adı ve türü), silme, 375 piksel genişlikte taşma olmaması. Uygulamanın kendi
+yazdırma çıktısını Edge ile PDF'e alıp baktım: 2 sayfa, her sayfada çerçeve,
+altta "İSAS Akademi — Toplantı Tutanağı 04" ve "Sayfa N", kararlar bölünmüyor.
+
+**Denenmeyenler:** referans PDF ile yan yana karşılaştırma (dosya klasörde
+yoktu, bkz. QUESTIONS.md 16); Firefox / Safari; gerçek Supabase üzerinde
+`tutanaklar` tablosu (yalnızca sahte sunucu testleri).
+
+**Nasıl çalıştırılır:** `index.html` → menüden **Tutanak** → "+ Yeni tutanak".
+Testler: `npm test` · PDF denemesi: `npm run test:pdf`.

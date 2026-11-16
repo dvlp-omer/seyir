@@ -7,10 +7,11 @@
 
 const YEDEK_DOSYA_SINIRI = 5 * 1024 * 1024; // 5 MB
 
-// Metni dosya olarak indirir: bellekte bir dosya (Blob) oluşturur ve
+// İçeriği dosya olarak indirir: bellekte bir dosya (Blob) oluşturur ve
 // görünmez bir bağlantıya tıklar. Sunucu gerekmez.
-function dosyaIndir(dosyaAdi, icerik) {
-  const adres = URL.createObjectURL(new Blob([icerik], { type: "application/json" }));
+// icerik: metin ya da bayt dizisi (Word dosyası için). tur: dosyanın türü (MIME).
+function dosyaIndir(dosyaAdi, icerik, tur = "application/json") {
+  const adres = URL.createObjectURL(new Blob([icerik], { type: tur }));
   const baglanti = document.createElement("a");
   baglanti.href = adres;
   baglanti.download = dosyaAdi;

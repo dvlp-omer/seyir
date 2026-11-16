@@ -100,6 +100,69 @@ zaman üretilir.
 
 ---
 
+## B2. Resmî tutanak özelliğinde (4. tur) verdiğim kararlar
+
+### 16. Referans PDF'i bulamadım  ⚠️ senden bir şey bekliyor
+`referans/_SAS_Akademi_Toplant__Tutana___4.pdf` dosyası proje klasöründe yoktu
+(`referans/` klasörü de yoktu). Düzeni, isteğinde yazdığın biçim tarifine göre
+kurdum; **referansla yan yana karşılaştırma yapılmadı.** Yapman gereken: PDF'i
+`referans/` klasörüne koy (klasör `.gitignore`'da, depoya girmez),
+`npm run test:pdf` çıktısıyla yan yana aç. Fark görürsen (yazı boyutu,
+boşluklar, tablo çizgileri, imza bölümü) söyle; hepsi `css/stil.css` içindeki
+"Resmî tutanak" bölümünde ve kolay ayarlanır.
+
+### 17. "PDF indir" yazdırma penceresini açıyor
+PDF'i tarayıcının yazdırma motoru üretiyor; düğmeye basınca yazdırma penceresi
+açılır, hedef olarak "PDF olarak kaydet" seçilir. Tek tıkla dosya inmesi için
+bir PDF kütüphanesi ve Türkçe harfli bir yazı tipi dosyası indirmem gerekirdi;
+iznin olmadan indirmedim. Bu yolun iyi yanı: Türkçe harfler, sayfalara bölme
+ve "karar bölünmesin" kuralı tarayıcı tarafından doğru yapılıyor.
+- Sayfa çerçevesi ve alttaki "… Tutanağı 04 / Sayfa N" yazısı **Chrome ve
+  Edge'de** çalışır (sürüm 131+; Edge ile denendi). Firefox ve Safari'de
+  denemedim; orada sayfa altlığı büyük olasılıkla çıkmaz. Tutanağı
+  Chrome/Edge'de yazdır.
+- Yazdırma penceresinde "Üst bilgi ve alt bilgiler" işaretliyse sayfanın
+  üstüne tarih ve başlık basılır (alt kısım bozulmaz); kutuyu kaldır. Ekranda
+  da hatırlatılıyor.
+
+### 18. .docx için hazır kütüphane kullanmadım
+İstekte "tarayıcıda çalışan bir kütüphane kullan, dosyasını yerelde tut"
+deniyordu. Kütüphaneyi internetten indirmem gerekirdi. Onun yerine okuma ve
+yazmayı kendim yazdım (`js/docx.js`, 400 satırdan az): docx bir ZIP'tir, içindeki
+XML'den yazıyı çıkarmak yeterli. Sonuç istediğin şeyi karşılıyor (CDN yok,
+internetsiz çalışır) ve mülakatta her satırını anlatabilirsin. Sınırı: yalnızca
+düz yazı ve basit tablolar okunur; eski `.doc` okunmaz (anlaşılır hata verir).
+Kütüphane istersen (ör. mammoth.js) söyle, yalnızca `docxOku` değişir.
+
+### 19. İki ayrı "tutanak" var
+Mevcut **Toplantı** ekranındaki tutanak ekip içi hızlı not ve görev takibi
+için; yeni **Tutanak** ekranındaki ise imzaya gidecek resmî belge. "Başka
+özellik ekleme" dediğin için ikisini birbirine bağlamadım (ör. toplantıdan
+resmî tutanak üretme yok). İstersen küçük bir sonraki adım olur.
+
+### 20. Numara biçimi ayar değil, son tutanaktan çıkarılıyor
+"Biçim ayarlanabilir olsun" isteğini şöyle karşıladım: numara alanı serbest
+yazıdır; yeni tutanak, son tutanağın numarasındaki son sayıyı bir artırır.
+Biçimi bir kez elle değiştirmen yeter, sonrakiler onu izler. İlk tutanak
+"ROTA/İSAS-<yıl>/01" ile başlar. Alt başlık ("… Dördüncü Toplantı") ve sayfa
+altlığı da numarayla birlikte güncellenir.
+
+### 21. Serbest notta numarasız satır önceki maddeye eklenir
+Bir bölümün içinde numaralı satırlar varsa, numarasız satır "önceki maddenin
+devamı" sayılır (uzun kararlar alt satıra taşabildiği için). Bu yüzden bölümün
+sonuna yazılmış alakasız bir satır son maddeye yapışabilir; formda elle
+düzeltilir.
+
+### 22. Örnek veride resmî tutanak yok
+"Örnek veriyle dene" takımına resmî tutanak eklemedim (kapsam dışı sayıp
+dokunmadım). Uydurma örnek tutanak yalnızca testte: `testler/ornek-tutanak.js`.
+
+### 23. Git geçmişi yeni klasöre elle taşındı
+Proje `Documents` altına taşınırken `.git` klasörü gelmemişti; eski çalışma
+klasöründen kopyaladım. Geçmiş tam (ilk commit'ten bugüne).
+
+---
+
 ## C. v1'de verilen kararlar (hâlâ geçerli)
 
 - **Klasik `<script>`**, ES modülü değil: çift tıklayınca çalışsın diye.

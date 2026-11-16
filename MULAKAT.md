@@ -1,4 +1,4 @@
-# Mülakat hazırlığı — 15 soru
+# Mülakat hazırlığı — 20 soru
 
 Aşağıdaki cevaplar **taslaktır**. Ezberleme; her birini kodu açıp doğrula,
 sonra kendi cümlelerinle yeniden yaz. Mülakatçı ezber cevabı ikinci soruda
@@ -120,7 +120,7 @@ bir gün kaymasın diye.
 ## C. Kalite
 
 ### 10. Nasıl test ettin? Neyi test etmedin?
-100 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
+146 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
 fonksiyonlarını ve veri katmanını kapsıyor. Supabase ve giriş için sahte
 sunucu, jeton süresi için sahte saat kullandım. Test etmediğim şey arayüz:
 tıklama, odak, mobil görünüm tarayıcıda elle denendi. Bir sonraki adım
@@ -185,6 +185,82 @@ sunucu arayüzü doğrular ama veritabanı kurallarını doğrulamaz.
 
 ---
 
+## E. Resmî tutanak, PDF ve Word
+
+### 16. PDF'i nasıl üretiyorsun? Neden bir PDF kütüphanesi kullanmadın?
+PDF'i tarayıcının kendi yazdırma motoru üretiyor. Tutanak ekranda HTML olarak
+duruyor; yazdırma için ayrı CSS kuralları var: `@page` ile A4 boyutu, sayfa
+çerçevesi ve her sayfanın altındaki "… Tutanağı 04 / Sayfa N" yazıları,
+`break-inside: avoid` ile de bir kararın iki sayfaya bölünmemesi. Kullanıcı
+"PDF indir"e basınca yazdırma penceresi açılır, "PDF olarak kaydet" seçilir.
+Kütüphane kullansaydım Türkçe harfler için yazı tipi dosyası gömmem, satır
+kırmayı ve sayfalara bölmeyi kendim hesaplamam gerekirdi; tarayıcı bunların
+hepsini zaten doğru yapıyor. Bedeli: çıktı tek tıkla inmiyor, araya yazdırma
+penceresi giriyor ve sayfa altlığı yalnızca Chromium tabanlı tarayıcılarda
+(Chrome, Edge) çıkıyor.
+
+📂 `css/stil.css` ("Resmî tutanak" ve `@page resmi-tutanak`) · `js/tutanak.js > tutanakBelgeHtml, tutanakSayfaCss`
+
+> 🛠️ **Kendin yap:** `break-inside: avoid` satırını geçici olarak sil,
+> `npm run test:pdf` çalıştır ve PDF'te sayfa sonundaki kararın nasıl
+> bölündüğüne bak. Sonra geri koy.
+
+### 17. .docx dosyasını kütüphanesiz nasıl okuyup yazıyorsun?
+Bir .docx aslında bir ZIP arşividir; içinde XML dosyaları vardır. Okurken
+arşivin sonundaki dizinden `word/document.xml`'in yerini buluyorum,
+sıkıştırılmışsa tarayıcının `DecompressionStream` özelliğiyle açıyorum ve
+`<w:t>` etiketlerindeki yazıyı paragraf paragraf topluyorum. Yazarken yedi
+küçük XML dosyası üretip bunları sıkıştırmadan arşive koyuyorum; ZIP biçimi
+sıkıştırmasız dosyaya izin verir, yalnızca CRC-32 sağlaması hesaplamak
+gerekir. Yorumlarla birlikte 400 satırdan az. Kütüphane kullanmadım, çünkü uygulamanın
+"bağımlılık yok, internetsiz çalışır" özelliğini bozmak istemedim ve her
+satırını anlatabilmek istedim. Sınırı: yalnızca düz yazıyı okur; resim,
+dipnot, eski `.doc` biçimi yok.
+
+📂 `js/docx.js` · `testler/docx.test.js`
+
+> 🛠️ **Kendin yap:** İndirdiğin bir tutanağın uzantısını `.zip` yap, aç ve
+> `word/document.xml` dosyasına bak. "docx bir ZIP'tir" cümlesini gözünle gör.
+
+### 18. Yapay zekâ olmadan serbest notu forma nasıl yerleştiriyorsun?
+Basit kurallarla, satır satır. "Toplantı Tarihi: …" gibi tanıdığım etiketler
+ilgili alana gider. "Kararlar:" gibi bir bölüm başlığından sonra gelen
+satırlar o bölüme yazılır; "1." ya da "-" ile başlayan satır yeni madde
+başlatır, numarasız satır önceki maddenin devamı sayılır. Tarih birkaç
+biçimde yazılabilir ("12.03.2026", "12 Mart 2026"). En önemli kural şu:
+tanıyamadığım satırı atmıyorum, "yerleştirilemeyen satırlar" kutusunda
+gösteriyorum. Kuralların %100 doğru olması gerekmiyor, çünkü sonuç her zaman
+düzeltilebilir bir formda açılıyor; ama veri kaybetmemesi gerekiyor.
+
+📂 `js/tutanak.js > notlariAyristir` · `testler/tutanak.test.js`
+
+### 19. Tutanak numarası nasıl artıyor? Devreden kararların atfı nereden geliyor?
+Numaranın sonundaki sayıyı bulup bir artırıyorum, baştaki sıfırları koruyorum:
+"ROTA/İSAS-2026/04" → "…/05". Biçim bir ayar değil; son tutanağın numarasından
+çıkarılıyor. Kullanıcı numarayı elle değiştirirse sonraki tutanaklar yeni
+biçimi izler. Devreden kararlar için önceki tutanakların kararları listelenir;
+seçilen kararın yanına "ROTA/İSAS-2026/03, Karar 2" atfı kendiliğinden yazılır
+(tutanağın numarası + kararın sırası).
+
+📂 `js/tutanak.js > sonrakiTutanakNo, atifMetni, devredenAdaylari`
+
+> 🛠️ **Kendin yap:** `testler/tutanak.test.js` içinde numara ve devreden karar
+> testlerini oku; kenar durumları (yıl değişimi, daha önce devredilmiş karar)
+> kodda nasıl ele alınmış, kendi cümlenle anlat.
+
+### 20. Bu özelliği eklerken mevcut koda ne kadar dokundun?
+Çok az; mimarinin işe yaradığını burada gördüm. Veri katmanına yalnızca
+koleksiyon adını ekledim (`tutanaklar`); `listele / ekle / guncelle / sil`
+aynen çalıştı, yani localStorage'da da Supabase'de de aynı kod. Yedek şemasına
+bir satır, `schema.sql`'e bir tablo ve aynı güvenlik kuralı eklendi. Ekran
+kendi dosyasında ve `ekranKaydet` ile menüye kendini ekliyor. Değişen tek
+eski fonksiyon `dosyaIndir`: JSON dışında dosya türü de alabilsin diye bir
+parametre eklendi.
+
+📂 `js/veri.js > KOLEKSIYONLAR` · `js/yedek.js > YEDEK_SEMASI` · `js/ekranlar/tutanaklar.js`
+
+---
+
 ## Mülakattan önce: kendin yap listesi
 
 Bunları yaptıysan yukarıdaki cevapların hepsini kendi deneyiminle verebilirsin.
@@ -199,3 +275,5 @@ Bunları yaptıysan yukarıdaki cevapların hepsini kendi deneyiminle verebilirs
 - [ ] Siteyi yayınla (`YAYIN.md`) ve telefonuna "ana ekrana ekle".
 - [ ] Ekibinle bir toplantıda gerçekten kullan; README'deki "ROTA İSAS" bölümünü doldur.
 - [ ] `RAPOR.md`'yi oku; her bulgunun kodda nasıl düzeltildiğini bul.
+- [ ] Resmî tutanak ekranında kendi notlarını yapıştır; hangi satırların yerleşmediğine bak ve `notlariAyristir`'da nedenini bul.
+- [ ] `npm run test:pdf` çalıştır, `testler/cikti/ornek-tutanak.pdf` dosyasını aç; referans tutanakla yan yana koyup farkları not et.
