@@ -123,10 +123,42 @@ function karsilamaCiz(kok) {
   });
 }
 
+/* Yoklama kartı: üye bazında katılım yüzdesi.
+   Yoklama ayrı bir yerde alınmaz; toplantı ve etkinlik formlarındaki
+   "katılanlar" listesi yoklamanın kendisidir. Hesap: mantik.js > katilimOranlari
+   (geçmiş + en az bir kişi işaretlenmiş buluşmalar sayılır). */
+function katilimKartiHtml(uyeler, toplantilar, etkinlikler) {
+  const oranlar = katilimOranlari(uyeler, [...toplantilar, ...etkinlikler], bugun());
+  const sayilan = oranlar.length ? oranlar[0].toplam : 0;
+
+  let icerik;
+  if (uyeler.length === 0) {
+    icerik = '<p class="soluk">Üye ekleyince katılım oranları burada görünür.</p>';
+  } else if (sayilan === 0) {
+    icerik = '<p class="soluk">Henüz yoklaması alınmış bir toplantı ya da etkinlik yok. ' +
+      "Toplantı ve etkinlik formundaki “katılanlar” listesi yoklamadır; geçmiş tarihli kayıtlar buraya yansır.</p>";
+  } else {
+    const satirlar = oranlar.map((o) =>
+      "<tr><td>" + htmlKacis(o.ad) + "</td>" +
+      '<td class="sayi-hucre">' + o.katildi + " / " + o.toplam + "</td>" +
+      '<td><div class="oran"><span class="oran-cubuk" aria-hidden="true"><span style="width:' + o.yuzde + '%"></span></span>' +
+      "<b>%" + o.yuzde + "</b></div></td></tr>"
+    ).join("");
+    icerik =
+      '<p class="soluk kucuk-yazi" style="margin-bottom:10px">Yoklaması alınmış ' + sayilan +
+      " toplantı/etkinlik üzerinden hesaplandı (gelecek tarihliler sayılmaz).</p>" +
+      '<div class="tablo-sarici"><table class="tablo"><thead><tr><th>Üye</th><th>Katıldı</th><th>Katılım oranı</th></tr></thead>' +
+      "<tbody>" + satirlar + "</tbody></table></div>";
+  }
+  return '<section class="kart genis"><h3>Yoklama: katılım oranları</h3>' + icerik + "</section>";
+}
+
 async function takimEkraniCiz(kok) {
   if (!durum.takim) return karsilamaCiz(kok);
 
-  const uyeler = await takimKayitlari("uyeler");
+  const [uyeler, toplantilar, etkinlikler] = await Promise.all([
+    takimKayitlari("uyeler"), takimKayitlari("toplantilar"), takimKayitlari("etkinlikler"),
+  ]);
   // Kaptanlar üstte, sonra alfabetik (Türkçe harf sırasına göre)
   uyeler.sort((a, b) =>
     (a.rol === "kaptan" ? 0 : 1) - (b.rol === "kaptan" ? 0 : 1) || a.ad.localeCompare(b.ad, "tr"));
@@ -159,6 +191,7 @@ async function takimEkraniCiz(kok) {
     "</div>" +
     '<p class="soluk kucuk-yazi" style="margin-top:14px">Üyeler hakkında yalnızca ad ve rol tutulur.</p>' +
     "</section>" +
+    katilimKartiHtml(uyeler, toplantilar, etkinlikler) +
     "</div>";
 
   eylemleriBagla(kok, {
