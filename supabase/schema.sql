@@ -132,6 +132,40 @@ create table if not exists tutanaklar (
   olusturma        timestamptz not null default now()
 );
 
+-- Kişi rehberi (js/kisiler.js). TELEFON KİŞİSEL VERİDİR: bu tabloyu yalnızca
+-- takım üyeleri görür (aşağıdaki RLS kuralı), giriş yapmamış kimse göremez.
+create table if not exists kisiler (
+  id        text primary key,
+  takim_id  text not null references takimlar (id) on delete cascade,
+  ad        text not null,
+  ilk_ad    text not null default '',
+  telefon   text not null check (telefon ~ '^90[0-9]{10}$'),   -- 905XXXXXXXXX
+  etiket    text not null default '',
+  aciklama  text not null default '',
+  olusturma timestamptz not null default now()
+);
+
+-- WhatsApp mesaj şablonları
+create table if not exists sablonlar (
+  id        text primary key,
+  takim_id  text not null references takimlar (id) on delete cascade,
+  ad        text not null,
+  tur       text not null default 'duyuru' check (tur in ('duyuru', 'kabul', 'davet', 'hatirlatma')),
+  metin     text not null,
+  olusturma timestamptz not null default now()
+);
+
+-- Gönderim listeleri: alıcılar o anki hâlleriyle kopyalanır, kim gönderildi işaretlenir
+create table if not exists kampanyalar (
+  id        text primary key,
+  takim_id  text not null references takimlar (id) on delete cascade,
+  ad        text not null,
+  sablon_id text not null default '',
+  mesaj     text not null,
+  alicilar  jsonb not null default '[]',  -- [{ kisi_id, ad, ilk_ad, telefon, gonderildi, zaman }]
+  olusturma timestamptz not null default now()
+);
+
 -- Listeler hep "takim_id'ye göre" çekilir; bu dizinler o sorguları hızlandırır.
 create index if not exists uyeler_takim       on uyeler (takim_id);
 create index if not exists gorevler_takim     on gorevler (takim_id);
@@ -139,6 +173,9 @@ create index if not exists son_tarihler_takim on son_tarihler (takim_id);
 create index if not exists toplantilar_takim  on toplantilar (takim_id);
 create index if not exists etkinlikler_takim  on etkinlikler (takim_id);
 create index if not exists tutanaklar_takim   on tutanaklar (takim_id);
+create index if not exists kisiler_takim      on kisiler (takim_id);
+create index if not exists sablonlar_takim    on sablonlar (takim_id);
+create index if not exists kampanyalar_takim  on kampanyalar (takim_id);
 create index if not exists uyelikler_kullanici on takim_uyelikleri (kullanici_id);
 
 
@@ -220,9 +257,11 @@ $$;
 -- anon          : giriş yapmamış ziyaretçi -> HİÇBİR ŞEY
 -- authenticated : giriş yapmış hesap       -> aşağıdaki kurallar kadar
 
-revoke all on takimlar, takim_uyelikleri, uyeler, gorevler, son_tarihler, toplantilar, etkinlikler, tutanaklar from anon;
+revoke all on takimlar, takim_uyelikleri, uyeler, gorevler, son_tarihler, toplantilar, etkinlikler, tutanaklar,
+  kisiler, sablonlar, kampanyalar from anon;
 
-grant select, insert, update, delete on uyeler, gorevler, son_tarihler, toplantilar, etkinlikler, tutanaklar to authenticated;
+grant select, insert, update, delete on uyeler, gorevler, son_tarihler, toplantilar, etkinlikler, tutanaklar,
+  kisiler, sablonlar, kampanyalar to authenticated;
 
 -- Takımda yalnızca AD değiştirilebilir. olusturan_id ve davet_kodu
 -- sütunlarını istemci değiştiremez (sütun düzeyinde yetki).
@@ -257,6 +296,9 @@ alter table son_tarihler     enable row level security;
 alter table toplantilar      enable row level security;
 alter table etkinlikler      enable row level security;
 alter table tutanaklar       enable row level security;
+alter table kisiler          enable row level security;
+alter table sablonlar        enable row level security;
+alter table kampanyalar      enable row level security;
 
 -- v1'in "herkese açık" kuralları kaldırılır (eski şemayı çalıştırmış olanlar için).
 drop policy if exists "v1: herkese acik" on takimlar;
@@ -320,6 +362,18 @@ create policy etkinlikler_takim_uyesi on etkinlikler for all to authenticated
 
 drop policy if exists tutanaklar_takim_uyesi on tutanaklar;
 create policy tutanaklar_takim_uyesi on tutanaklar for all to authenticated
+  using (uye_mi(takim_id)) with check (uye_mi(takim_id));
+
+drop policy if exists kisiler_takim_uyesi on kisiler;
+create policy kisiler_takim_uyesi on kisiler for all to authenticated
+  using (uye_mi(takim_id)) with check (uye_mi(takim_id));
+
+drop policy if exists sablonlar_takim_uyesi on sablonlar;
+create policy sablonlar_takim_uyesi on sablonlar for all to authenticated
+  using (uye_mi(takim_id)) with check (uye_mi(takim_id));
+
+drop policy if exists kampanyalar_takim_uyesi on kampanyalar;
+create policy kampanyalar_takim_uyesi on kampanyalar for all to authenticated
   using (uye_mi(takim_id)) with check (uye_mi(takim_id));
 
 

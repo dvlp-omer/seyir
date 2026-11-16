@@ -12,6 +12,7 @@ const { ornekVeriYukle } = require("../js/ornek-veri.js");
 
 // ornek-veri.js tarayıcıda gunEkle'yi globalden bulur; Node'da biz veriyoruz.
 global.gunEkle = require("../js/mantik.js").gunEkle;
+global.VARSAYILAN_SABLONLAR = require("../js/kisiler.js").VARSAYILAN_SABLONLAR;
 
 const ADRES = "https://ornek.supabase.co";
 const ANAHTAR = "test-anahtari";
@@ -181,6 +182,10 @@ for (const [ad, depoOlustur] of Object.entries(depolar)) {
     assert.equal((await depo.listele("gorevler", filtre)).length, 6);
     assert.equal((await depo.listele("son_tarihler", filtre)).length, 4);
     assert.equal((await depo.listele("etkinlikler", filtre)).length, 3);
+    assert.equal((await depo.listele("kisiler", filtre)).length, 6);
+    assert.equal((await depo.listele("sablonlar", filtre)).length, 4);
+    // Örnek kişilerin numaraları yalnızca kullanılmayan 0500 000 00 xx aralığında
+    for (const kisi of await depo.listele("kisiler", filtre)) assert.match(kisi.telefon, /^9050000000\d\d$/);
 
     // İlk karar bir göreve bağlı olmalı ve o görev gerçekten var olmalı
     const [toplanti] = await depo.listele("toplantilar", filtre);

@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 
 // yedek.js ve ornek-veri.js tarayıcıda diğer dosyaların fonksiyonlarını
 // globalden bulur; Node'da aynı ortamı biz kuruyoruz.
-Object.assign(global, require("../js/mantik.js"), require("../js/veri.js"));
+Object.assign(global, require("../js/mantik.js"), require("../js/veri.js"), require("../js/kisiler.js"));
 const { yedekCoz, yedekOlustur, yedekYukle, kayitTemizle, YEDEK_SEMASI } = require("../js/yedek.js");
 const { ornekVeriYukle } = require("../js/ornek-veri.js");
 
@@ -163,4 +163,25 @@ test("yedekYukle: var olan veriye dokunmadan yenileri ekler", async () => {
   const takimlar = await depo.listele("takimlar");
   assert.deepEqual(takimlar.map((t) => t.ad).sort(), ["Başka takım", "ROTA İSAS"]);
   assert.ok(await depo.oku("takimlar", mevcut.id));
+});
+
+test("kişiler, şablonlar ve gönderim listeleri yedekte korunur; bozuk numara reddedilir", () => {
+  // Numaralar uydurmadır (kullanılmayan 0500 000 00 xx aralığı)
+  const yedek = ornekYedek();
+  Object.assign(yedek.veriler, {
+    kisiler: [{ id: "k1", takim_id: "t1", ad: "Ece Demir", ilk_ad: "Ece", telefon: "905000000001", etiket: "üye", aciklama: "" }],
+    sablonlar: [{ id: "s1", takim_id: "t1", ad: "Davet", tur: "davet", metin: "Merhaba {ad}" }],
+    kampanyalar: [{ id: "c1", takim_id: "t1", ad: "Mart daveti", sablon_id: "s1", mesaj: "Merhaba {ad}",
+      alicilar: [{ kisi_id: "k1", ad: "Ece Demir", ilk_ad: "Ece", telefon: "905000000001", gonderildi: true, zaman: "2026-03-12T10:00:00Z", fazla: "atılır" }] }],
+  });
+  const sonuc = yedekCoz(JSON.stringify(yedek));
+  assert.equal(sonuc.gecerli, true, sonuc.hata);
+  assert.equal(sonuc.veriler.kisiler[0].telefon, "905000000001");
+  assert.deepEqual(Object.keys(sonuc.veriler.kampanyalar[0].alicilar[0]), ["kisi_id", "ad", "ilk_ad", "telefon", "gonderildi", "zaman"]);
+
+  yedek.veriler.kisiler[0].telefon = "0500 000 00 01"; // kayıtta hep 90... biçiminde olmalı
+  assert.match(yedekCoz(JSON.stringify(yedek)).hata, /telefon/);
+  yedek.veriler.kisiler[0].telefon = "905000000001";
+  yedek.veriler.kampanyalar[0].alicilar[0].telefon = "<script>";
+  assert.match(yedekCoz(JSON.stringify(yedek)).hata, /alıcı listesi/);
 });

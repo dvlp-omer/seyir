@@ -58,6 +58,11 @@ const YEDEK_SEMASI = {
     devreden_giris: "metin", devreden: "atifli", kararlar: "liste", gorevler: "liste",
     alt_bilgi: "metin", sayfa_altligi: "metin",
   },
+  // Kişi rehberi ve WhatsApp mesajları (js/kisiler.js). Telefon numarası
+  // kişisel veridir: yedek dosyasını paylaşırken dikkat (README > Kişisel veri).
+  kisiler: { takim_id: "metin!", ad: "metin!", ilk_ad: "metin", telefon: "telefon", etiket: "metin", aciklama: "metin" },
+  sablonlar: { takim_id: "metin!", ad: "metin!", tur: ["duyuru", "kabul", "davet", "hatirlatma"], metin: "metin!" },
+  kampanyalar: { takim_id: "metin!", ad: "metin!", sablon_id: "metin", mesaj: "metin!", alicilar: "alicilar" },
 };
 
 const metinMi = (deger) => typeof deger === "string" && deger.length <= YEDEK_METIN_SINIRI;
@@ -100,6 +105,18 @@ function alanTemizle(kural, deger) {
         return { hata: "devreden karar listesi bozuk" };
       }
       return { deger: deger.map((d) => ({ metin: d.metin, atif: d.atif || "" })) };
+    case "telefon":
+      // Kayıtta numara her zaman 90XXXXXXXXXX biçimindedir (js/kisiler.js > telefonNormallestir)
+      return typeof deger === "string" && /^90\d{10}$/.test(deger) ? { deger: deger } : { hata: "geçerli bir telefon numarası değil" };
+    case "alicilar":
+      if (deger === undefined || deger === null) return { deger: [] };
+      if (!Array.isArray(deger) || !deger.every((a) => a && metinMi(a.ad) && typeof a.telefon === "string" && /^90\d{10}$/.test(a.telefon))) {
+        return { hata: "alıcı listesi bozuk" };
+      }
+      return { deger: deger.map((a) => ({
+        kisi_id: metinMi(a.kisi_id) ? a.kisi_id : "", ad: a.ad, ilk_ad: metinMi(a.ilk_ad) ? a.ilk_ad : "",
+        telefon: a.telefon, gonderildi: a.gonderildi === true, zaman: metinMi(a.zaman) ? a.zaman : "",
+      })) };
     default:
       return { hata: "bilinmeyen kural" };
   }

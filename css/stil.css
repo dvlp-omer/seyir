@@ -505,6 +505,33 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 .giris-kart { max-width: 420px; }
 .oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
 
+/* Kişiler ve WhatsApp mesajları (js/ekranlar/kisiler.js, mesajlar.js) */
+.sablon-onizleme { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+details[open] > .sablon-onizleme { display: block; }
+.mesaj-onizleme { padding: 12px 14px; border-radius: var(--kose); background: var(--balon); border: 1px solid var(--cizgi); }
+.mesaj-onizleme p { margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mesaj-onizleme .form-hata { margin: 8px 0 0; }
+.kisi-secim { max-height: 50vh; overflow-y: auto; border: 1px solid var(--cizgi); border-radius: 8px; }
+.kisi-secim label { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--cizgi); cursor: pointer; }
+.kisi-secim label:first-child { border-top: 0; }
+.kisi-secim label:has(input:checked) { background: var(--rozet-z); }
+.kisi-secim input, .alici-isaret input { width: 20px; height: 20px; flex: none; }
+.kisi-secim p { padding: 10px 12px; }
+.alici-liste { display: flex; flex-direction: column; gap: 6px; }
+.alici { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--kagit); border: 1px solid var(--cizgi); border-radius: var(--kose); }
+.alici-no { width: 28px; flex: none; text-align: right; font-family: var(--sayi-tipi); color: var(--soluk); font-size: 13px; }
+.alici-isaret { display: inline-flex; }
+.alici-ad { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.alici-ad .soluk { display: block; font-family: var(--sayi-tipi); }
+.telefon { font-family: var(--sayi-tipi); white-space: nowrap; }
+.alici.gonderildi { background: var(--sutun); }
+.alici.gonderildi .alici-ad { color: var(--soluk); text-decoration: line-through; }
+.sadece-bekleyen .alici.gonderildi { display: none; }
+.ia-liste { list-style: disc; padding-left: 20px; margin: 6px 0 10px; font-size: 14px; max-height: 180px; overflow-y: auto; }
+#pencere details { margin-bottom: 6px; }
+#pencere summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.arac-cubugu input[type="search"] { min-height: 40px; padding: 8px 10px; border: 1px solid var(--giris-cizgi); border-radius: 8px; background: var(--giris-zemin); }
+
 /* ---------- 6) Form penceresi (dialog) ---------- */
 dialog {
   width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);

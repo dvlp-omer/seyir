@@ -109,6 +109,7 @@ function tutanakGoruntuleCiz(kok, tutanak, tutanaklar) {
     '<span class="bosluk"></span>' +
     '<button class="dugme" data-eylem="duzenle">Düzenle</button>' +
     '<button class="dugme" data-eylem="kopyala">Kopyala</button>' +
+    '<button class="dugme" data-eylem="mesaj" title="Sonraki toplantı bilgisi ve tutanaktaki kişilerle WhatsApp hatırlatması">Hatırlatma mesajı</button>' +
     '<button class="dugme" data-eylem="word">Word (.docx) indir</button>' +
     '<button class="dugme ana" data-eylem="pdf">PDF indir</button>' +
     '<button class="dugme tehlike" data-eylem="sil">Sil</button>' +
@@ -123,6 +124,8 @@ function tutanakGoruntuleCiz(kok, tutanak, tutanaklar) {
     duzenle: () => tutanakFormunuAc({ ...bosTutanak(), ...tutanak }, tutanak.id),
     kopyala: () => tutanagiKopyala(tutanak, tutanaklar),
     sil: () => tutanagiSil(tutanak),
+    // Mesajlar ekranına geçer: tarih/saat "Sonraki Toplantı"dan, kişiler katılımcılardan (mesajlar.js)
+    mesaj: () => tutanaktanMesajHazirla(tutanak.id),
     // PDF: tarayıcının yazdırma motoru üretir (sayfalara bölme, çerçeve, "Sayfa N").
     // Dosya adı sayfa başlığından gelir (belgeYazdir: toplantilar.js).
     pdf: () => belgeYazdir(tutanakDosyaAdi(tutanak)),

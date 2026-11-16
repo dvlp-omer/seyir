@@ -90,6 +90,23 @@ async function ornekVeriYukle(depo, bugunTarihi) {
     });
   }
 
+  // Kişi rehberi: adlar UYDURMA, numaralar bilerek kullanılmayan "0500 000 00 xx"
+  // aralığından. Gerçek kişi verisi demo ve testlere asla konmaz.
+  const kisiler = [
+    ["Ece Nur Demir", "Ece Nur", "905000000001", "başvuran"],
+    ["Can Öztürk", "Can", "905000000002", "başvuran"],
+    ["İpek Yıldız", "İpek", "905000000003", "kabul edildi"],
+    ["Mert Şahin", "Mert", "905000000004", "üye"],
+    ["Elif Aydın", "Elif", "905000000005", "üye"],
+    ["Baran Koç", "Baran", "905000000006", "kabul edildi"],
+  ];
+  for (const [ad, ilkAd, telefon, etiket] of kisiler) {
+    await depo.ekle("kisiler", { ...ortak, ad: ad, ilk_ad: ilkAd, telefon: telefon, etiket: etiket, aciklama: "" });
+  }
+  for (const sablon of VARSAYILAN_SABLONLAR) {
+    await depo.ekle("sablonlar", { ...ortak, ...sablon });
+  }
+
   return takim;
 }
 

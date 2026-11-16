@@ -536,3 +536,78 @@ yoktu, bkz. QUESTIONS.md 16); Firefox / Safari; gerçek Supabase üzerinde
 
 **Nasıl çalıştırılır:** `index.html` → menüden **Tutanak** → "+ Yeni tutanak".
 Testler: `npm test` · PDF denemesi: `npm run test:pdf`.
+
+---
+
+# 5. tur — Kişiler, WhatsApp, güvenlik, yayın
+
+## 5.0 — Tutanak PDF'inin referansla karşılaştırılması
+
+**Ne yaptım:** Referans PDF'i (`referans/`, depoya girmez) ve kendi çıktımızı
+sayfa sayfa resme çevirip yan yana koydum. Bulunan farklar düzeltildi:
+- başlık bloğunun altında kalın çizgi yoktu → eklendi; alt başlık ve numara gri
+- bilgi tablosu: dış çerçeve koyu, iç çizgiler ince ve gri, etiket hücreleri
+  açık gri zeminli (referanstaki gibi); "Seminer/Buluşma" hücrede harf harf
+  bölünüyordu → yalnızca "/" sonrasında bölünür
+- devreden kararlarda atıf referansta maddenin **başında**:
+  "(ROTA/İSAS-2026/01, Karar 1) Metin" → öyle yapıldı; not ayrıştırıcı iki
+  biçimi de tanır
+- "Katılımcılar:" kalın değil, satır noktayla biter
+- imza bölümü: üstte ayırıcı çizgi, adlar kalın, adların altında çizgi ve
+  imza boşluğu; alt bilgi satırı imza bölümüyle birlikte kalır (önceki
+  denemede tek başına 3. sayfaya düşmüştü)
+- sayfa altlığı italik değil, gri; çerçeve inceltildi
+- Word çıktısı da aynı düzene getirildi (gerçek Word ile açılıp bakıldı).
+
+Türkçe harfler, sayfa sayısı (2) ve serif yazı tipi `npm run test:pdf` ile
+denetlendi.
+
+## 5.1 — Kişiler ve WhatsApp mesajları
+
+**Ne yaptım:**
+- `js/kisiler.js` (saf mantık, 19 test): telefonu tek biçime çevirme
+  (`0532…`, `+90…`, `0090…`, `532…` → `90XXXXXXXXXX`; sabit hat ve yanlış hane
+  sayısı nedeniyle reddedilir), CSV / yapıştırma okuma, "kabul mesajları"
+  HTML dosyasından kişi dizisini okuma, şablon doldurma, wa.me bağlantısı,
+  gönderim listesi ve ilerleme, tutanaktan tarih/saat ve kişi bulma.
+- **Kişiler** ekranı: rehber (ad, hitap adı, telefon, etiket, not), arama ve
+  etiket süzgeci, içe aktarma penceresi (önce önizleme: kaç kişi eklenecek,
+  hangi satırlar hatalı, hangi numaralar zaten var), CSV indirme.
+- **Mesajlar** ekranı: şablonlar (kabul, davet, hatırlatma, genel duyuru;
+  "Hazır şablonları ekle"), yeni gönderim (şablon → değerler → kişiler →
+  liste), gönderim listesi (kişi kişi "WhatsApp'ta aç", tıklayınca
+  "gönderildi", sayaç 12/72, "yalnızca gönderilmeyenler"), gruba duyuru
+  (kopyala ya da `wa.me/?text=` ile paylaş).
+- Tutanak görünümüne **"Hatırlatma mesajı"** düğmesi: sonraki toplantının
+  tarih/saatini ve tutanakta adı geçen (rehberdeki) kişileri doldurur.
+- Veri katmanına `kisiler`, `sablonlar`, `kampanyalar` eklendi (yedek şeması,
+  `schema.sql` tabloları ve RLS kuralları dahil). Örnek veriye 6 uydurma kişi
+  ve hazır şablonlar eklendi.
+
+**Neden böyle:**
+- *Gönderimi uygulama yapmıyor.* WhatsApp otomatik toplu gönderimi resmî
+  olarak desteklemez; resmî olmayan araçlar hesabı kapattırabilir. wa.me
+  mesajı hazır açar, "Gönder"e kişi basar. Bu sınır ekranda yazıyor.
+- *Gönderim listesi alıcıları kopyalar.* Kişi sonradan silinse ya da numarası
+  değişse de "kime gönderdim" kaydı bozulmaz.
+- *HTML dosyasındaki kod çalıştırılmaz.* Kişi dizisi metin olarak bulunup
+  `JSON.parse` ile okunur (`eval` yok). Denemede dosyaya konan kod gerçekten
+  çalışmadı.
+- *Telefon kayıtta tek biçimde* (`90…`): aynı kişinin iki kez eklenmesi
+  numara üzerinden yakalanır; veritabanında da `check` kuralı var.
+- *Kişiler `uyeler`den ayrı:* rehberde başvuranlar gibi takım üyesi olmayan
+  kişiler de var.
+- *Gerçek veri yok:* referans HTML'deki ad ve numaralar hiçbir dosyaya
+  kopyalanmadı. Örnek ve test numaraları kullanılmayan `0500 000 00 xx`
+  aralığında; bir test bunu denetliyor.
+
+**Tarayıcıda denenenler:** arama/etiket süzgeci, CSV yapıştırma (hatalı,
+yinelenen satırlar), HTML yükleme, kişi formunda yinelenen ve geçersiz numara,
+şablonla gönderim listesi, "WhatsApp'ta aç" → sayaç 1/3, elle işaret → 2/3,
+sayfa yenilenince kalıcılık, gruba duyuru bağlantısı, tutanaktan hatırlatma
+(3 kişi bulundu, tarih ve saat doldu), 375 px genişlikte taşma yok.
+Bulunan iki hata düzeltildi: gönderim tarihi UTC yüzünden bir gün geri
+görünüyordu; dar ekranda kişi tablosu sıkışıyordu (satır kartlarına çevrildi).
+
+**Nasıl çalıştırılır:** menüden **Kişiler** ve **Mesajlar**. Demo:
+`index.html?ornek=1`. Testler: `npm test` (168).

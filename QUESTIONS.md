@@ -163,6 +163,47 @@ klasöründen kopyaladım. Geçmiş tam (ilk commit'ten bugüne).
 
 ---
 
+## B3. Kişiler ve WhatsApp (5. tur) kararları
+
+### 24. Referans dosyalarını masaüstünden kopyaladım
+`referans/` klasörü proje klasöründe yoktu. Aynı adlı dosyaları masaüstündeki
+"ROTA İSAS TOPLANTI KARARLARI" klasöründe buldum ve yalnızca okuyup
+`referans/` içine kopyaladım (klasör `.gitignore`'da, depoya girmedi; kaynak
+dosyalara dokunulmadı). İstemezsen `referans/` klasörünü silebilirsin.
+
+### 25. "Kişisel veri: sadece ad ve rol" kuralı bu özellikte genişledi
+İlk turdaki kural yalnızca ad ve rol tutmaktı. Bu özellik için senin isteğinle
+telefon numarası da tutuluyor. Önlemler: kişiler ayrı tabloda, Supabase'de
+yalnızca takım üyeleri görür (RLS), demo ve testlerde gerçek numara yok,
+ekranda "kişisel veridir" uyarısı var.
+
+### 26. Yalnızca Türkiye cep numaraları kabul ediliyor
+WhatsApp için cep numarası gerekir; `90 5xx …` dışındakiler (sabit hat,
+yabancı numara) "geçersiz" sayılıp içe aktarmada listelenir. Yabancı numara
+gerekirse kural `js/kisiler.js > telefonNormallestir` içinde genişletilir.
+
+### 27. Uydurma numaralar "0500 000 00 xx"
+Türkiye'de kurgu için ayrılmış bir numara aralığı yok. 0500 öneki bilgim
+dahilinde hiçbir operatöre verilmemiş; demo ve testlerde bu aralığı kullandım.
+Yine de bu numaralara gerçek mesaj gönderme.
+
+### 28. Hitap adı tahmini: adın ilk sözcüğü
+İçe aktarmada hitap adı yoksa adın ilk sözcüğü alınır ("Ece Nur Demir" →
+"Ece"). İki adlı kişilerde formdan düzeltilir. Kabul mesajları dosyasında
+hitap adı (`ilk`) zaten var, o kullanılır.
+
+### 29. "Gönderildi" işareti tıklamayla konuyor
+"WhatsApp'ta aç"a basmak mesajın gerçekten gönderildiğini kanıtlamaz
+(WhatsApp'ta vazgeçilebilir). Referans sayfa da böyle çalışıyordu; işaret elle
+kaldırılabilir.
+
+### 30. Duyuru ekranı yerinde kaldı
+Eski **Duyuru** ekranı (toplantıdan özet metni üretme) aynen duruyor; yeni
+**Mesajlar** ekranı kişiye özel gönderim için. İkisini birleştirmedim
+(kapsamı aşmamak için).
+
+---
+
 ## C. v1'de verilen kararlar (hâlâ geçerli)
 
 - **Klasik `<script>`**, ES modülü değil: çift tıklayınca çalışsın diye.

@@ -14,7 +14,7 @@
    ========================================================================== */
 
 // Dosya listesi değişince bu adı da değiştir; eski önbellek silinir.
-const ONBELLEK = "takim-asistani-v3";
+const ONBELLEK = "takim-asistani-v4";
 
 // Uygulamanın açılması için gereken dosyalar ("kabuk").
 // index.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).
@@ -33,6 +33,7 @@ const KABUK = [
   "js/yedek.js",
   "js/tutanak.js",
   "js/docx.js",
+  "js/kisiler.js",
   "js/arayuz.js",
   "js/ornek-veri.js",
   "js/ekranlar/ozet.js",
@@ -43,6 +44,8 @@ const KABUK = [
   "js/ekranlar/tutanaklar.js",
   "js/ekranlar/etkinlikler.js",
   "js/ekranlar/duyuru.js",
+  "js/ekranlar/kisiler.js",
+  "js/ekranlar/mesajlar.js",
   "js/ekranlar/takim.js",
   "js/ekranlar/ayarlar.js",
   "js/ekranlar/giris.js",

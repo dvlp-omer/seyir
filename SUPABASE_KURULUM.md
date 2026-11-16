@@ -46,9 +46,9 @@ bile başka takımın verisi dönmez (`supabase/schema.sql` içindeki RLS kurall
 2. Bu depodaki [supabase/schema.sql](supabase/schema.sql) dosyasının
    **tamamını** kopyalayıp yapıştır.
 3. **Run**. "Success. No rows returned" görmelisin.
-4. Sol menüden **Table Editor**'a bak: 8 tablo olmalı — `takimlar`,
+4. Sol menüden **Table Editor**'a bak: 11 tablo olmalı — `takimlar`,
    `takim_uyelikleri`, `uyeler`, `gorevler`, `son_tarihler`, `toplantilar`,
-   `etkinlikler`, `tutanaklar`. Her birinin yanında RLS'in **açık** olduğu yazmalı.
+   `etkinlikler`, `tutanaklar`, `kisiler`, `sablonlar`, `kampanyalar`. Her birinin yanında RLS'in **açık** olduğu yazmalı.
 
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 
