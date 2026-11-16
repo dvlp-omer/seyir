@@ -10,6 +10,11 @@ Sıra önemli. Her adımın sonunda "✅ Olduysa" satırındaki şeyi görmelisi
 > Portföy için 1. bölüm yeterli; 2–4. bölümler ekibin gerçekten ortak
 > kullanması içindir.
 
+> **Durum (17 Kasım 2026):** 2. ve 3. bölümün çoğu senin adına yapıldı:
+> `takim-asistani` Supabase projesi açıldı (dvlp-omer's Org, Avrupa), şema
+> kuruldu ve doğrulandı, `.env` dolduruldu, ayar dosyası üretildi. Senden
+> kalan tek zorunlu adım: **ilk hesabı açmak** (3. bölüm, işaretsiz maddeler).
+
 ---
 
 ## 1. Hemen (10 dakika) — depo ve portföy
@@ -50,36 +55,26 @@ Sıra önemli. Her adımın sonunda "✅ Olduysa" satırındaki şeyi görmelisi
 
 Ayrıntı: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md). Kısaca:
 
-- [ ] <https://supabase.com> → hesap aç → **New project**. Veritabanı şifresini
-  bir şifre yöneticisine kaydet (uygulamada kullanılmaz).
-- [ ] **SQL Editor** → [supabase/schema.sql](supabase/schema.sql) dosyasının
-  **tamamını** yapıştır → **Run**.
-  ✅ Olduysa: Table Editor'da 13 tablo, hepsinde RLS açık.
-- [ ] **Authentication → Sign In / Providers → Email:** "Confirm email" **açık**
-  kalsın (başkasının e-postasıyla hesap açılmasın).
-- [ ] **Project Settings → API:** `Project URL` ve `anon` (ya da
-  `publishable`) anahtarı kopyala. **`service_role` / `secret` anahtarını
-  hiçbir yere yapıştırma.**
+- [x] Proje açıldı: **takim-asistani** (`dlzcmnpaccfwfvtrhmix`, AB). Var olan
+  "TABULA-SUB TRACKER" projesine dokunulmadı. Proje açılırken "yeni tabloları
+  otomatik açma" kapatıldı, "otomatik RLS" açıldı.
+- [x] Veritabanı şifresi Supabase'in "Generate a password" düğmesiyle üretildi;
+  kimse görmedi, uygulamada kullanılmaz. Gerekirse Project Settings →
+  Database → **Reset database password** ile yenisini al.
+- [x] **SQL Editor**'da şema çalıştırıldı ("Success"). Doğrulama sorgusu:
+  13 tablo, 13'ünde RLS açık, kuralsız tablo 0, ziyaretçinin okuyabildiği
+  tablo 0; `auth.users` üzerinde `kayit_kapisi` ve `yeni_hesap` tetikleyicileri var.
+- [x] Giriş yapmadan REST denemesi: `kisiler`, `gorevler`, `takimlar`,
+  `profiller`, `izinli_epostalar` ve `rolum` → hepsi **permission denied**.
+- [x] Authentication: "Confirm email" açık, "anonymous sign-ins" kapalı,
+  Site URL = `http://localhost:8765`.
+- [x] `anon` anahtarı alındı (`service_role` anahtarına dokunulmadı).
 
 ## 3. Anahtarları `.env`'e koy ve bağlan (5 dakika)
 
-- [ ] `.env.example` dosyasını kopyala, adını `.env` yap.
-- [ ] İçini doldur:
-
-  ```
-  VERI_KATMANI=supabase
-  SUPABASE_URL=https://....supabase.co
-  SUPABASE_ANON_KEY=....
-  ```
-
-- [ ] Ayar dosyasını üret:
-
-  ```bash
-  node araclar/env-aktar.js
-  ```
-
-  ✅ Olduysa: `js/ayarlar.js yazıldı. Veri katmanı: supabase`.
-- [ ] Uygulamayı aç:
+- [x] `.env` dolduruldu (depoya girmez) ve `node araclar/env-aktar.js`
+  çalıştırıldı: `js/ayarlar.js yazıldı. Veri katmanı: supabase`.
+- [ ] Uygulamayı aç (açık değilse):
 
   ```bash
   python -m http.server 8765

@@ -676,3 +676,23 @@ YAYIN.md ve BENIM_YAPACAKLARIM.md'de). Gerçek Supabase projesi açmadım
 (senin hesabın gerekir).
 
 **Nasıl çalıştırılır:** `npm test` (182 test) · `npm run test:pdf`.
+
+## 5.4 — Gerçek Supabase projesi kuruldu
+
+**Ne yaptım (senin isteğinle, senin Supabase hesabında):** `takim-asistani`
+projesini açtım (AB bölgesi; var olan diğer projene dokunmadım), şemayı SQL
+Editor'da çalıştırdım, doğrulama sorgusuyla kontrol ettim, `.env`'i doldurup
+`js/ayarlar.js`'i ürettim, Site URL'yi `http://localhost:8765` yaptım.
+
+**Doğrulananlar (gerçek veritabanında):** 13 tablo; hepsinde RLS açık ve en az
+bir kural var; ziyaretçi (anon) hiçbir tabloyu okuyamıyor; giriş yapmadan
+REST isteği `permission denied` dönüyor; kayıt tetikleyicileri `auth.users`
+üzerinde kurulu. Uygulama Supabase kipinde açılıp giriş ekranını gösterdi.
+
+**Nasıl aktardım:** Tarayıcı panosu ve yerel sunucudan okuma Supabase
+panelinde engelliydi; şemayı (yorumları çıkarılmış hâlde) üç parça hâlinde
+editöre yazdım ve her parçanın SHA-256 özetini yerel dosyanınkiyle
+karşılaştırdım; üçü de aynı çıktı.
+
+**Henüz denenmeyenler:** hesap açma, davetsiz kaydın reddedilmesi, takım ve
+kişi ekleme. İlk hesap yönetici olacağı için onu senin açman gerekiyor.
