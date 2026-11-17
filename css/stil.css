@@ -503,6 +503,11 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 /* Giriş ekranı (yalnızca Supabase kullanılırken görünür).
    Giriş yapılmamışken menü ve takım seçici gizlenir. */
 .giris-kart { max-width: 420px; }
+/* Şifre kutusu ve yanındaki "Göster" düğmesi yan yana; düğme kutunun boyunda. */
+.alan > label > span { display: block; margin-bottom: 4px; font-size: 14px; font-weight: 600; }
+.sifre-kutu { display: flex; gap: 6px; }
+.sifre-kutu input { flex: 1; min-width: 0; }
+.sifre-kutu .sifre-goster { min-height: 42px; min-width: 72px; }
 .oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
 
 /* Kişiler ve WhatsApp mesajları (js/ekranlar/kisiler.js, mesajlar.js) */

@@ -14,8 +14,14 @@ function girisEkraniCiz(kok) {
     "<h2>Giriş yap</h2>" +
     '<p class="soluk" style="margin:6px 0 16px">Takımının verisi bulutta saklanıyor. Görmek için giriş yap.</p>' +
     '<label class="alan"><span>E-posta</span><input type="email" name="email" autocomplete="email" required></label>' +
-    '<label class="alan"><span>Şifre</span><input type="password" name="sifre" autocomplete="current-password" minlength="' + SIFRE_EN_AZ + '" required>' +
-    "<small>En az " + SIFRE_EN_AZ + " karakter.</small></label>" +
+    // Şifre kutusu + "Göster" düğmesi. Düğme type="button": formu GÖNDERMEZ.
+    // Etiket <label for> ile bağlı; düğme label'ın dışında ki tıklayınca odak kutuya kaymasın.
+    '<div class="alan"><label for="giris-sifre"><span>Şifre</span></label>' +
+    '<div class="sifre-kutu">' +
+    '<input type="password" id="giris-sifre" name="sifre" autocomplete="current-password" minlength="' + SIFRE_EN_AZ + '" required>' +
+    '<button type="button" class="dugme kucuk sifre-goster" aria-controls="giris-sifre" aria-pressed="false">Göster</button>' +
+    "</div>" +
+    "<small>En az " + SIFRE_EN_AZ + " karakter.</small></div>" +
     '<p class="form-hata" role="alert" hidden></p>' +
     '<div class="form-dugmeler" style="justify-content:flex-start">' +
     '<button type="submit" class="dugme ana" data-islem="giris">Giriş yap</button>' +
@@ -29,6 +35,18 @@ function girisEkraniCiz(kok) {
   const mesaj = form.querySelector(".form-hata");
   const goster = (metin) => { mesaj.textContent = metin; mesaj.hidden = false; };
 
+  // Şifreyi göster / gizle: kutunun türünü password <-> text yapar.
+  // aria-pressed, ekran okuyucuya düğmenin açık mı kapalı mı olduğunu söyler.
+  const sifreKutusu = form.elements.sifre;
+  const sifreDugmesi = form.querySelector(".sifre-goster");
+  sifreDugmesi.onclick = () => {
+    const gorunur = sifreKutusu.type === "password";
+    sifreKutusu.type = gorunur ? "text" : "password";
+    sifreDugmesi.textContent = gorunur ? "Gizle" : "Göster";
+    sifreDugmesi.setAttribute("aria-pressed", String(gorunur));
+    sifreKutusu.focus(); // yazmaya kalınan yerden devam edilsin
+  };
+
   form.onsubmit = async (olay) => {
     olay.preventDefault();
     // Hangi düğmeyle gönderildi? (Enter'a basılırsa ilk düğme: giriş)
@@ -39,7 +57,7 @@ function girisEkraniCiz(kok) {
     if (!/^\S+@\S+\.\S+$/.test(email)) return goster("Geçerli bir e-posta adresi yaz.");
     if (sifre.length < SIFRE_EN_AZ) return goster("Şifre en az " + SIFRE_EN_AZ + " karakter olmalı.");
 
-    const dugmeler = [...form.querySelectorAll("button")];
+    const dugmeler = [...form.querySelectorAll('button[type="submit"]')];
     dugmeler.forEach((d) => { d.disabled = true; }); // çift gönderimi önle
     try {
       if (islem === "kayit") {

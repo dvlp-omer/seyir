@@ -782,3 +782,19 @@ Senin isteğinle, senin hesaplarında:
 Asistanı"; eski adres `308 → https://seyir-takim.vercel.app/`; canlı sitedeki
 ayar dosyası Supabase kipini gösteriyor; `git ls-remote` yeni depo adresinden
 çalışıyor.
+## 6.2 — Giriş ekranında "Şifreyi göster" düğmesi
+
+**Ne istendi:** Giriş yaparken şifreyi görerek yazabilmek.
+
+**Ne yaptım:** Şifre kutusunun sağına **Göster / Gizle** düğmesi
+(`js/ekranlar/giris.js`, stil `css/stil.css` → "Giriş ekranı"). Düğme kutunun
+türünü `password` ↔ `text` yapar; `type="button"` olduğu için formu
+göndermez. Ekran okuyucular için `aria-pressed` (açık/kapalı) ve
+`aria-controls` var; bastıktan sonra odak şifre kutusuna geri döner.
+Gönderim sırasında yalnızca "Giriş yap / Yeni hesap aç" düğmeleri kilitlenir.
+
+**Nasıl denendi:** Yerel sunucuda (Supabase kipi) uydurma bir metinle:
+Göster → metin görünür, düğme "Gizle"; tekrar basınca gizlenir; form
+gönderilmedi; Enter hâlâ girişi tetikliyor; 375 px genişlikte taşma yok.
+`npm test` → 183 test geçti. (Bu ekran için otomatik arayüz testi yok;
+projede DOM testi altyapısı bulunmuyor.)
