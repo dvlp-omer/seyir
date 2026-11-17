@@ -230,6 +230,37 @@ yetkisini almak gibi kazalar olmasın diye bilerek basit bıraktım.
 `vercel.json` Netlify ile aynı başlıkları gönderir (test ediliyor). Vercel'in
 `installCommand: ""` ve `framework: null` ayarlarıyla düz klasörü yayınlaması
 beklenir; ilk yayında YAYIN.md'deki kontrol listesini uygula.
+**Güncelleme:** 17 Kasım 2026'da Vercel'de yayınlandı ve çalıştı
+(<https://takim-asistani.vercel.app>); 2. madde de böylece kapandı.
+
+---
+
+## B4. Ad değişikliği: "Seyir" kararları
+
+### 35. Tarayıcı kayıt anahtarları eski adla kaldı (`takim-asistani:`)
+localStorage'daki anahtarlar (`takim-asistani:gorevler`, `…:tema`,
+`…:oturum`, `…:aktif-takim`) **bilerek değiştirilmedi.** Değişseydi uygulamayı
+daha önce kullanan herkes boş bir uygulama görür, Supabase kipinde de çıkış
+yapmış sayılırdı. Kullanıcı bu adları hiç görmez. Nedeni `js/veri.js`'te yorum
+olarak yazılı. İstersen ileride eski anahtardan yeniye bir kerelik taşıma
+eklenebilir.
+
+### 36. Yedek dosyası artık "seyir" adını taşıyor, eskisi de kabul ediliyor
+Yeni yedekler `"uygulama": "seyir"` ve `seyir-yedek-<tarih>.json` adıyla iner.
+Daha önce indirilmiş `"takim-asistani"` yedekleri de yüklenebilir (test var).
+
+### 37. Gerçek servislerin adları değişmedi
+GitHub deposu, Vercel projesi ve Supabase projesi hâlâ `takim-asistani`.
+Bunları yeniden adlandırmak dışarıdaki hesaplarında yapılan bir değişiklik ve
+canlı adresi değiştirir (Supabase Site URL'nin de güncellenmesi gerekir); o
+yüzden kendim yapmadım. Adımlar: YAYIN.md → "Proje adını seyir yapmak".
+
+### 38. Logo: gemi dümeni
+İstekteki üç seçenekten (dümen, pusula, "S") dümeni seçtim: 16 pikselde bile
+tanınıyor ve "Seyir" adının denizcilik anlamına uyuyor. Renkler mevcut
+tasarımdan: lacivert zemin `#0b2231`, açık mavi çizgi, turuncu göbek
+`#ee6a2f`. PWA ikonları (192/512 px) aynı SVG'den üretildi; "maskable" ikon
+için çizim biraz küçültüldü ki telefonların yuvarlak kesiminde kollar kesilmesin.
 
 ---
 

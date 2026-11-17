@@ -706,3 +706,59 @@ kişi ekleme. İlk hesap yönetici olacağı için onu senin açman gerekiyor.
   tetikleyicinin kendi mesajını döndürüyormuş; uygulama bu yüzden kullanıcıya
   ham kodu gösterecekti. `js/oturum.js` iki mesajı da Türkçe açıklamaya
   çeviriyor; test gerçek cevap biçimine göre güncellendi (182 test geçiyor).
+
+## 5.5 — GitHub ve Vercel'de yayın (17 Kasım 2026)
+
+- Kod GitHub'a gönderildi: `dvlp-omer/takim-asistani` (herkese açık).
+  Göndermeden önce `.env`, `js/ayarlar.js` ve `referans/` dosyalarının
+  geçmişte de hiç commit'lenmediği denetlendi.
+- Vercel'de yayında: <https://takim-asistani.vercel.app> (Supabase kipi).
+  Supabase Site URL bu adrese çevrildi. Canlıda denendi: giriş ekranı
+  açılıyor, giriş yapmadan veri istekleri `permission denied`, `.env` ve
+  `referans/` adresleri 404, güvenlik başlıkları geliyor.
+
+---
+
+# 6. Proje adı: Seyir
+
+**Ne istendi:** Projenin adı **Seyir** oldu (İngilizce: *Seyir — Team
+Assistant for Student Teams*; Türkçe: *Seyir — Öğrenci Takımları İçin Takım
+Asistanı*). Ad her yerde güncellenecek, basit bir logo eklenecekti.
+
+**Ne değişti:**
+
+- **Uygulama:** Yan menüde artık "Seyir", altında küçük "takım asistanı"
+  yazıyor. Sekme başlığı "Özet · Seyir" gibi; giriş ekranında "Giriş ·
+  Seyir". Ayarlar ekranındaki sürüm satırı da yeni adla.
+- **Logo:** Gemi dümeni (`ikonlar/ikon.svg`): lacivert zemin, açık mavi
+  dümen, turuncu göbek; renkler mevcut tasarımdan. Aynı çizim yan menüde
+  (zeminsiz), favicon olarak ve PWA ikonlarında (192 ve 512 piksel PNG,
+  SVG'den yeniden üretildi) kullanılıyor.
+- **PWA:** `manifest.webmanifest` adı "Seyir — Takım Asistanı", kısa adı
+  "Seyir". Service worker önbellek adı `seyir-v5` oldu; eski önbellek
+  kendiliğinden silinir, yeni logo telefonlarda da görünür.
+- **Yedekler:** Yeni yedekler `seyir-yedek-<tarih>.json` adıyla ve içinde
+  `"uygulama": "seyir"` ile iner. **Eski addaki yedekler hâlâ yüklenebiliyor**
+  (yeni bir testle denetleniyor).
+- **Yapılandırma:** `package.json` adı `seyir`; `netlify.toml` ve `YAYIN.md`
+  içinde önerilen site adı `seyir`.
+- **Belgeler:** README (ilk satır İngilizce tam ad, altında Türkçesi ve
+  logo; adın anlamı), ARCHITECTURE, MULAKAT ("Adı neden Seyir?" cevabı),
+  CV_METNI, YAYIN, SUPABASE_KURULUM, BENIM_YAPACAKLARIM, QUESTIONS (35–38),
+  `.env.example`, `schema.sql` başlığı. PLAN.md tarihsel kayıt olduğu için
+  eski adıyla bırakıldı (başına not eklendi).
+
+**Bilerek değiştirilmeyenler:**
+
+- Tarayıcıdaki kayıt anahtarları (`takim-asistani:gorevler` vb.).
+  Değişseydi kayıtlı veri, tema ve oturum kaybolmuş gibi görünürdü.
+  Kullanıcı bu adları görmez (QUESTIONS #35).
+- GitHub deposu, Vercel projesi ve Supabase projesinin adları ile canlı
+  adres. Bunlar senin hesaplarındaki gerçek servisler; yeniden adlandırma
+  adımları YAYIN.md'de (QUESTIONS #37).
+
+**Nasıl denendi:** `npm test` → 183 test geçti (182 eski + 1 yeni yedek
+testi); `npm run test:pdf` geçti (2 sayfa, Türkçe harfler, serif yazı tipi).
+Uygulamanın bir kopyası yerel kipte örnek veriyle açıldı: sekme başlığı,
+yan menüdeki logo ve ad, favicon doğru; mevcut ekranlar çalışıyor. Logo
+16, 32, 64 ve 192 pikselde ayrıca görüntülendi.

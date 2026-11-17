@@ -1,4 +1,8 @@
-# Takım Asistanı
+# Seyir — Team Assistant for Student Teams
+
+<img src="ikonlar/ikon.svg" alt="Seyir logosu: gemi dümeni" width="72" align="right">
+
+**Seyir — Öğrenci Takımları İçin Takım Asistanı**
 
 Öğrenci takımları için görev, son tarih, toplantı tutanağı, etkinlik, kişi
 rehberi ve WhatsApp mesajı asistanı. Düz HTML, CSS ve JavaScript — framework yok, derleme adımı yok,
@@ -20,7 +24,11 @@ hesap açmak davetlidir (sign-up is invite-only).
 Yarışmalara hazırlanan öğrenci takımlarında aynı sorunlar tekrar eder:
 toplantıda alınan kararlar unutulur, görevin kimde olduğu karışır, rapor ve
 izin tarihleri son anda hatırlanır, dönem sonunda "bu dönem ne yaptık?"
-sorusuna cevap aranır. Takım Asistanı bunları tek sayfada toplar.
+sorusuna cevap aranır. Seyir bunları tek sayfada toplar.
+
+Ad nereden geliyor? *Seyir*, denizcilikte bir teknenin rotasında ilerleyişidir
+(seyir defteri, seyir hâli). Proje bir sualtı aracı takımı için başladı; logo
+da bir gemi dümeni.
 
 ### Özellikler
 
@@ -84,7 +92,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-182 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
+183 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -179,9 +187,10 @@ commit geçmişinde `Co-Authored-By` satırlarıyla görünür.
 
 ## English
 
-A small team assistant for student engineering teams (built with a Teknofest
-underwater-vehicle team in mind): tasks, deadlines, meeting minutes, events and
-announcements in one page. The interface is in Turkish.
+**Seyir** is a small team assistant for student engineering teams (built with a
+Teknofest underwater-vehicle team in mind): tasks, deadlines, meeting minutes,
+events and announcements in one page. The interface is in Turkish. The name
+means "voyage / passage" in Turkish nautical language; the logo is a ship's wheel.
 
 Plain HTML, CSS and JavaScript — no framework, no build step, no dependencies.
 
@@ -224,7 +233,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-182 tests with Node's built-in test runner (Node 18+, nothing to install),
+183 tests with Node's built-in test runner (Node 18+, nothing to install),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF

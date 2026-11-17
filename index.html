@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Takım Asistanı</title>
-  <meta name="description" content="Öğrenci takımları için görev, son tarih, toplantı tutanağı, etkinlik ve duyuru asistanı.">
+  <title>Seyir — Takım Asistanı</title>
+  <meta name="description" content="Seyir — öğrenci takımları için takım asistanı: görev, son tarih, toplantı tutanağı, etkinlik, kişi rehberi ve WhatsApp mesajı.">
+  <meta name="application-name" content="Seyir">
 
   <!-- Ana ekrana eklenebilir uygulama (PWA) -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -22,15 +23,17 @@
   <div class="kabuk">
     <aside class="yan">
       <div class="marka">
-        <!-- Logo: sonar halkaları ve turuncu bir hedef noktası -->
+        <!-- Logo: gemi dümeni (ikonlar/ikon.svg ile aynı çizim; yan menü zaten
+             lacivert olduğu için burada zemin karesi yok) -->
         <svg viewBox="0 0 40 40" aria-hidden="true">
-          <circle cx="20" cy="20" r="17" fill="none" stroke="#9fc0c8" stroke-width="1.5" opacity=".5"/>
-          <circle cx="20" cy="20" r="11" fill="none" stroke="#9fc0c8" stroke-width="1.5" opacity=".8"/>
-          <circle cx="20" cy="20" r="5" fill="none" stroke="#fff" stroke-width="1.5"/>
-          <path d="M20 20 L32 9" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="27" cy="26" r="3" fill="#ee6a2f"/>
+          <g stroke="#cfe3e8" stroke-linecap="round" fill="none">
+            <path stroke-width="2.4" d="M20 5v30M5 20h30M9.4 9.4l21.2 21.2M30.6 9.4L9.4 30.6"/>
+            <circle cx="20" cy="20" r="10.5" stroke-width="2.8"/>
+          </g>
+          <circle cx="20" cy="20" r="4.2" fill="#ee6a2f"/>
+          <circle cx="20" cy="20" r="1.5" fill="#0b2231"/>
         </svg>
-        <div>Takım Asistanı<small>görev · tarih · tutanak</small></div>
+        <div>Seyir<small>takım asistanı</small></div>
       </div>
       <nav id="menu" class="menu" aria-label="Ekranlar"></nav>
       <div class="yan-alt"><span id="depo-rozet" class="depo-rozet"></span></div>
@@ -39,7 +42,7 @@
     <div class="govde">
       <header class="ust">
         <!-- tabindex="-1": ekran değişince odak buraya taşınır (ekran okuyucu yeni ekranı okur) -->
-        <h1 id="ekran-baslik" tabindex="-1">Takım Asistanı</h1>
+        <h1 id="ekran-baslik" tabindex="-1">Seyir</h1>
         <label>
           <span class="gizli">Etkin takım</span>
           <select id="takim-sec" class="takim-sec" hidden></select>

@@ -117,8 +117,8 @@ function girisGerekli() {
 function girisEkraninaDon(kok) {
   document.body.classList.add("oturumsuz");
   durum.ekran = null;
-  sec("#ekran-baslik").textContent = "Takım Asistanı";
-  document.title = "Giriş · Takım Asistanı";
+  sec("#ekran-baslik").textContent = "Seyir";
+  document.title = "Giriş · Seyir";
   girisEkraniCiz(kok);
 }
 
@@ -141,7 +141,7 @@ async function ekraniCiz() {
 
   menuGuncelle();
   sec("#ekran-baslik").textContent = EKRANLAR[ad].baslik;
-  document.title = EKRANLAR[ad].baslik + " · Takım Asistanı";
+  document.title = EKRANLAR[ad].baslik + " · Seyir";
 
   try {
     await EKRANLAR[ad].ciz(kok);

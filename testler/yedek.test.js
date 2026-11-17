@@ -17,7 +17,7 @@ const yeniDepo = () => yerelDepoOlustur(sahteDepolama());
 // Geçerli, küçük bir yedek nesnesi; testler bunu bozarak dener.
 function ornekYedek() {
   return {
-    uygulama: "takim-asistani", surum: 1, tarih: "2026-11-16T10:00:00.000Z",
+    uygulama: "seyir", surum: 1, tarih: "2026-11-16T10:00:00.000Z",
     veriler: {
       takimlar: [{ id: "t1", ad: "ROTA İSAS" }],
       uyeler: [{ id: "u1", takim_id: "t1", ad: "Ayşe", rol: "kaptan" }],
@@ -62,7 +62,14 @@ test("yedekCoz: JSON olmayan ya da başka bir uygulamaya ait dosyayı reddeder",
   assert.match(yedekCoz("null").hata, /yedeği değil/);
   assert.match(coz({ uygulama: "baska", surum: 1, veriler: {} }).hata, /yedeği değil/);
   assert.match(coz({ ...ornekYedek(), surum: 99 }).hata, /sürümü/);
-  assert.match(coz({ uygulama: "takim-asistani", surum: 1 }).hata, /veriler/);
+  assert.match(coz({ uygulama: "seyir", surum: 1 }).hata, /veriler/);
+});
+
+test("yedek: yeni dosyalar 'seyir' adını taşır; eski addaki ('takim-asistani') yedekler hâlâ yüklenir", async () => {
+  assert.equal((await yedekOlustur(yeniDepo())).uygulama, "seyir");
+  const eski = { ...ornekYedek(), uygulama: "takim-asistani" };
+  assert.equal(coz(eski).gecerli, true);
+  assert.equal(coz(eski).toplam, 6);
 });
 
 test("yedekCoz: bozuk kayıtları, hangi kayıt olduğunu söyleyerek reddeder", () => {

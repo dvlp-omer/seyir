@@ -1,6 +1,6 @@
 # Supabase kurulumu — adım adım
 
-Bu rehber, Takım Asistanı'nı tarayıcıdaki kayıttan (localStorage) çıkarıp
+Bu rehber, Seyir'i (takım asistanı) tarayıcıdaki kayıttan (localStorage) çıkarıp
 ekibin **ortak** kullandığı bir veritabanına bağlar. Yaklaşık 20 dakika sürer.
 Ücretsiz Supabase planı yeterlidir.
 
@@ -42,7 +42,7 @@ Rehberde telefon numaraları olduğu için üç kat koruma var:
 ## 1. Supabase projesi aç
 
 1. <https://supabase.com> adresinde hesap aç, **New project** de.
-2. Proje adı: `takim-asistani` (ne istersen).
+2. Proje adı: `seyir` (ne istersen; uygulama bu adı kullanmaz).
 3. **Database password**: güçlü bir şifre üret ve bir şifre yöneticisine kaydet.
    Bu şifre uygulamada **kullanılmaz**; yalnızca veritabanına doğrudan
    bağlanmak istersen gerekir.

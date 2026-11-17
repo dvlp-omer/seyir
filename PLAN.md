@@ -1,5 +1,8 @@
 # PLAN — Takım Asistanı v1
 
+> Not: Bu ilk plan, proje "Seyir" adını almadan önce yazıldı; tarihsel kayıt
+> olarak eski adıyla bırakıldı.
+
 Öğrenci takımları (ör. ROTA İSAS) için Türkçe, tarayıcıda çalışan bir takım asistanı.
 Düz HTML + CSS + JavaScript. Framework yok, derleme adımı yok.
 

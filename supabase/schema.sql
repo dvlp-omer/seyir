@@ -1,5 +1,5 @@
 -- ============================================================================
--- Takım Asistanı — Supabase şeması (tablolar + satır düzeyinde güvenlik)
+-- Seyir (takım asistanı) — Supabase şeması (tablolar + satır düzeyinde güvenlik)
 -- ============================================================================
 -- Kullanım: Supabase paneli > SQL Editor > New query > bu dosyanın TAMAMINI
 -- yapıştır > Run. Adım adım anlatım: SUPABASE_KURULUM.md

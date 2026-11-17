@@ -12,14 +12,14 @@ Hepsi **şu an doğru olan** şeyleri söyler. Köşeli parantezli yerleri doldu
 
 ## Kısa (CV'de tek satır)
 
-**Takım Asistanı** — Öğrenci takımları için görev, son tarih, toplantı tutanağı,
+**Seyir** — Öğrenci takımları için görev, son tarih, toplantı tutanağı,
 etkinlik, kişi rehberi ve WhatsApp mesajı yönetimi yapan web uygulaması.
-Düz JavaScript, 182 otomatik test,
+Düz JavaScript, 183 otomatik test,
 çevrimdışı çalışabilen PWA. `[GitHub bağlantısı]`
 
 ## Orta (CV'de proje bölümü)
 
-**Takım Asistanı** · HTML, CSS, JavaScript, PWA, Supabase (PostgreSQL) · `[ay yıl]`
+**Seyir — Öğrenci Takımları İçin Takım Asistanı** · HTML, CSS, JavaScript, PWA, Supabase (PostgreSQL) · `[ay yıl]`
 `[GitHub bağlantısı]` · `[varsa canlı demo bağlantısı]`
 
 - Teknofest su altı takımımda yaşadığım sorunlardan yola çıkarak; görev panosu,
@@ -29,7 +29,7 @@ Düz JavaScript, 182 otomatik test,
 - Framework ve derleme adımı kullanmadan, veri katmanını tek bir arayüzün
   arkasına aldım; aynı arayüzü hem tarayıcı kaydı (localStorage) hem bulut
   (Supabase REST) için uyguladım ve iki uygulamayı aynı testlerden geçirdim.
-- 182 otomatik test yazdım (tarih mantığı, veri katmanı, giriş, yedekleme,
+- 183 otomatik test yazdım (tarih mantığı, veri katmanı, giriş, yedekleme,
   renk kontrastı); testler ek paket gerektirmeden Node ile çalışıyor.
 - Kendi kodumu denetleyip 29 sorun belgeledim ve 26'sını düzelttim (çift
   kayıt, klavye odağı, kontrast gibi); erişilebilirlik ve mobil kullanım
@@ -43,7 +43,7 @@ Düz JavaScript, 182 otomatik test,
 
 ## English
 
-**Team Assistant (Takım Asistanı)** · HTML, CSS, JavaScript, PWA, Supabase (PostgreSQL) · `[month year]`
+**Seyir — Team Assistant for Student Teams** · HTML, CSS, JavaScript, PWA, Supabase (PostgreSQL) · `[month year]`
 `[GitHub link]`
 
 - Built a single-page app for student engineering teams — task board, deadline
@@ -54,7 +54,7 @@ Düz JavaScript, 182 otomatik test,
 - No framework or build step: put the data layer behind one interface and
   implemented it twice (localStorage and Supabase REST), verified by a shared
   contract test suite.
-- Wrote 182 automated tests (date logic, data layer, auth, backup validation,
+- Wrote 183 automated tests (date logic, data layer, auth, backup validation,
   colour contrast) that run on plain Node with no dependencies.
 - Audited my own code, documented 29 issues and fixed 26 (double submission,
   keyboard focus loss, insufficient contrast); added dark theme, offline
@@ -66,8 +66,8 @@ Düz JavaScript, 182 otomatik test,
 
 ## LinkedIn / GitHub profili için bir cümle
 
-Öğrenci takımım için geliştirdiğim, framework kullanmadan yazılmış ve 182
-testle doğrulanan bir takım yönetimi uygulaması: görevler, son tarihler,
+Seyir: öğrenci takımım için geliştirdiğim, framework kullanmadan yazılmış ve 183
+testle doğrulanan bir takım asistanı: görevler, son tarihler,
 tutanaklar, etkinlikler ve WhatsApp mesajları tek yerde.
 
 ---

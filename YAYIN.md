@@ -1,17 +1,34 @@
-# Yayına alma (Netlify ya da Vercel)
+# Seyir — Yayına alma (Netlify ya da Vercel)
 
 Uygulama sunucu gerektirmeyen düz dosyalardan oluşur; ücretsiz bir statik site
 servisine konması yeterlidir. Bu depo **Netlify** (`netlify.toml`) ve
 **Vercel** (`vercel.json`) için hazırdır; iki dosya aynı güvenlik başlıklarını
-gönderir (bir test bunu denetler). Ücretli plan ya da alan adı gerekmez; site
-`https://sectigin-ad.netlify.app` gibi bir adreste yayınlanır.
+gönderir (bir test bunu denetler). Ücretli plan ya da alan adı gerekmez.
 
-> **Durum:** `netlify.toml` yazıldı ve içindeki güvenlik başlıkları yerelde
-> aynı başlıkları gönderen bir deneme sunucusuyla sınandı (bütün ekranlar,
-> service worker, çevrimdışı açılma çalıştı). **Henüz hiçbir serviste yayın
-> yapılmadı:** bu bilgisayarda Netlify ya da Vercel komut satırı aracı (CLI)
-> kurulu değildi, bu yüzden dağıtım denenmedi. Adımlar aşağıda; ilk yayında
-> "Yayın sonrası kontrol" listesini uygula.
+**Önerilen proje / site adı: `seyir`** → `seyir.vercel.app` ya da
+`seyir.netlify.app` (ad boşsa; doluysa `seyir-takim` gibi bir ek kullan).
+
+> **Durum (17 Kasım 2026):** Vercel'de yayında, Supabase kipinde:
+> <https://takim-asistani.vercel.app>. Proje "Seyir" adını almadan önce
+> açıldığı için Vercel projesinin ve GitHub deposunun adı hâlâ
+> `takim-asistani`. Yeniden adlandırmak istersen aşağıdaki "Proje adını
+> seyir yapmak" bölümüne bak.
+
+### Proje adını `seyir` yapmak (isteğe bağlı)
+
+Sıra önemli; adres değişince giriş e-postalarındaki bağlantılar da değişmeli.
+
+1. **Vercel:** Project → Settings → General → *Project Name* = `seyir` → Save.
+   Ardından Settings → Domains'te `seyir.vercel.app` görünmeli (boşsa).
+2. **Supabase:** Authentication → URL Configuration → *Site URL* = yeni adres.
+3. **GitHub (isteğe bağlı):** depo → Settings → *Repository name* = `seyir`.
+   GitHub eski adresi yeni adrese yönlendirir; yine de yerel bağlantıyı güncelle:
+
+   ```bash
+   git remote set-url origin https://github.com/KULLANICI-ADIN/seyir.git
+   ```
+
+4. README'deki "Canlı / Live" bağlantısını yeni adresle değiştir.
 
 ---
 
@@ -42,7 +59,7 @@ veriyle dene" ile uygulamayı görür, kimsenin verisi kimseyle karışmaz.
 GitHub'da boş bir depo aç (README ekleme). Sonra bu klasörde:
 
 ```bash
-git remote add origin https://github.com/KULLANICI-ADIN/takim-asistani.git
+git remote add origin https://github.com/KULLANICI-ADIN/seyir.git
 ```
 
 ```bash

@@ -1,4 +1,6 @@
-# Netlify yayın ayarları. Adım adım anlatım: YAYIN.md
+# Seyir — Netlify yayın ayarları. Adım adım anlatım: YAYIN.md
+# Önerilen site adı: "seyir" (adres: seyir.netlify.app, boşsa). Site adı bu
+# dosyada değil, Netlify panelinde (Site configuration > Site name) seçilir.
 #
 # Bu projede derleme (build) yok; site, depodaki dosyaların kendisidir.
 # Tek "derleme" adımı, Netlify panelindeki ortam değişkenlerini tarayıcının

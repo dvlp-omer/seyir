@@ -1,7 +1,7 @@
 {
-  "name": "Takım Asistanı",
-  "short_name": "Takım",
-  "description": "Öğrenci takımları için görev, son tarih, toplantı tutanağı, etkinlik ve duyuru asistanı.",
+  "name": "Seyir — Takım Asistanı",
+  "short_name": "Seyir",
+  "description": "Seyir — öğrenci takımları için takım asistanı: görev, son tarih, toplantı tutanağı, etkinlik, kişi rehberi ve WhatsApp mesajı.",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",

@@ -1,4 +1,9 @@
-# Benim yapacaklarım
+# Seyir — Benim yapacaklarım
+
+> Proje adı **Seyir** oldu. Aşağıdaki `takim-asistani` adları, ad değişmeden
+> önce açılan gerçek servislerin (Supabase projesi, GitHub deposu, Vercel
+> projesi) adlarıdır. İstersen onları da `seyir` yap: YAYIN.md → "Proje adını
+> seyir yapmak" (isteğe bağlı, 5 dakika).
 
 Kodun hazır olan kısmı bitti. Aşağıdakiler **senin hesabınla** yapılması
 gereken adımlar: hesap açmak, anahtar almak, giriş yapmak. Bunları ben
@@ -45,7 +50,7 @@ Sıra önemli. Her adımın sonunda "✅ Olduysa" satırındaki şeyi görmelisi
   npm test
   ```
 
-  ✅ Olduysa: `pass 182`, `fail 0`.
+  ✅ Olduysa: `pass 183`, `fail 0`.
 
 - [x] **GitHub'a gönder** (YAYIN.md → 1. adım). Depoda gerçek görünen telefon
   numarası ve referans dosyasındaki ad/numara olmadığını `npm test` denetliyor

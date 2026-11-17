@@ -59,6 +59,10 @@ function filtreyeUyar(kayit, filtre) {
    1) YEREL DEPO — localStorage
    Her koleksiyon tek bir anahtarda JSON dizisi olarak saklanır:
      "takim-asistani:gorevler" -> "[{...}, {...}]"
+   Not: Proje adı sonradan "Seyir" oldu ama bu ön ek BİLEREK değiştirilmedi.
+   Değişseydi tarayıcıda kayıtlı bütün veri (ve tema, oturum, aktif takım
+   tercihi) yeni adla aranır, kullanıcıya boş bir uygulama gibi görünürdü.
+   Aynı ön ek js/oturum.js, js/tema.js ve js/uygulama.js'te de kullanılır.
    "depolama" parametresi normalde window.localStorage'dır. Testlerde onun
    yerine sahte bir nesne veriyoruz; bu yüzden parametre olarak alıyoruz.
    -------------------------------------------------------------------------- */

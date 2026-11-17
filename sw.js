@@ -14,7 +14,8 @@
    ========================================================================== */
 
 // Dosya listesi değişince bu adı da değiştir; eski önbellek silinir.
-const ONBELLEK = "takim-asistani-v4";
+// (v5: proje adı Seyir oldu, logo ve ikonlar değişti)
+const ONBELLEK = "seyir-v5";
 
 // Uygulamanın açılması için gereken dosyalar ("kabuk").
 // index.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).

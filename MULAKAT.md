@@ -1,4 +1,9 @@
-# Mülakat hazırlığı — 25 soru
+# Seyir — Mülakat hazırlığı (25 soru)
+
+Proje adı: **Seyir — Öğrenci Takımları İçin Takım Asistanı**
+(İngilizce: *Seyir — Team Assistant for Student Teams*). "Adı neden Seyir?"
+diye sorulursa: denizcilikte teknenin rotasındaki ilerleyişi; proje bir
+sualtı aracı takımı için başladı, logo da bir gemi dümeni.
 
 Aşağıdaki cevaplar **taslaktır**. Ezberleme; her birini kodu açıp doğrula,
 sonra kendi cümlelerinle yeniden yaz. Mülakatçı ezber cevabı ikinci soruda
@@ -120,7 +125,7 @@ bir gün kaymasın diye.
 ## C. Kalite
 
 ### 10. Nasıl test ettin? Neyi test etmedin?
-182 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
+183 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
 fonksiyonlarını ve veri katmanını kapsıyor. Supabase ve giriş için sahte
 sunucu, jeton süresi için sahte saat kullandım. Test etmediğim şey arayüz:
 tıklama, odak, mobil görünüm tarayıcıda elle denendi. Bir sonraki adım

@@ -1,13 +1,14 @@
-# Mimari özet
+# Seyir — Mimari özet
 
-Bu belge, projeyi beş dakikada anlatabilmen için yazıldı. Kodun her dosyasının
+Seyir (Team Assistant for Student Teams / Öğrenci Takımları İçin Takım
+Asistanı) projesinin mimarisi. Bu belge, projeyi beş dakikada anlatabilmen için yazıldı. Kodun her dosyasının
 başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 
 **Tek cümle:** Düz HTML/CSS/JavaScript ile yazılmış tek sayfalık bir uygulama;
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 182 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 183 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -40,7 +41,7 @@ supabase/schema.sql        Tablolar ve satır düzeyinde güvenlik kuralları
 araclar/env-aktar.js       Ortam değişkenlerini js/ayarlar.js'e yazar
 araclar/ikon-uret.py       İkonları üretir
 netlify.toml               Yayın ayarları ve güvenlik başlıkları
-testler/                   182 test (Node'un kendi test aracı)
+testler/                   183 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar

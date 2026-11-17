@@ -15,7 +15,10 @@
    Bu dosya depo arayüzü dışında hiçbir şeye bağlı değildir; iki depoda da çalışır.
    ========================================================================== */
 
-const YEDEK_UYGULAMA = "takim-asistani";
+// Yedek dosyasındaki "uygulama" alanı. Proje adı "Seyir" olunca değişti;
+// eski addaki yedekler de kabul edilir ki daha önce indirilen yedekler boşa gitmesin.
+const YEDEK_UYGULAMA = "seyir";
+const ESKI_YEDEK_UYGULAMA_ADLARI = ["takim-asistani"];
 const YEDEK_SURUMU = 1;
 const YEDEK_EN_COK_KAYIT = 20000;
 const YEDEK_METIN_SINIRI = 5000;
@@ -151,8 +154,10 @@ function yedekCoz(metin) {
   } catch (hata) {
     return reddet("Dosya okunamadı: geçerli bir JSON dosyası değil.");
   }
-  if (!nesne || typeof nesne !== "object" || nesne.uygulama !== YEDEK_UYGULAMA) {
-    return reddet("Bu dosya bir Takım Asistanı yedeği değil.");
+  const bizimYedek = nesne && typeof nesne === "object" &&
+    (nesne.uygulama === YEDEK_UYGULAMA || ESKI_YEDEK_UYGULAMA_ADLARI.includes(nesne.uygulama));
+  if (!bizimYedek) {
+    return reddet("Bu dosya bir Seyir yedeği değil.");
   }
   if (nesne.surum !== YEDEK_SURUMU) {
     return reddet("Yedek sürümü desteklenmiyor (dosya: " + nesne.surum + ", beklenen: " + YEDEK_SURUMU + ").");

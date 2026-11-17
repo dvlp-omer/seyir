@@ -24,7 +24,7 @@ function dosyaIndir(dosyaAdi, icerik, tur = "application/json") {
 async function yedekIndir() {
   const yedek = await yedekOlustur(durum.depo);
   const adet = KOLEKSIYONLAR.reduce((toplam, k) => toplam + yedek.veriler[k].length, 0);
-  dosyaIndir("takim-asistani-yedek-" + bugun() + ".json", JSON.stringify(yedek, null, 2));
+  dosyaIndir("seyir-yedek-" + bugun() + ".json", JSON.stringify(yedek, null, 2));
   bildir("Yedek indirildi (" + adet + " kayıt)");
 }
 
@@ -164,7 +164,7 @@ async function ayarlarEkraniCiz(kok) {
       : "") +
 
     '<section class="kart"><h3>Uygulama</h3>' +
-    "<p>Takım Asistanı — sürüm 2</p>" +
+    "<p>Seyir — takım asistanı, sürüm 2</p>" +
     '<p class="soluk kucuk-yazi">Telefonda tarayıcı menüsünden “Ana ekrana ekle” ile uygulama gibi kullanılabilir. ' +
     "Bir kez açıldıktan sonra internet yokken de açılır.</p>" +
     "</section>" +

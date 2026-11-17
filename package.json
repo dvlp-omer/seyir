@@ -1,8 +1,8 @@
 {
-  "name": "takim-asistani",
+  "name": "seyir",
   "version": "1.0.0",
   "private": true,
-  "description": "Öğrenci takımları için takım asistanı (bağımlılık yok; bu dosya sadece 'npm test' kısayolu için)",
+  "description": "Seyir — Team Assistant for Student Teams / Öğrenci Takımları İçin Takım Asistanı (bağımlılık yok; bu dosya sadece 'npm test' kısayolu için)",
   "scripts": {
     "test": "node --test \"testler/*.test.js\"",
     "test:pdf": "node araclar/tutanak-pdf-test.js"
