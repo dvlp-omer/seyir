@@ -1,0 +1,29 @@
+# Her gönderimde (push) ve her pull request'te testleri GitHub'ın sunucusunda çalıştırır.
+# Projenin bağımlılığı yok: "npm install" gerekmez, yalnızca Node yeterli.
+# Sonuç GitHub'da "Actions" sekmesinde ve README'deki rozette görünür.
+name: Testler
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Tarih hesapları Türkiye saatine göre de denensin (sunucu UTC'dir)
+      - name: npm test (UTC)
+        run: npm test
+      - name: npm test (Türkiye saati)
+        run: npm test
+        env:
+          TZ: Europe/Istanbul

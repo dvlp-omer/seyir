@@ -1,5 +1,7 @@
 # Seyir — Team Assistant for Student Teams
 
+[![Testler](https://github.com/dvlp-omer/seyir/actions/workflows/testler.yml/badge.svg)](https://github.com/dvlp-omer/seyir/actions/workflows/testler.yml)
+
 <img src="ikonlar/ikon.svg" alt="Seyir logosu: gemi dümeni" width="72" align="right">
 
 **Seyir — Öğrenci Takımları İçin Takım Asistanı**
@@ -92,7 +94,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-188 test; Node 18+ yeterli, paket kurmak gerekmez. Tarih hesabı, takvim,
+188 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -228,7 +230,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-188 tests with Node's built-in test runner (Node 18+, nothing to install),
+188 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF
