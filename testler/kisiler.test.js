@@ -28,6 +28,16 @@ test("telefonGoster: okunaklı biçim; tanımadığını olduğu gibi bırakır"
   assert.equal(k.telefonGoster("905000000001"), "+90 500 000 00 01");
   assert.equal(k.telefonGoster("12345"), "12345");
 });
+test("ilkAdTahmin:adın ilk sözcüğünü alır", () =>{
+  assert.equal(k.ilkAdTahmin("Ece Nur Demir"), "Ece");
+  assert.equal(k.ilkAdTahmin(" Can Öz "), "Can");
+  assert.equal(k.ilkAdTahmin(""), "");
+
+});
+
+test("adSade: küçük harf ve tek boşluk",() =>{
+  assert.equal(k.adSade(" Ece   Nur "), "ece nur");
+});
 
 /* ---------- CSV ---------- */
 
