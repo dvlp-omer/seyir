@@ -13,3 +13,7 @@ referans/
 
 # Tutanak PDF testinin ürettiği geçici dosyalar
 testler/cikti/
+
+# Kişisel çalışma notları (mülakat hazırlığı, CV metni, ilerleme günlüğü,
+# yapılacaklar). Yalnızca bu bilgisayarda durur; depoya girmez.
+ozel/

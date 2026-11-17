@@ -68,7 +68,8 @@ git remote add origin https://github.com/KULLANICI-ADIN/seyir.git
 git push -u origin main
 ```
 
-Göndermeden önce commit'lerdeki ad ve e-postayı kontrol et (bkz. QUESTIONS.md):
+Göndermeden önce commit'lerdeki ad ve e-postayı kontrol et (depo herkese
+açıksa bu e-posta görünür; istersen GitHub'ın "noreply" adresini kullan):
 
 ```bash
 git log -1 --format="%an <%ae>"

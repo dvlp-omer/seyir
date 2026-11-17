@@ -139,11 +139,11 @@ veritabanında uygulanır (`supabase/schema.sql`).
 
 - Kurulum: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md)
 - Yayına alma (Netlify ya da Vercel): [YAYIN.md](YAYIN.md)
-- Senin yapman gereken adımlar: [BENIM_YAPACAKLARIM.md](BENIM_YAPACAKLARIM.md)
 
-> **Durum:** Supabase tarafı sahte sunucuyla test edildi; **gerçek bir Supabase
-> projesiyle henüz denenmedi.** İlk kurulumda rehberdeki "Güvenliği dene"
-> adımı mutlaka uygulanmalı.
+> **Durum:** Canlı sürüm gerçek bir Supabase projesine bağlı ve güvenliği orada
+> denendi: giriş yapmadan yapılan veri istekleri reddediliyor, davet
+> listesinde olmayan e-postayla hesap açılamıyor. Kendi kurulumunda
+> rehberdeki "Güvenliği dene" adımını uygula.
 
 ### Belgeler
 
@@ -151,16 +151,11 @@ veritabanında uygulanır (`supabase/schema.sql`).
 |---|---|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Mimari özet: klasör yapısı, veri akışı, kararlar ve nedenleri |
 | [RAPOR.md](RAPOR.md) | v1 kod denetimi: bulunan 29 sorun ve durumları |
-| [PROGRESS.md](PROGRESS.md) | Aşama aşama ne yapıldı, neden öyle yapıldı |
-| [QUESTIONS.md](QUESTIONS.md) | Yapılan varsayımlar ve karar bekleyen konular |
 | [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md) | Supabase kurulum rehberi |
 | [YAYIN.md](YAYIN.md) | Netlify ya da Vercel'de yayına alma |
-| [BENIM_YAPACAKLARIM.md](BENIM_YAPACAKLARIM.md) | Hesap açma, anahtar, giriş: senin yapacağın adımlar |
-| [MULAKAT.md](MULAKAT.md) | Proje hakkında sorulabilecek 25 soru |
 
 ### Bilinen sınırlar
 
-- Supabase kipi gerçek bir projeyle denenmedi (yukarıdaki not).
 - Otomatik arayüz testi yok; arayüz tarayıcıda elle denendi.
 - Aynı kaydı iki kişi aynı anda düzenlerse son kaydeden kazanır.
 - Takım içinde yetki ayrımı yok: her üye her şeyi yapabilir ("yönetici"nin
@@ -262,9 +257,9 @@ See [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md) and [YAYIN.md](YAYIN.md) (Turkish
 `netlify.toml` and `vercel.json` send the same security headers with a Content
 Security Policy (a test keeps them in sync).
 
-> **Status:** the Supabase backend and auth are covered by tests against a fake
-> server and the security headers were exercised locally, but the app has
-> **not yet been run against a live Supabase project or deployed to Netlify.**
+> **Status:** deployed on Vercel (<https://seyir-takim.vercel.app>) against a
+> live Supabase project. Verified there: anonymous REST requests are denied,
+> sign-up with an uninvited e-mail is rejected, security headers are served.
 
 ### Known limitations
 
