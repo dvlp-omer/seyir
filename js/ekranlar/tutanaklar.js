@@ -170,7 +170,9 @@ function tutanakFormuHtml(t) {
     '<section class="kart"><h3>Notlardan ya da dosyadan doldur <span class="soluk kucuk-yazi">(isteğe bağlı)</span></h3>' +
     "<p class=\"soluk kucuk-yazi\">Toplantı notlarını yapıştır ya da bir dosya yükle; tanıdığım başlıklar forma yerleşir. " +
     "Tanınan başlıklar: <i>Toplantı Tarihi, Tutanak Tarihi, Sonraki Toplantı, Katılımcılar, Devreden Kararlar, Kararlar, Görev Durumu</i>. " +
-    "Numaralı satırlar (1. 2. ya da -) ayrı madde olur. Sonucu aşağıda elle düzeltebilirsin.</p>" +
+    "Numaralı satırlar (1. 2. ya da -) ayrı madde olur. " +
+    "Başlık yazmadıysan cümlelere bakarım: “toplantı katılımcıları …”, “bir sonraki toplantı …”, “(1. toplantı, Karar 3) …” ya da sonu “devreden” olan satırlar kendi yerine, geri kalanı kararlara gider. " +
+    "Sonucu aşağıda elle düzeltebilirsin.</p>" +
     '<label class="alan" style="margin-top:10px"><span>Notlar</span><textarea id="tf-notlar" class="uzun" maxlength="100000" ' +
     'placeholder="Toplantı Tarihi: 12.03.2026&#10;Katılımcılar: ...&#10;&#10;Kararlar:&#10;1. ...&#10;2. ...">' + htmlKacis(tutanakEkrani.notlar) + "</textarea></label>" +
     '<div class="arac-cubugu" style="margin-bottom:0">' +

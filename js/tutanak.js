@@ -301,8 +301,72 @@ function atifiAyir(metin) {
   return sonda ? { metin: sonda[1].trim(), atif: sonda[2].trim() } : { metin: metin, atif: "" };
 }
 
+/* Serbest not: hiç bölüm başlığı yazılmamış, elle tutulmuş not.
+   Başlık olmadığı için satırları cümlenin kendisine bakarak dağıtır:
+     - "…devam eden cümle" + küçük harfle başlayan alt satır -> tek satır
+       (Word'den gelen metinde uzun cümleler ikiye bölünür)
+     - "Toplantı katılımcıları a, b, c"        -> katılımcılar
+     - "Bir sonraki toplantı 9 Kasım …"        -> sonraki toplantı (rakam varsa)
+     - "(1. toplantı, Karar 3) …"              -> devreden karar, atıfıyla
+     - "… devreden" ile biten satır            -> devreden karar
+       ("Yeni devredenler 2. toplantıdan" satırı bunların atıfını verir)
+     - "görevlerin …" geçen satır              -> görev durumu
+     - tamamı büyük harf başlık satırı         -> artan (kullanıcı görsün)
+     - geri kalan her satır                    -> karar
+   Her biri tahmindir; sonuç formda elle düzeltilir. */
+function kucukMu(metin) {
+  return metin === metin.toLocaleLowerCase("tr") && metin !== metin.toLocaleUpperCase("tr");
+}
+
+// "çağla öztürk" -> "Çağla Öztürk"; büyük harf içeren ad olduğu gibi kalır.
+function adBuyut(ad) {
+  if (!kucukMu(ad)) return ad;
+  return ad.split(" ").map((s) => s.charAt(0).toLocaleUpperCase("tr") + s.slice(1)).join(" ");
+}
+
+function serbestNotuYerlestir(satirlar, sonuc, ham) {
+  // 1) Bölünmüş cümleleri birleştir
+  const birlesik = [];
+  for (const satir of satirlar) {
+    const onceki = birlesik[birlesik.length - 1];
+    // Önceki satır uzunsa (Word satır sonu) ya da bu satır tek sözcükse ("kalmıştır.") devamıdır.
+    const devamMi = onceki && !/[.!?:;]$/.test(onceki) &&
+      /^[a-zçğıöşü]/.test(satir) && !/^https?:/i.test(satir) &&
+      (onceki.length >= 60 || !/\s/.test(satir));
+    if (devamMi) birlesik[birlesik.length - 1] = onceki + " " + satir;
+    else birlesik.push(satir);
+  }
+
+  let devredenAtfi = "";
+  for (const satir of birlesik) {
+    const kucuk = satir.toLocaleLowerCase("tr"); // Türkçe'de harf sayısı değişmez
+    let e;
+    if ((e = kucuk.match(/^(?:toplantı\s+)?katılımcı(?:ları|lar)?\s*[:–-]?\s*/)) && satir.length > e[0].length) {
+      sonuc.katilimcilar.push(...adlariAyir(satir.slice(e[0].length)).map(adBuyut));
+    } else if ((e = kucuk.match(/^(?:bir?\s+)?sonraki\s+toplantı\s*[:–-]?\s+/)) && /\d/.test(satir.slice(e[0].length))) {
+      sonuc.sonraki_toplanti = satir.slice(e[0].length).trim();
+    } else if ((e = kucuk.match(/devredenler?\b.*?(\d+)\s*\.\s*toplantı/)) && satir.length < 60) {
+      devredenAtfi = e[1] + ". toplantı";
+    } else if (/^\([^()]*karar\s*\d+[^()]*\)/.test(kucuk)) {
+      ham.devreden.push({ numarali: false, metin: satir });
+    } else if ((e = kucuk.match(/\s*devreden\s*\.?\s*$/)) && e.index > 0) {
+      const govde = satir.slice(0, e.index).trim();
+      ham.devreden.push({ numarali: false, metin: devredenAtfi ? "(" + devredenAtfi + ") " + govde : govde });
+    } else if (/görevler(?:in|i)?(?:\s|$)/.test(kucuk)) {
+      ham.gorevler.push({ numarali: false, metin: satir });
+    } else if (birlesik[0] === satir && satir === satir.toLocaleUpperCase("tr") && /[A-ZÇĞİÖŞÜ]/.test(satir)) {
+      sonuc.artan.push(satir);
+    } else {
+      // Numaralı yazılmışsa numarayı at; serbest notta her satır ayrı maddedir.
+      ham.kararlar.push({ numarali: false, metin: satir.replace(/^\s*(?:[-•*]|\(?\d+[.)])\s+/, "") });
+    }
+  }
+}
+
 function notlariAyristir(metin) {
   const sonuc = { ...bosTutanak(), artan: [] };
+  const tanimsiz = [];         // artan içinde hiçbir kurala uymayan satırların sırası
+  let kararBolumuVar = false;  // devreden / kararlar / görevler başlığı görüldü mü
   const ham = { devreden: [], kararlar: [], gorevler: [] }; // [{ numarali, metin }]
   let bolum = null;          // şu an içinde olduğumuz bölüm
   let bekleyenAlan = null;   // "Etiket:" yazıp değeri alt satıra bırakılmış alan
@@ -332,7 +396,10 @@ function notlariAyristir(metin) {
     // 0) Belgenin kendi başlığı (bu uygulamanın ürettiği Word/PDF'ten kopyalanan metin):
     //    üstündeki tek satır kurum adıdır, altındaki satır alt başlıktır.
     if (sade === etiketSade(TUTANAK_BASLIGI)) {
-      if (sonuc.artan.length === 1 && !sonuc.kurum) sonuc.kurum = sonuc.artan.pop();
+      if (sonuc.artan.length === 1 && !sonuc.kurum) {
+        sonuc.kurum = sonuc.artan.pop();
+        if (tanimsiz[tanimsiz.length - 1] === 0) tanimsiz.pop();
+      }
       altBaslikBekleniyor = true;
       continue;
     }
@@ -349,6 +416,7 @@ function notlariAyristir(metin) {
     const yeniBolum = bolumBul(sade);
     if (yeniBolum) {
       bolum = yeniBolum;
+      if (yeniBolum !== "katilimcilar") kararBolumuVar = true;
       bekleyenAlan = null;
       continue;
     }
@@ -368,6 +436,7 @@ function notlariAyristir(metin) {
       }
       if (etiketBolumu) { // "Kararlar: 1) ..." gibi: başlık + aynı satırda ilk madde
         bolum = etiketBolumu;
+        if (etiketBolumu !== "katilimcilar") kararBolumuVar = true;
         bekleyenAlan = null;
         if (!deger) continue;
         // değer kısmı aşağıda bölüm satırı olarak işlensin
@@ -401,7 +470,16 @@ function notlariAyristir(metin) {
     }
 
     // 5) Hiçbir kurala uymadı
+    tanimsiz.push(sonuc.artan.length);
     sonuc.artan.push(satir);
+  }
+
+  // Notta hiç bölüm başlığı yoksa, kurala uymayan satırları cümlelerine bakarak dağıt.
+  if (!kararBolumuVar && tanimsiz.length) {
+    const sira = new Set(tanimsiz);
+    const serbest = sonuc.artan.filter((_, i) => sira.has(i));
+    sonuc.artan = sonuc.artan.filter((_, i) => !sira.has(i));
+    serbestNotuYerlestir(serbest, sonuc, ham);
   }
 
   function bolumSatiriEkle(satir) {

@@ -296,6 +296,60 @@ test("notlariAyristir: atıf başta yazılmış devreden karar ve noktayla biten
   assert.deepEqual(sonuc.devreden, [{ metin: "Eğitim tarihinin teyit edilmesine", atif: "1. toplantı, Karar 3" }]);
 });
 
+/* ---------- Serbest not (hiç bölüm başlığı yok) ---------- */
+
+// Başlıksız, elle yazılmış not: Word'den gelince uzun cümleler ikiye bölünmüş olur.
+const SERBEST_NOT = [
+  "GÜNEŞ ROBOTİK TOPLANTI KARARLARI 2",
+  "Sponsor görüşmeleri için takım içinden iki kişi seçilecek ve bu kişiler ay sonunda belirlenecek",
+  "https://ornek.com/",
+  "afiş tasarımı için ücretsiz araç kullanılabilir",
+  "bütçe tablosu takibi çağla öztürk",
+  "Bir sonraki toplantı 4 aralık 2026 akşam",
+  "(1. toplantı, Karar 2) Atölye anahtarının nöbetçi üyede kalması kararı yürürlükte",
+  "kalmıştır.",
+  "Yeni devredenler 2. toplantıdan",
+  "Her cuma kısa bir durum yazısı paylaşılmasına karar",
+  "verilmiştir.Devreden",
+  "Bir önceki haftaya ait görevlerin tamamlandığı tespit edildi",
+  "Toplantı katılımcıları çağla öztürk,şükrü ışık, Gökçe Ünal",
+].join("\n");
+
+test("serbest not: katılımcılar ve sonraki toplantı cümlenin içinden bulunur", () => {
+  const sonuc = t.notlariAyristir(SERBEST_NOT);
+  assert.deepEqual(sonuc.katilimcilar, ["Çağla Öztürk", "Şükrü Işık", "Gökçe Ünal"]);
+  assert.equal(sonuc.sonraki_toplanti, "4 aralık 2026 akşam");
+});
+
+test("serbest not: bölünmüş satırlar birleşir; atıflı ve 'devreden' ile biten satırlar devreden karardır", () => {
+  const sonuc = t.notlariAyristir(SERBEST_NOT);
+  assert.deepEqual(sonuc.devreden, [
+    { metin: "Atölye anahtarının nöbetçi üyede kalması kararı yürürlükte kalmıştır.", atif: "1. toplantı, Karar 2" },
+    { metin: "Her cuma kısa bir durum yazısı paylaşılmasına karar verilmiştir.", atif: "2. toplantı" },
+  ]);
+});
+
+test("serbest not: görev durumu cümlesi görevlere, geri kalanı kararlara; başlık satırı kaybolmaz", () => {
+  const sonuc = t.notlariAyristir(SERBEST_NOT);
+  assert.deepEqual(sonuc.gorevler, ["Bir önceki haftaya ait görevlerin tamamlandığı tespit edildi"]);
+  assert.deepEqual(sonuc.kararlar, [
+    "Sponsor görüşmeleri için takım içinden iki kişi seçilecek ve bu kişiler ay sonunda belirlenecek",
+    "https://ornek.com/",
+    "afiş tasarımı için ücretsiz araç kullanılabilir",
+    "bütçe tablosu takibi çağla öztürk",
+  ]);
+  assert.deepEqual(sonuc.artan, ["GÜNEŞ ROBOTİK TOPLANTI KARARLARI 2"]);
+});
+
+test("serbest not: anlaşılamayan etiketli satır karar sanılmaz; başlıklı notta serbest kurallar devreye girmez", () => {
+  const serbest = t.notlariAyristir("Toplantı Tarihi: geçen perşembe\n1. Motor alınacak");
+  assert.deepEqual(serbest.artan, ["Toplantı Tarihi: geçen perşembe"]);
+  assert.deepEqual(serbest.kararlar, ["Motor alınacak"]);
+  const baslikli = t.notlariAyristir("Bir sonraki toplantı 4 aralık 2026\nKararlar:\n1. Bir karar");
+  assert.equal(baslikli.sonraki_toplanti, "");
+  assert.deepEqual(baslikli.artan, ["Bir sonraki toplantı 4 aralık 2026"]);
+});
+
 test("tutanakBelgeHtml: kullanıcı metni kaçırılır (XSS)", () => {
   const kotu = { ...t.bosTutanak(), kurum: "<script>x</script>", kararlar: ['<img src=x onerror="a()">'], katilimcilar: ["<b>Ad</b>"], devreden: [{ metin: "m", atif: "</span><i>" }] };
   const html = t.tutanakBelgeHtml(kotu);
