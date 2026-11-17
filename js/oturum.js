@@ -16,11 +16,21 @@
    Jeton yaklaşık 1 saat geçerlidir. Süresi dolmak üzereyken "yenileme jetonu"
    ile sessizce yenisi alınır; kullanıcı tekrar şifre girmez.
 
+   "Beni hatırla":
+     işaretli   -> oturum KALICI depoda (localStorage): tarayıcı kapanıp açılsa da
+                   giriş açık kalır. E-posta da hatırlanır; çıkıştan sonra hazır gelir.
+     işaretsiz  -> oturum GEÇİCİ depoda (sessionStorage): yalnızca o sekme açıkken
+                   durur, tarayıcı kapanınca silinir. Ortak bilgisayarlar için.
+   Oturum hiçbir zaman iki depoda birden durmaz.
+
    Parametreler testte sahteleriyle değiştirilebilsin diye dışarıdan verilir:
-     depolama (localStorage), istek (fetch), simdi (saat)
+     depolama (localStorage), istek (fetch), simdi (saat),
+     geciciDepolama (sessionStorage; verilmezse "beni hatırla" hep açık sayılır)
    ========================================================================== */
 
 const OTURUM_ANAHTARI = "takim-asistani:oturum";
+// Hatırlanan e-posta (yalnızca "beni hatırla" işaretliyken; şifre ASLA saklanmaz)
+const EPOSTA_ANAHTARI = "takim-asistani:hatirlanan-eposta";
 const JETON_PAYI_MS = 60 * 1000; // bitmesine 1 dakikadan az kaldıysa yenile
 
 // Supabase'in İngilizce hata mesajlarının Türkçeleri
@@ -45,15 +55,24 @@ function davetEpostasi(metin) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta) && eposta.length <= 254 ? eposta : null;
 }
 
-function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...args), simdi = () => Date.now()) {
+function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...args), simdi = () => Date.now(), geciciDepolama = null) {
   const taban = url.replace(/\/+$/, "");
 
-  // Kayıtlı oturum: { access_token, refresh_token, bitis (ms), email } ya da null
-  let oturum = null;
-  try {
-    oturum = JSON.parse(depolama.getItem(OTURUM_ANAHTARI) || "null");
-  } catch (hata) {
-    oturum = null;
+  function oku(yer) {
+    try {
+      return JSON.parse(yer.getItem(OTURUM_ANAHTARI) || "null");
+    } catch (hata) {
+      return null; // bozuk kayıt: yokmuş gibi davran
+    }
+  }
+
+  // Kayıtlı oturum: { access_token, refresh_token, bitis (ms), email } ya da null.
+  // Önce kalıcı depoya, yoksa geçici depoya bakılır.
+  let oturum = oku(depolama);
+  let yer = depolama; // oturumun durduğu depo; jeton yenilenince de aynı yere yazılır
+  if (!oturum && geciciDepolama) {
+    oturum = oku(geciciDepolama);
+    if (oturum) yer = geciciDepolama;
   }
 
   // Aynı anda birden fazla yenileme isteği gitmesin diye süren isteği saklarız.
@@ -66,12 +85,23 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
       bitis: simdi() + cevap.expires_in * 1000,
       email: cevap.user && cevap.user.email ? cevap.user.email : (oturum ? oturum.email : ""),
     };
-    depolama.setItem(OTURUM_ANAHTARI, JSON.stringify(oturum));
+    yer.setItem(OTURUM_ANAHTARI, JSON.stringify(oturum));
+  }
+
+  // Giriş/kayıt öncesi: oturum nereye yazılacak? E-posta hatırlansın mı?
+  function yeriSec(hatirla, email) {
+    yer = hatirla || !geciciDepolama ? depolama : geciciDepolama;
+    // Diğer depoda eski bir oturum kalmasın (iki yerde birden durmasın)
+    const diger = yer === depolama ? geciciDepolama : depolama;
+    if (diger) diger.removeItem(OTURUM_ANAHTARI);
+    if (hatirla) depolama.setItem(EPOSTA_ANAHTARI, email);
+    else depolama.removeItem(EPOSTA_ANAHTARI);
   }
 
   function temizle() {
     oturum = null;
     depolama.removeItem(OTURUM_ANAHTARI);
+    if (geciciDepolama) geciciDepolama.removeItem(OTURUM_ANAHTARI);
   }
 
   // yontem: "POST" (varsayılan), "GET" ya da "DELETE". GET/DELETE'te gövde gönderilmez.
@@ -114,15 +144,25 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
       return oturum ? { email: oturum.email } : null;
     },
 
-    async girisYap(email, sifre) {
-      sakla(await gonder("/auth/v1/token?grant_type=password", { email: email, password: sifre }));
+    // "Beni hatırla" işaretli miydi? (Giriş ekranı kutuyu buna göre çizer.)
+    // Hatırlanan e-posta varsa onu da verir.
+    hatirlananEposta() {
+      return depolama.getItem(EPOSTA_ANAHTARI) || "";
+    },
+
+    // hatirla: "Beni hatırla" kutusu (varsayılan: işaretli)
+    async girisYap(email, sifre, hatirla = true) {
+      const cevap = await gonder("/auth/v1/token?grant_type=password", { email: email, password: sifre });
+      yeriSec(hatirla, email); // yalnızca giriş BAŞARILI olunca; hatalı denemede eski ayar bozulmasın
+      sakla(cevap);
     },
 
     // Supabase'de "e-posta onayı" açıksa kayıt sonrası jeton gelmez;
     // kullanıcı önce e-postasındaki bağlantıya tıklamalıdır.
-    async kayitOl(email, sifre) {
+    async kayitOl(email, sifre, hatirla = true) {
       const cevap = await gonder("/auth/v1/signup", { email: email, password: sifre });
       if (cevap && cevap.access_token) {
+        yeriSec(hatirla, email);
         sakla(cevap);
         return { girisYapildi: true };
       }
@@ -186,5 +226,5 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { oturumOlustur, OTURUM_ANAHTARI, davetEpostasi };
+  module.exports = { oturumOlustur, OTURUM_ANAHTARI, EPOSTA_ANAHTARI, davetEpostasi };
 }

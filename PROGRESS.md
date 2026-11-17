@@ -798,3 +798,28 @@ Göster → metin görünür, düğme "Gizle"; tekrar basınca gizlenir; form
 gönderilmedi; Enter hâlâ girişi tetikliyor; 375 px genişlikte taşma yok.
 `npm test` → 183 test geçti. (Bu ekran için otomatik arayüz testi yok;
 projede DOM testi altyapısı bulunmuyor.)
+## 6.3 — Giriş ekranında "Beni hatırla"
+
+**Ne istendi:** Girişte "beni hatırla" seçeneği.
+
+**Ne yaptım:** Şifrenin altına **Beni hatırla** kutusu (varsayılan işaretli).
+- **İşaretli:** oturum kalıcı depoda (localStorage), tarayıcı kapanıp açılsa
+  da giriş açık kalır (önceki davranış). E-posta da hatırlanır; çıkış yaptıktan
+  sonra giriş ekranında hazır gelir.
+- **İşaretsiz:** oturum yalnızca geçici depoda (sessionStorage); aynı sekmede
+  sayfa yenilenince sürer, **tarayıcı kapanınca çıkış yapılmış olur**.
+  Hatırlanan e-posta silinir. Ekranda "ortak bilgisayardaysan işareti kaldır"
+  notu var.
+- Oturum hiçbir zaman iki depoda birden durmaz; jeton yenilenince aynı
+  depoya yazılır. Hatalı giriş denemesi önceki ayarı bozmaz. Şifre hiçbir
+  depoya yazılmaz (test ediliyor).
+- Kod: `js/oturum.js` (`girisYap(email, sifre, hatirla)`, `hatirlananEposta()`),
+  `js/ekranlar/giris.js`, `js/uygulama.js` (sessionStorage'ı verir), `css/stil.css`.
+
+**Sınır:** İşaretsizken her yeni sekme ayrı oturumdur (sessionStorage sekmeye
+özeldir); yeni sekmede yeniden giriş istenir.
+
+**Nasıl denendi:** 5 yeni test (`testler/oturum.test.js`): iki kip, "tarayıcı
+kapandı" senaryosu, jeton yenileme, kipler arası geçiş, çıkış, hatalı deneme.
+`npm test` → 188 test geçti. Giriş ekranı tarayıcıda açılıp kutu ve not
+görüntülendi; gerçek hesapla giriş denenmedi (şifre gerektirir).

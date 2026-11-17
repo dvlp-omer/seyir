@@ -508,6 +508,10 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 .sifre-kutu { display: flex; gap: 6px; }
 .sifre-kutu input { flex: 1; min-width: 0; }
 .sifre-kutu .sifre-goster { min-height: 42px; min-width: 72px; }
+/* "Beni hatırla": kutu + yazı tek tıklama alanı (44 px dokunma hedefi) */
+.hatirla { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.hatirla input { width: 20px; height: 20px; accent-color: var(--vurgu); }
+.hatirla-not { margin: 0 0 14px; }
 .oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
 
 /* Kişiler ve WhatsApp mesajları (js/ekranlar/kisiler.js, mesajlar.js) */

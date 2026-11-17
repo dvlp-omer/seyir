@@ -125,7 +125,7 @@ bir gün kaymasın diye.
 ## C. Kalite
 
 ### 10. Nasıl test ettin? Neyi test etmedin?
-183 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
+188 otomatik test var; Node'un kendi test aracıyla, ek paket kurmadan. Mantık
 fonksiyonlarını ve veri katmanını kapsıyor. Supabase ve giriş için sahte
 sunucu, jeton süresi için sahte saat kullandım. Test etmediğim şey arayüz:
 tıklama, odak, mobil görünüm tarayıcıda elle denendi. Bir sonraki adım

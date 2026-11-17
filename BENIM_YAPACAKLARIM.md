@@ -50,7 +50,7 @@ Sıra önemli. Her adımın sonunda "✅ Olduysa" satırındaki şeyi görmelisi
   npm test
   ```
 
-  ✅ Olduysa: `pass 183`, `fail 0`.
+  ✅ Olduysa: `pass 188`, `fail 0`.
 
 - [x] **GitHub'a gönder** (YAYIN.md → 1. adım). Depoda gerçek görünen telefon
   numarası ve referans dosyasındaki ad/numara olmadığını `npm test` denetliyor

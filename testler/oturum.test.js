@@ -4,7 +4,7 @@
 // taklit eden sahte bir sunucu; saatin yerine elle ilerletilen bir sayaç kullanılır.
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { oturumOlustur, OTURUM_ANAHTARI, davetEpostasi } = require("../js/oturum.js");
+const { oturumOlustur, OTURUM_ANAHTARI, EPOSTA_ANAHTARI, davetEpostasi } = require("../js/oturum.js");
 
 const ADRES = "https://ornek.supabase.co";
 const ANAHTAR = "anon-anahtar";
@@ -262,4 +262,76 @@ test("davetEkle: yinelenen e-posta ve yönetici olmayan kullanıcı anlaşılır
   await uye.girisYap("ayse@ornek.com", "dogru-sifre");
   assert.equal(await uye.rolum(), "uye");
   await assert.rejects(() => uye.davetEkle("yeni@ornek.com"), /row-level security/);
+});
+
+/* ---- "Beni hatırla" ----
+   kalici = localStorage'ın, gecici = sessionStorage'ın yerine geçen sahte depolar. */
+function hatirlaKur() {
+  const sunucu = sahteAuth();
+  const kalici = sahteDepolama();
+  const gecici = sahteDepolama();
+  const saat = sahteSaat();
+  const yeni = () => oturumOlustur(ADRES, ANAHTAR, kalici, sunucu.sahteFetch, saat.simdi, gecici);
+  return { sunucu, kalici, gecici, saat, yeni };
+}
+
+test("beni hatırla işaretli: oturum ve e-posta kalıcı depoda, geçicide yok", async () => {
+  const { kalici, gecici, yeni } = hatirlaKur();
+  await yeni().girisYap("ayse@ornek.com", "dogru-sifre", true);
+  assert.ok(kalici.kutu[OTURUM_ANAHTARI]);
+  assert.equal(gecici.kutu[OTURUM_ANAHTARI], undefined);
+  assert.equal(kalici.kutu[EPOSTA_ANAHTARI], "ayse@ornek.com");
+  // "Tarayıcı kapanıp açıldı": geçici depo silinir, oturum yine gelir
+  for (const a of Object.keys(gecici.kutu)) delete gecici.kutu[a];
+  assert.deepEqual(yeni().kullanici(), { email: "ayse@ornek.com" });
+});
+
+test("beni hatırla işaretsiz: oturum yalnızca geçici depoda; tarayıcı kapanınca biter", async () => {
+  const { kalici, gecici, yeni } = hatirlaKur();
+  const oturum = yeni();
+  await oturum.girisYap("ayse@ornek.com", "dogru-sifre", false);
+  assert.equal(kalici.kutu[OTURUM_ANAHTARI], undefined);
+  assert.ok(gecici.kutu[OTURUM_ANAHTARI]);
+  assert.equal(oturum.hatirlananEposta(), "");
+  assert.equal(await oturum.jeton(), "jeton-1");
+  // Aynı sekmede sayfa yenilenince oturum sürer
+  assert.deepEqual(yeni().kullanici(), { email: "ayse@ornek.com" });
+  // Tarayıcı kapanınca geçici depo boşalır: giriş gerekir
+  for (const a of Object.keys(gecici.kutu)) delete gecici.kutu[a];
+  assert.equal(yeni().kullanici(), null);
+});
+
+test("beni hatırla işaretsiz: jeton yenilenince de geçici depoda kalır", async () => {
+  const { kalici, gecici, saat, yeni } = hatirlaKur();
+  const oturum = yeni();
+  await oturum.girisYap("ayse@ornek.com", "dogru-sifre", false);
+  saat.ilerlet(3600 * 1000);
+  assert.equal(await oturum.jeton(), "jeton-2");
+  assert.equal(kalici.kutu[OTURUM_ANAHTARI], undefined);
+  assert.match(gecici.kutu[OTURUM_ANAHTARI], /jeton-2/);
+});
+
+test("hatırlamadan girince eski hatırlanan oturum ve e-posta silinir; çıkış e-postayı silmez", async () => {
+  const { kalici, gecici, yeni } = hatirlaKur();
+  await yeni().girisYap("ayse@ornek.com", "dogru-sifre", true);
+  const ikinci = yeni();
+  await ikinci.girisYap("ayse@ornek.com", "dogru-sifre", false);
+  assert.equal(kalici.kutu[OTURUM_ANAHTARI], undefined);
+  assert.equal(kalici.kutu[EPOSTA_ANAHTARI], undefined);
+
+  const ucuncu = yeni();
+  await ucuncu.girisYap("ayse@ornek.com", "dogru-sifre", true);
+  await ucuncu.cikisYap();
+  assert.equal(kalici.kutu[OTURUM_ANAHTARI], undefined);
+  assert.equal(gecici.kutu[OTURUM_ANAHTARI], undefined);
+  assert.equal(ucuncu.hatirlananEposta(), "ayse@ornek.com"); // bir sonraki girişte hazır gelsin
+  assert.equal(JSON.stringify(kalici.kutu).includes("dogru-sifre"), false);
+});
+
+test("hatalı giriş denemesi hatırlama ayarını bozmaz", async () => {
+  const { kalici, yeni } = hatirlaKur();
+  await yeni().girisYap("ayse@ornek.com", "dogru-sifre", true);
+  await assert.rejects(() => yeni().girisYap("ayse@ornek.com", "yanlis", false), /hatalı/);
+  assert.ok(kalici.kutu[OTURUM_ANAHTARI]);
+  assert.equal(kalici.kutu[EPOSTA_ANAHTARI], "ayse@ornek.com");
 });

@@ -206,7 +206,11 @@ async function baslat() {
   try {
     // Supabase seçildiyse giriş yönetimini kur; depo her istekte jetonu oradan alır.
     if (veriKatmaniTuru(ayarlar) === "supabase") {
-      durum.oturum = oturumOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY, window.localStorage);
+      // sessionStorage: "Beni hatırla" işaretsizken oturum orada durur (tarayıcı kapanınca silinir)
+      let gecici = null;
+      try { gecici = window.sessionStorage; } catch (hata) { gecici = null; }
+      durum.oturum = oturumOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY, window.localStorage,
+        undefined, undefined, gecici);
     }
     durum.depo = depoSec(ayarlar, window.localStorage, { jetonGetir: () => durum.oturum.jeton() });
   } catch (hata) {

@@ -22,6 +22,9 @@ function girisEkraniCiz(kok) {
     '<button type="button" class="dugme kucuk sifre-goster" aria-controls="giris-sifre" aria-pressed="false">Göster</button>' +
     "</div>" +
     "<small>En az " + SIFRE_EN_AZ + " karakter.</small></div>" +
+    // Beni hatırla: işaretsizse oturum tarayıcı kapanınca biter (js/oturum.js)
+    '<label class="hatirla"><input type="checkbox" name="hatirla" checked> Beni hatırla</label>' +
+    '<p class="soluk kucuk-yazi hatirla-not">Ortak bir bilgisayardaysan işareti kaldır: tarayıcıyı kapatınca çıkış yapılır.</p>' +
     '<p class="form-hata" role="alert" hidden></p>' +
     '<div class="form-dugmeler" style="justify-content:flex-start">' +
     '<button type="submit" class="dugme ana" data-islem="giris">Giriş yap</button>' +
@@ -37,6 +40,10 @@ function girisEkraniCiz(kok) {
 
   // Şifreyi göster / gizle: kutunun türünü password <-> text yapar.
   // aria-pressed, ekran okuyucuya düğmenin açık mı kapalı mı olduğunu söyler.
+  // Daha önce "beni hatırla" ile girildiyse e-posta hazır gelsin, odak şifreye geçsin.
+  const hatirlanan = durum.oturum.hatirlananEposta();
+  if (hatirlanan) form.elements.email.value = hatirlanan;
+
   const sifreKutusu = form.elements.sifre;
   const sifreDugmesi = form.querySelector(".sifre-goster");
   sifreDugmesi.onclick = () => {
@@ -53,6 +60,7 @@ function girisEkraniCiz(kok) {
     const islem = olay.submitter ? olay.submitter.dataset.islem : "giris";
     const email = form.elements.email.value.trim();
     const sifre = form.elements.sifre.value;
+    const hatirla = form.elements.hatirla.checked;
 
     if (!/^\S+@\S+\.\S+$/.test(email)) return goster("Geçerli bir e-posta adresi yaz.");
     if (sifre.length < SIFRE_EN_AZ) return goster("Şifre en az " + SIFRE_EN_AZ + " karakter olmalı.");
@@ -61,13 +69,13 @@ function girisEkraniCiz(kok) {
     dugmeler.forEach((d) => { d.disabled = true; }); // çift gönderimi önle
     try {
       if (islem === "kayit") {
-        const sonuc = await durum.oturum.kayitOl(email, sifre);
+        const sonuc = await durum.oturum.kayitOl(email, sifre, hatirla);
         if (!sonuc.girisYapildi) {
           dugmeler.forEach((d) => { d.disabled = false; });
           return goster("Hesap oluşturuldu. E-postana gelen onay bağlantısına tıkla, sonra buradan giriş yap.");
         }
       } else {
-        await durum.oturum.girisYap(email, sifre);
+        await durum.oturum.girisYap(email, sifre, hatirla);
       }
       await takimlariYukle();
       await yenile();
