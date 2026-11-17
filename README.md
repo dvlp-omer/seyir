@@ -94,7 +94,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-188 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+197 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -138,6 +138,10 @@ verisini görür; giriş yapmayan hiçbir şey göremez. **Kayıt herkese açık
 değildir:** ilk hesap yönetici olur, diğerleri yalnızca yöneticinin davet
 listesine eklediği e-postayla hesap açabilir. Bu kuralların hepsi
 veritabanında uygulanır (`supabase/schema.sql`).
+
+Giriş ekranında "Beni hatırla" (işaretsizse tarayıcı kapanınca çıkış yapılır),
+"Şifremi unuttum" (e-postaya tek kullanımlık sıfırlama bağlantısı) ve şifreyi
+göster düğmesi var; şifre Ayarlar'dan da değiştirilebilir.
 
 - Kurulum: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md)
 - Yayına alma (Netlify ya da Vercel): [YAYIN.md](YAYIN.md)
@@ -230,7 +234,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-188 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+197 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF
@@ -245,7 +249,7 @@ characters and the serif font.
   is chosen by the `VERI_KATMANI` environment variable.
 - `js/mantik.js` — pure functions (dates, calendar grid, attendance, report, templates).
 - `js/ekranlar/*.js` — one file per screen; each registers itself and the menu is built from that registry.
-- `js/oturum.js` — Supabase Auth over REST (sign in, token refresh), used only in Supabase mode.
+- `js/oturum.js` — Supabase Auth over REST (sign in, token refresh, "remember me", password reset and change), used only in Supabase mode.
 - `supabase/schema.sql` — tables and row-level security: a user sees only the teams they belong to; triggers on `auth.users` make sign-up invite-only.
 - `js/kisiler.js` — pure logic for contacts and WhatsApp (phone normalisation, CSV/HTML import, templates, `wa.me` links, send-list progress).
 - After every change the current screen re-reads its data and re-renders.

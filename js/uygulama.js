@@ -18,6 +18,7 @@ const durum = {
   takimlar: [],     // bütün takımlar
   takim: null,      // seçili takım
   ekran: null,      // açık ekranın adı (ilk çizimden önce null)
+  sifreYenileme: false, // e-postadaki sıfırlama bağlantısıyla gelindi: önce yeni şifre sorulur
 };
 
 /* ---------- Veri kısayolları ---------- */
@@ -124,6 +125,13 @@ function girisEkraninaDon(kok) {
 
 async function ekraniCiz() {
   if (girisGerekli()) return girisEkraninaDon(sec("#ekran"));
+  if (durum.sifreYenileme) {
+    // Sıfırlama bağlantısından gelindi: menü gizli, yalnızca "yeni şifre" formu
+    document.body.classList.add("oturumsuz");
+    sec("#ekran-baslik").textContent = "Seyir";
+    document.title = "Yeni şifre · Seyir";
+    return yeniSifreEkraniCiz(sec("#ekran"));
+  }
   document.body.classList.remove("oturumsuz");
 
   let ad = location.hash.slice(1);
@@ -244,6 +252,23 @@ async function baslat() {
   });
 
   cevrimdisiDestegiKur();
+
+  // E-postadaki bir bağlantıyla mı gelindi? (şifre sıfırlama ya da kayıt onayı)
+  // Supabase adresin sonuna "#access_token=...&type=recovery" ekler; bu ek bir
+  // ekran adı değildir. Önce oturum açılır, sonra ek adresten silinir (jeton
+  // adres çubuğunda ve tarayıcı geçmişinde kalmasın).
+  if (durum.oturum) {
+    try {
+      const sonuc = await durum.oturum.adrestenOturumAc(location.hash);
+      if (sonuc) durum.sifreYenileme = sonuc.tur === "recovery";
+    } catch (hata) {
+      console.error(hata);
+      girisNotu = hata.message; // giriş ekranında gösterilir (giris.js)
+    }
+    if (girisNotu || durum.sifreYenileme || /access_token=/.test(location.hash)) {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  }
 
   // Giriş gerekiyorsa veri isteği atma; yenile() giriş ekranını çizer.
   // Girişten sonra takımları giris.js yükler.

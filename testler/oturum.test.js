@@ -4,7 +4,7 @@
 // taklit eden sahte bir sunucu; saatin yerine elle ilerletilen bir sayaç kullanılır.
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { oturumOlustur, OTURUM_ANAHTARI, EPOSTA_ANAHTARI, davetEpostasi } = require("../js/oturum.js");
+const { oturumOlustur, OTURUM_ANAHTARI, EPOSTA_ANAHTARI, davetEpostasi, adresEkiniCoz } = require("../js/oturum.js");
 
 const ADRES = "https://ornek.supabase.co";
 const ANAHTAR = "anon-anahtar";
@@ -60,6 +60,19 @@ function sahteAuth(secenekler = {}) {
     if (adres.endsWith("/auth/v1/signup") && govde.email === "davetsiz-eski@ornek.com") {
       // Bazı Supabase sürümlerinin genel mesajı
       return cevap(500, { code: 500, error_code: "unexpected_failure", msg: "Database error saving new user" });
+    }
+    // Şifre sıfırlama isteği: e-posta kayıtlı olsun olmasın aynı cevap
+    if (adres.includes("/auth/v1/recover")) {
+      if (secenekler.cokIstek) return cevap(429, { msg: "For security purposes, you can only request this after 42 seconds." });
+      return cevap(200, {});
+    }
+    // Jetonun sahibi / şifre değiştirme
+    if (adres.endsWith("/auth/v1/user")) {
+      const jeton = ayar.headers.Authorization.replace("Bearer ", "");
+      if (!jeton.startsWith("jeton-") && jeton !== "kurtarma-jetonu") return cevap(401, { msg: "invalid JWT" });
+      if (ayar.method === "GET") return cevap(200, { id: "u1", email: "ayse@ornek.com" });
+      if (govde.password === "dogru-sifre") return cevap(422, { msg: "New password should be different from the old password." });
+      return cevap(200, { id: "u1", email: "ayse@ornek.com" });
     }
     if (adres.endsWith("/rest/v1/rpc/rolum")) return cevap(200, secenekler.rol || "uye");
     if (adres.includes("/rest/v1/izinli_epostalar")) {
@@ -334,4 +347,71 @@ test("hatalı giriş denemesi hatırlama ayarını bozmaz", async () => {
   await assert.rejects(() => yeni().girisYap("ayse@ornek.com", "yanlis", false), /hatalı/);
   assert.ok(kalici.kutu[OTURUM_ANAHTARI]);
   assert.equal(kalici.kutu[EPOSTA_ANAHTARI], "ayse@ornek.com");
+});
+/* ---- Şifremi unuttum / şifre değiştirme ---- */
+
+test("adresEkiniCoz: uygulamanın kendi ekran adreslerine dokunmaz", () => {
+  assert.equal(adresEkiniCoz("#gorevler"), null);
+  assert.equal(adresEkiniCoz(""), null);
+  assert.equal(adresEkiniCoz("#"), null);
+});
+
+test("adresEkiniCoz: sıfırlama bağlantısının ekini çözer", () => {
+  const sonuc = adresEkiniCoz("#access_token=a1&expires_in=3600&refresh_token=r1&token_type=bearer&type=recovery");
+  assert.deepEqual(sonuc, { access_token: "a1", refresh_token: "r1", expires_in: 3600, tur: "recovery" });
+});
+
+test("adresEkiniCoz: süresi dolmuş ya da eksik bağlantıda Türkçe hata", () => {
+  assert.match(adresEkiniCoz("#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired").hata, /süresi dolmuş/);
+  assert.match(adresEkiniCoz("#access_token=a1&type=recovery").hata, /eksik ya da bozuk/);
+});
+
+test("sifreSifirlamaIste: e-postayı ve dönüş adresini Supabase'e yollar", async () => {
+  const { oturum, sunucu } = kur();
+  await oturum.sifreSifirlamaIste("ayse@ornek.com", "https://site.ornek/");
+  const istek = sunucu.istekler.at(-1);
+  assert.equal(istek.adres, ADRES + "/auth/v1/recover?redirect_to=" + encodeURIComponent("https://site.ornek/"));
+  assert.deepEqual(istek.govde, { email: "ayse@ornek.com" });
+});
+
+test("sifreSifirlamaIste: çok sık istenirse bekleme süresini Türkçe söyler", async () => {
+  const { oturum } = kur({ cokIstek: true });
+  await assert.rejects(() => oturum.sifreSifirlamaIste("ayse@ornek.com"), /42 saniye sonra/);
+});
+
+test("adrestenOturumAc: sıfırlama bağlantısıyla oturum açılır, geçici depoya yazılır", async () => {
+  const { kalici, gecici, yeni } = hatirlaKur();
+  const oturum = yeni();
+  const sonuc = await oturum.adrestenOturumAc("#access_token=kurtarma-jetonu&expires_in=3600&refresh_token=r9&type=recovery");
+  assert.deepEqual(sonuc, { tur: "recovery" });
+  assert.deepEqual(oturum.kullanici(), { email: "ayse@ornek.com" });
+  assert.equal(await oturum.jeton(), "kurtarma-jetonu");
+  assert.ok(gecici.kutu[OTURUM_ANAHTARI]);
+  assert.equal(kalici.kutu[OTURUM_ANAHTARI], undefined);
+});
+
+test("adrestenOturumAc: ek yoksa hiçbir şey yapmaz; süresi dolmuşsa hata verir", async () => {
+  const { yeni } = hatirlaKur();
+  const oturum = yeni();
+  assert.equal(await oturum.adrestenOturumAc("#ozet"), null);
+  await assert.rejects(() => oturum.adrestenOturumAc("#error=access_denied&error_code=otp_expired"), /süresi dolmuş/);
+  assert.equal(oturum.kullanici(), null);
+});
+
+test("sifreDegistir: giriş yapmış kullanıcının şifresini PUT ile değiştirir; aynı şifreye Türkçe hata", async () => {
+  const { oturum, sunucu } = kur();
+  await assert.rejects(() => oturum.sifreDegistir("yeni-sifre-123"), /Giriş yapılmamış/);
+  await oturum.girisYap("ayse@ornek.com", "dogru-sifre");
+  await oturum.sifreDegistir("yeni-sifre-123");
+  const istek = sunucu.istekler.at(-1);
+  assert.ok(istek.adres.endsWith("/auth/v1/user"));
+  assert.deepEqual(istek.govde, { password: "yeni-sifre-123" });
+  await assert.rejects(() => oturum.sifreDegistir("dogru-sifre"), /eskisiyle aynı olamaz/);
+});
+
+test("adrestenOturumAc: jetonu sunucu reddederse teknik değil anlaşılır hata", async () => {
+  const { yeni } = hatirlaKur();
+  const oturum = yeni();
+  await assert.rejects(() => oturum.adrestenOturumAc("#access_token=sahte&expires_in=3600&refresh_token=r&type=recovery"), /süresi dolmuş/);
+  assert.equal(oturum.kullanici(), null);
 });

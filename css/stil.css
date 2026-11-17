@@ -512,6 +512,11 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 .hatirla { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; cursor: pointer; }
 .hatirla input { width: 20px; height: 20px; accent-color: var(--vurgu); }
 .hatirla-not { margin: 0 0 14px; }
+/* "Şifremi unuttum" bağlantısı şifre kutusunun hemen altında, sağda */
+.unuttum { margin: -8px 0 4px; text-align: right; }
+.unuttum .baglanti-dugme { margin-top: 0; }
+/* Olumlu bilgi kutusu (ör. "bağlantı gönderdik"); .form-hata'nın yeşil eşi */
+.form-bilgi { margin-bottom: 12px; padding: 8px 10px; border-radius: 8px; background: var(--rahat-z); color: var(--rahat-y); font-size: 14px; }
 .oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
 
 /* Kişiler ve WhatsApp mesajları (js/ekranlar/kisiler.js, mesajlar.js) */

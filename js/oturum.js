@@ -49,6 +49,40 @@ const DAVETSIZ_KAYIT = "Bu e-posta davet listesinde yok. Hesap açabilmen için 
 OTURUM_HATALARI["KAYIT_DAVETLI_DEGIL"] = DAVETSIZ_KAYIT;
 OTURUM_HATALARI["Database error saving new user"] = DAVETSIZ_KAYIT;
 
+// Şifre işlemlerinin hata mesajları
+OTURUM_HATALARI["New password should be different from the old password."] = "Yeni şifre eskisiyle aynı olamaz.";
+OTURUM_HATALARI["email rate limit exceeded"] = "Kısa sürede çok fazla e-posta istendi. Biraz bekleyip yeniden dene.";
+OTURUM_HATALARI["Email link is invalid or has expired"] =
+  "Bağlantının süresi dolmuş ya da daha önce kullanılmış. Giriş ekranından yeni bir sıfırlama bağlantısı iste.";
+
+// Supabase'in metni sayı içeren mesajları (tam eşleşme yerine kalıpla çevrilir)
+function hataMesajiCevir(ham) {
+  if (OTURUM_HATALARI[ham]) return OTURUM_HATALARI[ham];
+  const bekle = /only request this after (\d+) seconds/.exec(ham);
+  if (bekle) return "Güvenlik için yeni bağlantıyı " + bekle[1] + " saniye sonra isteyebilirsin.";
+  return ham;
+}
+
+/* E-postadaki bağlantıdan dönüş: Supabase kullanıcıyı siteye şu ekle geri yollar:
+     #access_token=...&refresh_token=...&expires_in=3600&type=recovery   (şifre sıfırlama)
+     #access_token=...&type=signup                                        (kayıt onayı)
+     #error=access_denied&error_code=otp_expired&error_description=...    (süresi dolmuş)
+   Uygulamanın kendi ekran adresleri ("#gorevler") bu kalıba uymaz; null döner. */
+function adresEkiniCoz(ek) {
+  const metin = String(ek || "").replace(/^#/, "");
+  if (!/(^|&)(access_token|error_description|error_code)=/.test(metin)) return null;
+  const p = new URLSearchParams(metin);
+  if (p.get("error") || p.get("error_code") || p.get("error_description")) {
+    const kod = p.get("error_code") || "";
+    const aciklama = (p.get("error_description") || "").replace(/\+/g, " ");
+    const hata = kod === "otp_expired" ? OTURUM_HATALARI["Email link is invalid or has expired"] : hataMesajiCevir(aciklama || "Bağlantı geçersiz.");
+    return { hata };
+  }
+  const sure = Number(p.get("expires_in"));
+  if (!p.get("access_token") || !p.get("refresh_token") || !(sure > 0)) return { hata: "Bağlantı eksik ya da bozuk. Yeni bir bağlantı iste." };
+  return { access_token: p.get("access_token"), refresh_token: p.get("refresh_token"), expires_in: sure, tur: p.get("type") || "" };
+}
+
 // Davet listesine eklenecek e-posta: küçük harf, boşluksuz, "@" ve nokta içeren
 function davetEpostasi(metin) {
   const eposta = String(metin || "").trim().toLowerCase();
@@ -104,7 +138,7 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
     if (geciciDepolama) geciciDepolama.removeItem(OTURUM_ANAHTARI);
   }
 
-  // yontem: "POST" (varsayılan), "GET" ya da "DELETE". GET/DELETE'te gövde gönderilmez.
+  // yontem: "POST" (varsayılan), "PUT", "GET" ya da "DELETE". GET/DELETE'te gövde gönderilmez.
   async function gonder(yol, govde, jeton, yontem = "POST") {
     const yanit = await istek(taban + yol, {
       method: yontem,
@@ -115,7 +149,7 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
         // Tabloya yazarken eklenen satırı geri isteme (rpc ve auth adreslerinde etkisiz bırakılır)
         ...(yol.startsWith("/rest/v1/") && !yol.startsWith("/rest/v1/rpc/") ? { Prefer: "return=minimal" } : {}),
       },
-      body: yontem === "POST" ? JSON.stringify(govde || {}) : undefined,
+      body: yontem === "POST" || yontem === "PUT" ? JSON.stringify(govde || {}) : undefined,
     });
     // Çıkış, silme gibi istekler gövdesiz (204/201) dönebilir
     const cevap = yanit.status === 204 ? null : await yanit.json().catch(() => null);
@@ -123,7 +157,7 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
       const ham = (cevap && (cevap.msg || cevap.error_description || cevap.message)) || ("Hata " + yanit.status);
       // Aynı e-posta ikinci kez eklenince veritabanı "duplicate key" der
       if (cevap && cevap.code === "23505") throw new Error("Bu e-posta zaten davet listesinde.");
-      throw new Error(OTURUM_HATALARI[ham] || ham);
+      throw new Error(hataMesajiCevir(ham));
     }
     return cevap;
   }
@@ -167,6 +201,44 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
         return { girisYapildi: true };
       }
       return { girisYapildi: false };
+    },
+
+    /* ---- Şifre ---- */
+
+    // "Şifremi unuttum": Supabase bu e-postaya bir sıfırlama bağlantısı yollar.
+    // Güvenlik için e-posta kayıtlı olmasa da aynı cevabı verir (kimin kayıtlı
+    // olduğu böylece sızmaz). donusAdresi: bağlantının açacağı sayfa; Supabase'in
+    // izin listesinde değilse panelde ayarlı "Site URL" kullanılır.
+    async sifreSifirlamaIste(email, donusAdresi) {
+      const ek = donusAdresi ? "?redirect_to=" + encodeURIComponent(donusAdresi) : "";
+      await gonder("/auth/v1/recover" + ek, { email: email });
+    },
+
+    // E-postadaki bağlantıyla dönüldüyse (adres eki, bkz. adresEkiniCoz) oturum açar.
+    // Döner: null (ek yok) ya da { tur: "recovery" | "signup" | ... }.
+    // Bu oturum GEÇİCİ depoya yazılır (bağlantı ortak bir bilgisayarda açılmış olabilir).
+    async adrestenOturumAc(ek) {
+      const cozulen = adresEkiniCoz(ek);
+      if (!cozulen) return null;
+      if (cozulen.hata) throw new Error(cozulen.hata);
+      let kullanici;
+      try {
+        kullanici = await gonder("/auth/v1/user", null, cozulen.access_token, "GET");
+      } catch (hata) {
+        // Jeton geçersiz ya da süresi dolmuş: teknik mesaj yerine anlaşılır olanı
+        throw new Error(OTURUM_HATALARI["Email link is invalid or has expired"]);
+      }
+      yer = geciciDepolama || depolama;
+      const diger = yer === depolama ? geciciDepolama : depolama;
+      if (diger) diger.removeItem(OTURUM_ANAHTARI);
+      sakla({ ...cozulen, user: kullanici });
+      return { tur: cozulen.tur };
+    },
+
+    // Giriş yapmış kullanıcının şifresini değiştirir (sıfırlama bağlantısından
+    // gelindiğinde de bu kullanılır).
+    async sifreDegistir(yeniSifre) {
+      await gonder("/auth/v1/user", { password: yeniSifre }, await this.jeton(), "PUT");
     },
 
     async cikisYap() {
@@ -226,5 +298,5 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { oturumOlustur, OTURUM_ANAHTARI, EPOSTA_ANAHTARI, davetEpostasi };
+  module.exports = { oturumOlustur, OTURUM_ANAHTARI, EPOSTA_ANAHTARI, davetEpostasi, adresEkiniCoz };
 }

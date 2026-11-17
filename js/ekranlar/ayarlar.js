@@ -152,7 +152,8 @@ async function ayarlarEkraniCiz(kok) {
       ? "<p><b>Supabase</b> — veriler bulutta; takımdaki herkes aynı veriyi görür.</p>" +
         (kullanici
           ? "<p>Giriş yapan: <b>" + htmlKacis(kullanici.email) + "</b></p>" +
-            '<p><button class="dugme" data-eylem="cikis">Çıkış yap</button></p>'
+            '<p style="display:flex;flex-wrap:wrap;gap:8px"><button class="dugme" data-eylem="sifre-degistir">Şifreyi değiştir</button> ' +
+            '<button class="dugme" data-eylem="cikis">Çıkış yap</button></p>'
           : "")
       : "<p><b>Bu tarayıcı (localStorage)</b> — veriler yalnızca bu cihazda ve bu tarayıcıda durur. " +
         "Tarayıcı verisi silinirse kaybolur.</p>" +
@@ -194,6 +195,7 @@ async function ayarlarEkraniCiz(kok) {
   eylemleriBagla(kok, {
     "disa-aktar": yedekIndir,
     "ice-aktar": () => dosyaSecici.click(),
+    "sifre-degistir": sifreDegistirPenceresi, // js/ekranlar/giris.js
     cikis: async () => {
       await durum.oturum.cikisYap();
       durum.takimlar = [];
