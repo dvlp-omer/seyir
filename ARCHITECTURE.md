@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 197 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 210 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -41,7 +41,7 @@ supabase/schema.sql        Tablolar ve satır düzeyinde güvenlik kuralları
 araclar/env-aktar.js       Ortam değişkenlerini js/ayarlar.js'e yazar
 araclar/ikon-uret.py       İkonları üretir
 netlify.toml               Yayın ayarları ve güvenlik başlıkları
-testler/                   197 test (Node'un kendi test aracı)
+testler/                   210 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar
@@ -169,10 +169,10 @@ Otomatik testler **mantığı ve veri katmanını** kapsar. Arayüz davranışı
 
 ## 7. Bilinen sınırlar (dürüst liste)
 
-- **Supabase kipi gerçek bir projeyle denenmedi.** Kod sahte sunucuyla test
-  edildi; `schema.sql` hiçbir veritabanında çalıştırılmadı.
 - Otomatik arayüz testi yok.
-- Aynı kaydı iki kişi aynı anda düzenlerse son kaydeden kazanır (uyarı yok).
+- Aynı anda düzenleme: her satırda `surum` (sürüm) var; güncelleme "sürüm
+  hâlâ gördüğüm mü?" koşuluyla tek istekte yapılır (`js/veri.js`,
+  `schema.sql` bölüm 6). İkinci kaydeden uyarılır; alan alan birleştirme yok.
 - Supabase kipinde çevrimdışıyken veri görünmez (yalnızca uygulama açılır).
 - Takım içinde yetki ayrımı yok; her üye her şeyi yapabilir.
 - Fonksiyonlar global; proje büyürse modüllere bölünmeli.

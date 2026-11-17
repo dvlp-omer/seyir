@@ -90,6 +90,24 @@ function metinDosyalari(klasor = KOK) {
   return sonuc;
 }
 
+test("şema: her koleksiyonda 'surum' sütunu ve onu artıran tetikleyici var (çakışma denetimi)", () => {
+  assert.match(sema, /create or replace function surum_artir\(\)/);
+  assert.match(sema, /new\.surum := coalesce\(old\.surum, 0\) \+ 1/);
+  assert.match(sema, /add column if not exists surum integer not null default 1/);
+  assert.match(sema, /create trigger surum_artir before update on %I/);
+  // Döngüdeki tablo listesi, uygulamanın koleksiyon listesiyle aynı olmalı
+  const liste = /foreach tablo in array array\[([^\]]+)\]/.exec(sema);
+  assert.ok(liste, "tablo listesi bulunamadı");
+  const tablolar = liste[1].match(/'([a-z_]+)'/g).map((t) => t.slice(1, -1)).sort();
+  assert.deepEqual(tablolar, [...KOLEKSIYONLAR].sort());
+  // Ayrı güncelleme dosyası da aynı komutları içersin
+  const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-surum.sql"), "utf8");
+  // (sema'dan yorumlar atılmıştır; dosyayı da aynı biçimde karşılaştır)
+  const komutlar = (metin) => metin.replace(/--.*$/gm, "").replace(/\s+/g, " ").trim();
+  const fonksiyonVeDongu = /create or replace function surum_artir[\s\S]*?end\s*\$\$;/.exec(sema)[0];
+  assert.ok(komutlar(guncelleme).includes(komutlar(fonksiyonVeDongu)), "guncelleme-surum.sql, schema.sql ile aynı değil");
+});
+
 test("kişisel veri: depoda gerçek görünen cep telefonu numarası yok (yalnızca 0500 000 00 xx)", () => {
   // 5XX XXX XX XX biçiminde, önünde 0 / 90 / +90 olabilen numaralar
   const desen = /(?<![\d])(?:\+?90|0)?[\s(]*5\d{2}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}(?![\d])/g;

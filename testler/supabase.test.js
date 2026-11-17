@@ -17,46 +17,7 @@ global.VARSAYILAN_SABLONLAR = require("../js/kisiler.js").VARSAYILAN_SABLONLAR;
 const ADRES = "https://ornek.supabase.co";
 const ANAHTAR = "test-anahtari";
 
-// Bellekte tablo tutan, "?alan=eq.deger" süzgecini anlayan sahte fetch.
-function sahteSupabase() {
-  const tablolar = {};
-  const istekler = [];
-
-  async function sahteFetch(adres, secenekler) {
-    istekler.push({ adres, ...secenekler });
-    const url = new URL(adres);
-    const tablo = url.pathname.replace("/rest/v1/", "");
-    const satirlar = (tablolar[tablo] = tablolar[tablo] || []);
-
-    // select ve order dışındaki parametreler süzgeçtir: id=eq.abc
-    const suzgecler = [...url.searchParams].filter(([ad]) => ad !== "select" && ad !== "order");
-    const uyar = (satir) => suzgecler.every(([ad, deger]) => String(satir[ad]) === deger.replace(/^eq\./, ""));
-
-    const cevap = (durum, govde) => ({
-      ok: durum < 400, status: durum,
-      json: async () => govde, text: async () => JSON.stringify(govde),
-    });
-
-    if (secenekler.method === "GET") return cevap(200, satirlar.filter(uyar));
-    if (secenekler.method === "POST") {
-      const satir = JSON.parse(secenekler.body);
-      satirlar.push(satir);
-      return cevap(201, [satir]);
-    }
-    if (secenekler.method === "PATCH") {
-      const degisenler = satirlar.filter(uyar);
-      degisenler.forEach((satir) => Object.assign(satir, JSON.parse(secenekler.body)));
-      return cevap(200, degisenler);
-    }
-    if (secenekler.method === "DELETE") {
-      tablolar[tablo] = satirlar.filter((satir) => !uyar(satir));
-      return cevap(204, null);
-    }
-    return cevap(405, { message: "desteklenmiyor" });
-  }
-
-  return { sahteFetch, istekler, tablolar };
-}
+const { sahteSupabase } = require("./sahte-supabase.js");
 
 function sahteDepolama() {
   const kutu = {};
@@ -76,15 +37,16 @@ test("istekler doğru adrese, anahtar başlıklarıyla gider", async () => {
   assert.equal(istek.headers.Authorization, "Bearer " + ANAHTAR);
 });
 
-test("guncelle: PATCH gövdesinde id ve olusturma gönderilmez", async () => {
+test("guncelle: PATCH gövdesinde id, olusturma ve surum gönderilmez; adreste sürüm koşulu var", async () => {
   const sunucu = sahteSupabase();
   const depo = supabaseDepoOlustur(ADRES, ANAHTAR, { istek: sunucu.sahteFetch });
   const gorev = await depo.ekle("gorevler", { baslik: "Rapor", durum: "yapilacak" });
 
-  await depo.guncelle("gorevler", gorev.id, { durum: "bitti", id: "baska", olusturma: "x" });
+  await depo.guncelle("gorevler", gorev.id, { durum: "bitti", id: "baska", olusturma: "x", surum: 99 });
 
   const yama = sunucu.istekler.find((i) => i.method === "PATCH");
-  assert.equal(yama.adres, ADRES + "/rest/v1/gorevler?id=eq." + gorev.id);
+  // "id bu VE sürüm hâlâ 1 ise" — koşullu güncelleme tek istekte
+  assert.equal(yama.adres, ADRES + "/rest/v1/gorevler?id=eq." + gorev.id + "&surum=eq.1");
   assert.deepEqual(JSON.parse(yama.body), { durum: "bitti" });
 });
 
@@ -210,3 +172,4 @@ for (const [ad, depoOlustur] of Object.entries(depolar)) {
     assert.equal(bagliGorev.toplanti_id, toplanti.id);
   });
 }
+

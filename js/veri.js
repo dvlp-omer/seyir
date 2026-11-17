@@ -8,8 +8,19 @@
      depo.oku(koleksiyon, id)           -> tek kayıt ya da null
      depo.ekle(koleksiyon, kayit)       -> eklenen kayıt (id verilmiş hâli;
                                            kayıtta id varsa o korunur)
-     depo.guncelle(koleksiyon, id, degisiklik) -> güncel kayıt
+     depo.guncelle(koleksiyon, id, degisiklik, secenek) -> güncel kayıt
      depo.sil(koleksiyon, id)           -> (bir şey dönmez)
+
+   AYNI ANDA DÜZENLEME (çakışma) DENETİMİ
+   Her kaydın bir "surum" (sürüm) numarası vardır; kayıt her değiştiğinde 1 artar.
+   Depo, listele/oku ile EN SON GÖRDÜĞÜ sürümü aklında tutar. guncelle, kaydı
+   yalnızca hâlâ o sürümdeyse değiştirir. Arada başka biri değiştirdiyse
+   CakismaHatasi fırlatır; ekran "yeniden dene / yine de kaydet" der.
+   Hata anında depo kaydın güncel sürümünü öğrenir; böylece kullanıcı ikinci
+   kez kaydederse bilerek üzerine yazmış olur.
+   secenek.zorla = true: denetimsiz güncelle (programın kendi toplu işleri için;
+   ör. silinen üyenin görevlerini sahipsiz bırakmak).
+   Sürüm sütunu olmayan eski bir veritabanında denetim kendiliğinden atlanır.
 
    "koleksiyon" bir tablo adıdır (ör. "gorevler").
    "filtre" isteğe bağlıdır: { takim_id: "abc" } gibi, eşitlik kontrolü yapar.
@@ -50,6 +61,36 @@ function yeniKayit(kayit) {
   };
 }
 
+// Kayıt, başkası tarafından değiştirildiği için güncellenemedi.
+class CakismaHatasi extends Error {
+  constructor() {
+    super("Bu kaydı sen açtıktan sonra başka biri değiştirdi; senin değişikliğin kaydedilmedi. " +
+      "Ekran güncel hâliyle yenilendi. Yine de kaydedersen onun değişikliğinin üzerine yazılır.");
+    this.name = "CakismaHatasi";
+  }
+}
+
+// Depoların "en son görülen sürüm" defteri: "gorevler/abc" -> 3
+function surumDefteri() {
+  const defter = new Map();
+  const anahtar = (koleksiyon, id) => koleksiyon + "/" + id;
+  return {
+    // Gelen kayıtların sürümünü not et (sürümü olmayan eski kayıtları atla)
+    gor(koleksiyon, kayitlar) {
+      for (const k of kayitlar) {
+        if (k && typeof k.surum === "number") defter.set(anahtar(koleksiyon, k.id), k.surum);
+      }
+      return kayitlar;
+    },
+    beklenen(koleksiyon, id) {
+      return defter.get(anahtar(koleksiyon, id));
+    },
+    unut(koleksiyon, id) {
+      defter.delete(anahtar(koleksiyon, id));
+    },
+  };
+}
+
 // Kayıt, filtredeki bütün alanlarla eşleşiyor mu?
 function filtreyeUyar(kayit, filtre) {
   return Object.keys(filtre || {}).every((alan) => kayit[alan] === filtre[alan]);
@@ -84,41 +125,54 @@ function yerelDepoOlustur(depolama, onEk = "takim-asistani:") {
     depolama.setItem(onEk + koleksiyon, JSON.stringify(liste));
   }
 
+  const surumler = surumDefteri();
+
   return {
     tur: "yerel",
 
     async listele(koleksiyon, filtre) {
-      return tumunuOku(koleksiyon).filter((kayit) => filtreyeUyar(kayit, filtre));
+      return surumler.gor(koleksiyon, tumunuOku(koleksiyon).filter((kayit) => filtreyeUyar(kayit, filtre)));
     },
 
     async oku(koleksiyon, id) {
-      return tumunuOku(koleksiyon).find((kayit) => kayit.id === id) || null;
+      const kayit = tumunuOku(koleksiyon).find((k) => k.id === id) || null;
+      surumler.gor(koleksiyon, [kayit]);
+      return kayit;
     },
 
     async ekle(koleksiyon, kayit) {
       const liste = tumunuOku(koleksiyon);
-      const yeni = yeniKayit(kayit);
+      const yeni = { ...yeniKayit(kayit), surum: 1 };
       if (liste.some((mevcut) => mevcut.id === yeni.id)) {
         throw new Error("Bu kimlikle bir kayıt zaten var: " + koleksiyon + "/" + yeni.id);
       }
       liste.push(yeni);
       tumunuYaz(koleksiyon, liste);
+      surumler.gor(koleksiyon, [yeni]);
       return yeni;
     },
 
-    async guncelle(koleksiyon, id, degisiklik) {
+    async guncelle(koleksiyon, id, degisiklik, secenek = {}) {
       const liste = tumunuOku(koleksiyon);
       const sira = liste.findIndex((kayit) => kayit.id === id);
       if (sira === -1) throw new Error("Kayıt bulunamadı: " + koleksiyon + "/" + id);
-      // id ve oluşturma zamanı değiştirilemez; en sona yazarak koruyoruz.
-      liste[sira] = { ...liste[sira], ...degisiklik, id: id, olusturma: liste[sira].olusturma };
+      const simdiki = liste[sira].surum || 1; // sürümsüz eski kayıt: 1 say
+      const beklenen = surumler.beklenen(koleksiyon, id);
+      if (!secenek.zorla && beklenen !== undefined && beklenen !== simdiki) {
+        surumler.gor(koleksiyon, [{ id: id, surum: simdiki }]); // ikinci deneme bilerek üzerine yazar
+        throw new CakismaHatasi();
+      }
+      // id, oluşturma zamanı ve sürüm dışarıdan değiştirilemez; en sona yazarak koruyoruz.
+      liste[sira] = { ...liste[sira], ...degisiklik, id: id, olusturma: liste[sira].olusturma, surum: simdiki + 1 };
       tumunuYaz(koleksiyon, liste);
+      surumler.gor(koleksiyon, [liste[sira]]);
       return liste[sira];
     },
 
     async sil(koleksiyon, id) {
       const liste = tumunuOku(koleksiyon);
       tumunuYaz(koleksiyon, liste.filter((kayit) => kayit.id !== id));
+      surumler.unut(koleksiyon, id);
     },
   };
 }
@@ -135,7 +189,7 @@ function yerelDepoOlustur(depolama, onEk = "takim-asistani:") {
    konuşabiliyoruz:
      listele  -> GET     ?takim_id=eq.abc
      ekle     -> POST
-     guncelle -> PATCH   ?id=eq.xyz
+     guncelle -> PATCH   ?id=eq.xyz&surum=eq.3   (sürüm tutmazsa 0 satır döner)
      sil      -> DELETE  ?id=eq.xyz
    Tablolar ve güvenlik kuralları: supabase/schema.sql
 
@@ -179,18 +233,21 @@ function supabaseDepoOlustur(url, anahtar, secenekler = {}) {
       .join("&");
   }
 
+  const surumler = surumDefteri();
+
   return {
     tur: "supabase",
 
     async listele(koleksiyon, filtre) {
       koleksiyonKontrol(koleksiyon);
       const sorgu = filtreSorgusu(filtre);
-      return cagir("GET", koleksiyon + "?select=*&order=olusturma.asc" + (sorgu ? "&" + sorgu : ""));
+      return surumler.gor(koleksiyon, await cagir("GET", koleksiyon + "?select=*&order=olusturma.asc" + (sorgu ? "&" + sorgu : "")));
     },
 
     async oku(koleksiyon, id) {
       koleksiyonKontrol(koleksiyon);
       const satirlar = await cagir("GET", koleksiyon + "?select=*&" + filtreSorgusu({ id: id }));
+      surumler.gor(koleksiyon, satirlar);
       return satirlar[0] || null;
     },
 
@@ -198,22 +255,35 @@ function supabaseDepoOlustur(url, anahtar, secenekler = {}) {
       koleksiyonKontrol(koleksiyon);
       const yeni = yeniKayit(kayit);
       const satirlar = await cagir("POST", koleksiyon, yeni);
+      surumler.gor(koleksiyon, satirlar);
       return satirlar[0];
     },
 
-    async guncelle(koleksiyon, id, degisiklik) {
+    async guncelle(koleksiyon, id, degisiklik, secenek = {}) {
       koleksiyonKontrol(koleksiyon);
-      // id ve oluşturma zamanı değiştirilemez (yerel depoyla aynı kural):
-      // bu iki alanı ayırıp geri kalanını gönderiyoruz.
-      const { id: _id, olusturma: _olusturma, ...govde } = degisiklik;
-      const satirlar = await cagir("PATCH", koleksiyon + "?" + filtreSorgusu({ id: id }), govde);
-      if (satirlar.length === 0) throw new Error("Kayıt bulunamadı: " + koleksiyon + "/" + id);
+      // id, oluşturma zamanı ve sürüm değiştirilemez (yerel depoyla aynı kural):
+      // bu alanları ayırıp geri kalanını gönderiyoruz. Sürümü veritabanı artırır
+      // (schema.sql > surum_artir tetikleyicisi).
+      const { id: _id, olusturma: _olusturma, surum: _surum, ...govde } = degisiklik;
+      const beklenen = secenek.zorla ? undefined : surumler.beklenen(koleksiyon, id);
+      // Koşullu güncelleme TEK istekte: "id bu VE sürüm hâlâ bu ise değiştir".
+      // Böylece iki kişi aynı anda kaydetse bile ikisi birden geçemez.
+      const kosul = filtreSorgusu(beklenen === undefined ? { id: id } : { id: id, surum: beklenen });
+      const satirlar = await cagir("PATCH", koleksiyon + "?" + kosul, govde);
+      if (satirlar.length === 0) {
+        // Ya kayıt silindi ya da sürümü değişti: hangisi olduğuna bak
+        const simdiki = await this.oku(koleksiyon, id); // defter güncel sürümü de öğrenir
+        if (!simdiki) throw new Error("Kayıt bulunamadı (başka biri silmiş olabilir): " + koleksiyon + "/" + id);
+        throw new CakismaHatasi();
+      }
+      surumler.gor(koleksiyon, satirlar);
       return satirlar[0];
     },
 
     async sil(koleksiyon, id) {
       koleksiyonKontrol(koleksiyon);
       await cagir("DELETE", koleksiyon + "?" + filtreSorgusu({ id: id }));
+      surumler.unut(koleksiyon, id);
     },
   };
 }
@@ -249,6 +319,6 @@ function depoSec(ayarlar, depolama, secenekler) {
 if (typeof module !== "undefined") {
   module.exports = {
     KOLEKSIYONLAR, kimlikUret, filtreyeUyar, yerelDepoOlustur, supabaseDepoOlustur,
-    veriKatmaniTuru, depoSec,
+    veriKatmaniTuru, depoSec, CakismaHatasi,
   };
 }

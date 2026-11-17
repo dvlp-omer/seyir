@@ -380,7 +380,17 @@ function kampanyaCiz(kok, kampanya) {
     try {
       await durum.depo.guncelle("kampanyalar", kampanya.id, { alicilar: kampanya.alicilar });
     } catch (hata) {
-      hataGoster(hata);
+      if (hata.name !== "CakismaHatasi") return hataGoster(hata);
+      // Başka biri de aynı listeden gönderiyor: onun işaretlerini koru, yalnızca
+      // bu kişinin işaretini güncel listeye ekle (uyarı vermeden birleştir).
+      try {
+        const guncel = await durum.depo.oku("kampanyalar", kampanya.id);
+        guncel.alicilar = aliciIsaretle(guncel.alicilar, sira, gonderildi, new Date().toISOString());
+        await durum.depo.guncelle("kampanyalar", kampanya.id, { alicilar: guncel.alicilar });
+        await yenile(); // diğer kişinin işaretleri de ekranda görünsün
+      } catch (ikinci) {
+        hataGoster(ikinci);
+      }
     }
   }
 

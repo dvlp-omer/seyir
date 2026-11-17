@@ -125,8 +125,11 @@ test("gidiş-dönüş: dışa aktar -> metin -> içe aktar, veri birebir aynı k
   assert.equal(sonuc.eklenen, cozulen.toplam);
   assert.equal(sonuc.atlanan, 0);
 
+  // "surum" (çakışma denetimi için sürüm numarası) yedeğe girmez: kaydın
+  // içeriği değil, o depodaki değişiklik sayısıdır. Yüklenen kayıt 1'den başlar.
+  const surumsuz = (liste) => liste.map(({ surum, ...kayit }) => kayit);
   for (const koleksiyon of KOLEKSIYONLAR) {
-    assert.deepEqual(await hedef.listele(koleksiyon), await kaynak.listele(koleksiyon), koleksiyon);
+    assert.deepEqual(surumsuz(await hedef.listele(koleksiyon)), surumsuz(await kaynak.listele(koleksiyon)), koleksiyon);
   }
 });
 

@@ -68,7 +68,7 @@ async function toplantiSil(toplanti) {
   // Görevlerdeki toplantı bağını temizle
   const gorevler = await durum.depo.listele("gorevler", { toplanti_id: toplanti.id });
   for (const gorev of gorevler) {
-    await durum.depo.guncelle("gorevler", gorev.id, { toplanti_id: "" });
+    await durum.depo.guncelle("gorevler", gorev.id, { toplanti_id: "" }, { zorla: true }); // toplu iş: denetimsiz
   }
   await durum.depo.sil("toplantilar", toplanti.id);
   acikToplantiId = null;

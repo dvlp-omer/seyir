@@ -344,7 +344,8 @@ function tutanakDuzenleCiz(kok, tutanaklar) {
     } catch (hataNesnesi) {
       console.error(hataNesnesi);
       kaydediliyor = false;
-      hataGosterForm("Kaydedilemedi: " + hataNesnesi.message);
+      // Çakışmada mesaj zaten ne yapılacağını söyler; tekrar "Kaydet" üzerine yazar
+      hataGosterForm(hataNesnesi.name === "CakismaHatasi" ? hataNesnesi.message : "Kaydedilemedi: " + hataNesnesi.message);
     }
   };
 

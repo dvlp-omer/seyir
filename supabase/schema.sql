@@ -533,7 +533,48 @@ alter default privileges in schema public revoke execute on functions from anon,
 
 
 -- ---------------------------------------------------------------------------
--- 6) BİLİNEN SINIRLAR (bilerek basit bırakıldı)
+-- 6) AYNI ANDA DÜZENLEME: SÜRÜM NUMARASI
+-- ---------------------------------------------------------------------------
+-- İki kişi aynı kaydı aynı anda düzenlerse sonradan kaydeden, öbürünün
+-- değişikliğini fark etmeden silmesin diye her satırda bir "surum" vardır.
+-- Satır her güncellendiğinde veritabanı bunu 1 artırır (aşağıdaki tetikleyici;
+-- tarayıcı bu sayıyı değiştiremez). Uygulama güncellerken "sürüm hâlâ benim
+-- gördüğüm sayı mı?" koşulunu ekler (js/veri.js > guncelle):
+--   PATCH /rest/v1/gorevler?id=eq.abc&surum=eq.3
+-- Arada başka biri kaydettiyse sürüm 4 olmuştur, koşul tutmaz, hiçbir satır
+-- değişmez; uygulama kullanıcıyı uyarır. Koşul ve güncelleme tek komut
+-- olduğu için iki kişi aynı anda kaydetse bile ikisi birden geçemez.
+-- Var olan bir projede tek başına çalıştırmak için: supabase/guncelleme-surum.sql
+create or replace function surum_artir()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  new.surum := coalesce(old.surum, 0) + 1;
+  return new;
+end;
+$$;
+
+revoke all on function surum_artir() from public, anon, authenticated;
+
+do $$
+declare
+  tablo text;
+begin
+  foreach tablo in array array['takimlar', 'uyeler', 'gorevler', 'son_tarihler', 'toplantilar',
+                               'etkinlikler', 'tutanaklar', 'kisiler', 'sablonlar', 'kampanyalar']
+  loop
+    execute format('alter table %I add column if not exists surum integer not null default 1', tablo);
+    execute format('drop trigger if exists surum_artir on %I', tablo);
+    execute format('create trigger surum_artir before update on %I for each row execute function surum_artir()', tablo);
+  end loop;
+end
+$$;
+
+
+-- ---------------------------------------------------------------------------
+-- 7) BİLİNEN SINIRLAR (bilerek basit bırakıldı)
 -- ---------------------------------------------------------------------------
 -- * Takımın her üyesi o takımda her şeyi yapabilir (silme dahil). "Kaptan"
 --   rolü yalnızca kadroda görünen bir etikettir, veritabanında yetki değildir.

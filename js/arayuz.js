@@ -56,6 +56,11 @@ function eylemleriBagla(kok, eylemler) {
 
 function hataGoster(hata) {
   console.error(hata);
+  // Başkası bu kaydı değiştirdi: uyar ve ekranı güncel veriyle yeniden çiz
+  if (hata && hata.name === "CakismaHatasi") {
+    bildir("Bu kayıt başka biri tarafından değiştirilmiş; ekran yenilendi. İşlemi yeniden dene.");
+    return yenile();
+  }
   bildir("Bir hata oluştu: " + hata.message);
 }
 
@@ -192,9 +197,17 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
       await yenile();  // ekranı güncel veriyle yeniden çiz (uygulama.js)
     } catch (hataNesnesi) {
       console.error(hataNesnesi);
-      hataKutusu.textContent = "Kaydedilemedi: " + hataNesnesi.message;
-      hataKutusu.hidden = false;
       kaydetDugmesi.disabled = false;
+      if (hataNesnesi.name === "CakismaHatasi") {
+        // Form açık kalır (yazdıkların kaybolmaz); arkadaki ekran güncel hâliyle
+        // yenilenir. İkinci basış bilerek üzerine yazar (js/veri.js).
+        hataKutusu.textContent = hataNesnesi.message;
+        kaydetDugmesi.textContent = "Yine de kaydet";
+        yenile();
+      } else {
+        hataKutusu.textContent = "Kaydedilemedi: " + hataNesnesi.message;
+      }
+      hataKutusu.hidden = false;
     }
   };
 

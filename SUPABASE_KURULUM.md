@@ -66,6 +66,12 @@ Rehberde telefon numaraları olduğu için üç kat koruma var:
 > Bu dosyayı daha önce (davet sistemi yokken) çalıştırdıysan ve zaten
 > hesaplar varsa: dosya en eski hesabı yönetici yapar, diğerlerini üye.
 
+> **Var olan bir projeyi güncelliyorsan** (Kasım 2026'dan önce kurulduysa):
+> [supabase/guncelleme-surum.sql](supabase/guncelleme-surum.sql) dosyasını da bir
+> kez çalıştır. Her tabloya `surum` sütunu ekler; "aynı anda düzenleme"
+> uyarısı bununla çalışır. Çalıştırmazsan uygulama yine çalışır, yalnızca
+> bu uyarı çıkmaz. Yeni kurulumda gerekmez (`schema.sql` içinde var).
+
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 
 ## 3. Giriş ayarları

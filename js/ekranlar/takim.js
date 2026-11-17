@@ -46,7 +46,7 @@ async function uyeSil(id) {
 
   const gorevler = await durum.depo.listele("gorevler", { sorumlu_id: id });
   for (const gorev of gorevler) {
-    await durum.depo.guncelle("gorevler", gorev.id, { sorumlu_id: "" });
+    await durum.depo.guncelle("gorevler", gorev.id, { sorumlu_id: "" }, { zorla: true }); // toplu iş: denetimsiz
   }
   await durum.depo.sil("uyeler", id);
   bildir("Üye çıkarıldı");
