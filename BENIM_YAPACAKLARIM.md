@@ -1,9 +1,9 @@
 # Seyir — Benim yapacaklarım
 
-> Proje adı **Seyir** oldu. Aşağıdaki `takim-asistani` adları, ad değişmeden
-> önce açılan gerçek servislerin (Supabase projesi, GitHub deposu, Vercel
-> projesi) adlarıdır. İstersen onları da `seyir` yap: YAYIN.md → "Proje adını
-> seyir yapmak" (isteğe bağlı, 5 dakika).
+> Proje adı **Seyir** oldu ve servisler de yeniden adlandırıldı: GitHub
+> `dvlp-omer/seyir`, Vercel `seyir-takim` (<https://seyir-takim.vercel.app>),
+> Supabase projesi `seyir`. Aşağıda geçen `takim-asistani` adları eski
+> adlardır; eski site adresi yeni adrese yönlendirir.
 
 Kodun hazır olan kısmı bitti. Aşağıdakiler **senin hesabınla** yapılması
 gereken adımlar: hesap açmak, anahtar almak, giriş yapmak. Bunları ben
@@ -98,8 +98,8 @@ Ayrıntı: [SUPABASE_KURULUM.md](SUPABASE_KURULUM.md). Kısaca:
 
 ## 4. Yayın (15 dakika)
 
-> **Durum (17 Kasım 2026):** Yapıldı. Kod GitHub'da (`dvlp-omer/takim-asistani`),
-> site Vercel'de: <https://takim-asistani.vercel.app>. Üç ortam değişkeni
+> **Durum (17 Kasım 2026):** Yapıldı. Kod GitHub'da (`dvlp-omer/seyir`),
+> site Vercel'de: <https://seyir-takim.vercel.app>. Üç ortam değişkeni
 > Vercel paneline girildi, Supabase Site URL bu adrese çevrildi. Giriş
 > yapmadan veri istekleri "permission denied" alıyor. Artık `git push`
 > yaptıkça Vercel kendiliğinden yeniden yayınlar.

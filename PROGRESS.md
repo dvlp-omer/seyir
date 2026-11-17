@@ -755,10 +755,30 @@ Asistanı*). Ad her yerde güncellenecek, basit bir logo eklenecekti.
   Kullanıcı bu adları görmez (QUESTIONS #35).
 - GitHub deposu, Vercel projesi ve Supabase projesinin adları ile canlı
   adres. Bunlar senin hesaplarındaki gerçek servisler; yeniden adlandırma
-  adımları YAYIN.md'de (QUESTIONS #37).
+  adımları YAYIN.md'de (QUESTIONS #37). → Hemen ardından senin isteğinle
+  yapıldı (aşağıda 6.1).
 
 **Nasıl denendi:** `npm test` → 183 test geçti (182 eski + 1 yeni yedek
 testi); `npm run test:pdf` geçti (2 sayfa, Türkçe harfler, serif yazı tipi).
 Uygulamanın bir kopyası yerel kipte örnek veriyle açıldı: sekme başlığı,
 yan menüdeki logo ve ad, favicon doğru; mevcut ekranlar çalışıyor. Logo
 16, 32, 64 ve 192 pikselde ayrıca görüntülendi.
+
+## 6.1 — Servislerin adları ve adres değişti
+
+Senin isteğinle, senin hesaplarında:
+
+- **Vercel:** proje adı `seyir-takim`; yeni adres **<https://seyir-takim.vercel.app>**
+  eklendi. `seyir.vercel.app` başkasına ait olduğu için kullanılamadı.
+  Eski `takim-asistani.vercel.app` adresi yeni adrese **308 kalıcı
+  yönlendirme** ile bağlandı; eski bağlantılar kırılmıyor.
+- **Supabase:** Site URL yeni adres; projenin panelde görünen adı `seyir`.
+  Bağlantı adresi (proje kodu) değişmediği için `.env` aynı kaldı.
+- **GitHub:** depo `dvlp-omer/seyir`; açıklama Seyir adıyla, web sitesi
+  alanı canlı adres. Yerel `origin` yeni adrese çevrildi.
+- README, YAYIN, BENIM_YAPACAKLARIM ve QUESTIONS yeni adreslerle güncellendi.
+
+**Nasıl denendi:** yeni adres 200 dönüyor ve başlık "Seyir — Takım
+Asistanı"; eski adres `308 → https://seyir-takim.vercel.app/`; canlı sitedeki
+ayar dosyası Supabase kipini gösteriyor; `git ls-remote` yeni depo adresinden
+çalışıyor.

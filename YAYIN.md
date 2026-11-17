@@ -9,20 +9,22 @@ gönderir (bir test bunu denetler). Ücretli plan ya da alan adı gerekmez.
 `seyir.netlify.app` (ad boşsa; doluysa `seyir-takim` gibi bir ek kullan).
 
 > **Durum (17 Kasım 2026):** Vercel'de yayında, Supabase kipinde:
-> <https://takim-asistani.vercel.app>. Proje "Seyir" adını almadan önce
-> açıldığı için Vercel projesinin ve GitHub deposunun adı hâlâ
-> `takim-asistani`. Yeniden adlandırmak istersen aşağıdaki "Proje adını
-> seyir yapmak" bölümüne bak.
+> **<https://seyir-takim.vercel.app>** (`seyir.vercel.app` başkasına ait
+> olduğu için `seyir-takim` seçildi). Vercel projesi `seyir-takim`, GitHub
+> deposu `dvlp-omer/seyir`, Supabase projesinin adı `seyir`. Eski adres
+> `takim-asistani.vercel.app` yeni adrese kalıcı (308) yönlendirir.
 
-### Proje adını `seyir` yapmak (isteğe bağlı)
+### Yayındaki bir projenin adını değiştirmek (nasıl yapıldı)
 
 Sıra önemli; adres değişince giriş e-postalarındaki bağlantılar da değişmeli.
 
-1. **Vercel:** Project → Settings → General → *Project Name* = `seyir` → Save.
-   Ardından Settings → Domains'te `seyir.vercel.app` görünmeli (boşsa).
+1. **Vercel:** Project → Settings → General → *Project Name* → Save. Proje adı
+   adresi kendiliğinden değiştirmez: Settings → Domains → *Add Existing* ile
+   yeni `….vercel.app` adresini ekle; eski adresi *Edit* → *Redirect to
+   Another Domain* → 308 ile yeni adrese yönlendir (eski bağlantılar kırılmaz).
 2. **Supabase:** Authentication → URL Configuration → *Site URL* = yeni adres.
-3. **GitHub (isteğe bağlı):** depo → Settings → *Repository name* = `seyir`.
-   GitHub eski adresi yeni adrese yönlendirir; yine de yerel bağlantıyı güncelle:
+3. **GitHub:** depo → Settings → *Repository name*. GitHub eski adresi yeni
+   adrese yönlendirir; yine de yerel bağlantıyı güncelle:
 
    ```bash
    git remote set-url origin https://github.com/KULLANICI-ADIN/seyir.git

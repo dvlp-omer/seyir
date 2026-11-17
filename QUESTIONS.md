@@ -249,11 +249,14 @@ eklenebilir.
 Yeni yedekler `"uygulama": "seyir"` ve `seyir-yedek-<tarih>.json` adıyla iner.
 Daha önce indirilmiş `"takim-asistani"` yedekleri de yüklenebilir (test var).
 
-### 37. Gerçek servislerin adları değişmedi
-GitHub deposu, Vercel projesi ve Supabase projesi hâlâ `takim-asistani`.
-Bunları yeniden adlandırmak dışarıdaki hesaplarında yapılan bir değişiklik ve
-canlı adresi değiştirir (Supabase Site URL'nin de güncellenmesi gerekir); o
-yüzden kendim yapmadım. Adımlar: YAYIN.md → "Proje adını seyir yapmak".
+### 37. Servisler senin isteğinle yeniden adlandırıldı; adres `seyir-takim`
+`seyir.vercel.app` başkasına aitti (ilgisiz bir site); seçeneklerden
+`seyir-takim`'ı sen seçtin. Şimdi: GitHub `dvlp-omer/seyir`, Vercel projesi
+`seyir-takim` (<https://seyir-takim.vercel.app>), Supabase projesinin adı
+`seyir`, Supabase Site URL yeni adres. Eski `takim-asistani.vercel.app`
+308 ile yeni adrese yönlendiriyor; GitHub eski depo adresini de yönlendiriyor.
+Supabase bağlantı adresi (proje kodu) ad değişince değişmez, `.env`'e
+dokunmak gerekmedi.
 
 ### 38. Logo: gemi dümeni
 İstekteki üç seçenekten (dümen, pusula, "S") dümeni seçtim: 16 pikselde bile

@@ -10,7 +10,7 @@ bağımlılık yok.
 
 **[Türkçe](#türkçe)** · **[English](#english)**
 
-**Canlı / Live:** <https://takim-asistani.vercel.app> — Supabase kipinde çalışır;
+**Canlı / Live:** <https://seyir-takim.vercel.app> — Supabase kipinde çalışır;
 hesap açmak davetlidir (sign-up is invite-only).
 
 ![Özet ekranı: en yakın son tarih, görev sayıları ve önümüzdeki 7 gün](docs/ekran/ozet.png)
