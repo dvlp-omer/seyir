@@ -90,6 +90,7 @@ async function takvimEkraniCiz(kok) {
     '<button class="dugme" data-eylem="sonraki" aria-label="Sonraki ay">▶</button>' +
     '<span class="bosluk"></span>' +
     '<button class="dugme" data-eylem="bugun">Bugün</button>' +
+    '<button class="dugme" data-eylem="ics" title="Bugünden sonraki toplantı, etkinlik, son tarih ve görevleri Google Takvim ya da telefon takvimine aktar">Takvimime aktar (.ics)</button>' +
     "</div>" +
 
     '<table class="takvim">' +
@@ -118,6 +119,17 @@ async function takvimEkraniCiz(kok) {
     onceki: () => ayDegistir(-1),
     sonraki: () => ayDegistir(+1),
     bugun: () => { takvimiBuguneGetir(); return yenile(); },
+    // Takvim dosyası (js/kolaylik.js > icsOlustur). Google Takvim: Ayarlar →
+    // İçe aktar; telefonda dosyaya dokunmak yeterli. Aynı dosya ikinci kez
+    // aktarılırsa olaylar çoğalmaz (her olayın sabit bir UID'si var).
+    ics: async () => {
+      const gorevler = await takimKayitlari("gorevler");
+      const olaylar = takvimOlaylari({ sonTarihler, toplantilar, etkinlikler, gorevler }, bugun());
+      if (!olaylar.length) return bildir("Bugünden sonra takvime aktarılacak bir şey yok");
+      dosyaIndir("seyir-takvim-" + bugun() + ".ics",
+        icsOlustur(olaylar, { takvimAdi: durum.takim.ad + " · Seyir" }), "text/calendar;charset=utf-8");
+      bildir(olaylar.length + " olay takvim dosyasına yazıldı. Dosyayı Google Takvim'e ya da telefonuna aktar.");
+    },
     gun: (tarih) => {
       takvimDurumu.secili = tarih;
       // Komşu aydan bir güne basıldıysa o aya geç
