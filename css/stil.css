@@ -549,6 +549,10 @@ kbd { font-family: var(--sayi-tipi, monospace); font-size: 12px; padding: 1px 6p
 .karar-liste .karar > span:first-child { overflow-wrap: anywhere; }
 .karar-liste .dugme, .karar-liste .rozet { flex-shrink: 0; }
 @media (max-width: 600px) { .karar-liste .karar { flex-direction: column; } }
+/* Görev panosu sürükle-bırak (js/ekranlar/gorevler.js) */
+.gorev-kart[draggable="true"] { cursor: grab; }
+.gorev-kart.suruklenen { opacity: .45; }
+.sutun.surukle-hedef { outline-offset: -2px; }
 /* Tutanak: dosya not kartının üstüne sürüklenirken */
 .surukle-hedef { outline: 2px dashed var(--vurgu); outline-offset: 4px; }
 

@@ -1,7 +1,7 @@
 /* ==========================================================================
    EKRAN: Görev panosu
    Üç sütun: Yapılacak / Yapılıyor / Bitti. Her görevin sorumlusu ve bitiş
-   tarihi olabilir. Kartlar ◀ ▶ düğmeleriyle sütun değiştirir.
+   tarihi olabilir. Kartlar sürükle-bırakla ya da ◀ ▶ düğmeleriyle sütun değiştirir.
    ========================================================================== */
 
 // Panodaki "sorumluya göre süz" seçimi. "" = herkes.
@@ -47,17 +47,72 @@ function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null }
   });
 }
 
-// Görevi bir sonraki (+1) ya da önceki (-1) sütuna taşır.
-async function gorevTasi(id, yon) {
+// Görevi verilen sütuna (durum) taşır. Düğmeler ve sürükle-bırak bunu kullanır.
+async function gorevDurumunuDegistir(id, yeniDurum) {
   const gorev = await durum.depo.oku("gorevler", id);
   // Görev bu sırada başka bir sekmede silinmiş olabilir.
   if (!gorev) return yenile();
-  const sira = GOREV_DURUMLARI.findIndex((d) => d.deger === gorev.durum);
-  const yeni = GOREV_DURUMLARI[sira + yon];
-  if (!yeni) return;
+  const yeni = GOREV_DURUMLARI.find((d) => d.deger === yeniDurum);
+  if (!yeni || gorev.durum === yeni.deger) return;
   await durum.depo.guncelle("gorevler", id, { durum: yeni.deger });
   await yenile();
   bildir('"' + gorev.baslik + '" → ' + yeni.etiket); // ekran okuyucu da duyar (role=status)
+}
+
+// Görevi bir sonraki (+1) ya da önceki (-1) sütuna taşır.
+async function gorevTasi(id, yon) {
+  const gorev = await durum.depo.oku("gorevler", id);
+  if (!gorev) return yenile();
+  const sira = GOREV_DURUMLARI.findIndex((d) => d.deger === gorev.durum);
+  const yeni = GOREV_DURUMLARI[sira + yon];
+  if (yeni) await gorevDurumunuDegistir(id, yeni.deger);
+}
+
+/* Sürükle-bırak: kart başka bir sütuna sürüklenip bırakılınca durumu değişir.
+   Fareyle çalışır; dokunmatik ekranda ve klavyede ◀ ▶ düğmeleri kullanılır
+   (tarayıcıların sürükle-bırakı dokunmatikte çoğunlukla çalışmaz). */
+function panoSurukleBirakBagla(pano) {
+  let suruklenen = null;
+  let surukleSuruyor = false;
+
+  pano.ondragstart = (olay) => {
+    const kart = olay.target.closest && olay.target.closest(".gorev-kart[data-id]");
+    if (!kart) return;
+    suruklenen = kart.dataset.id;
+    olay.dataTransfer.effectAllowed = "move";
+    olay.dataTransfer.setData("text/plain", suruklenen); // Firefox veri olmadan sürüklemez
+    kart.classList.add("suruklenen");
+  };
+  pano.ondragend = (olay) => {
+    if (olay.target.classList) olay.target.classList.remove("suruklenen");
+    for (const s of pano.querySelectorAll(".surukle-hedef")) s.classList.remove("surukle-hedef");
+    suruklenen = null;
+  };
+  pano.ondragover = (olay) => {
+    const sutun = suruklenen && olay.target.closest(".sutun");
+    if (!sutun) return;
+    olay.preventDefault(); // bırakmaya izin ver
+    olay.dataTransfer.dropEffect = "move";
+    for (const s of pano.querySelectorAll(".surukle-hedef")) if (s !== sutun) s.classList.remove("surukle-hedef");
+    sutun.classList.add("surukle-hedef");
+  };
+  pano.ondrop = async (olay) => {
+    const sutun = suruklenen && olay.target.closest(".sutun");
+    if (!sutun) return;
+    olay.preventDefault();
+    const id = suruklenen;
+    suruklenen = null;
+    sutun.classList.remove("surukle-hedef");
+    if (surukleSuruyor) return;
+    surukleSuruyor = true;
+    try {
+      await gorevDurumunuDegistir(id, sutun.dataset.durum);
+    } catch (hata) {
+      hataGoster(hata);
+    } finally {
+      surukleSuruyor = false;
+    }
+  };
 }
 
 async function gorevSil(id) {
@@ -98,7 +153,7 @@ function gorevKartiHtml(gorev, uyeler) {
       ' aria-label="' + htmlKacis(etiket) + '" title="' + htmlKacis(hedef ? hedef.etiket + " sütununa taşı" : "") + '">' + simge + "</button>";
   };
 
-  return '<article class="gorev-kart ' + vurgu + '">' +
+  return '<article class="gorev-kart ' + vurgu + '" draggable="true" data-id="' + id + '" title="Başka bir sütuna sürükleyebilirsin">' +
     "<h4>" + baslik + "</h4>" +
     (gorev.aciklama ? '<p class="aciklama">' + htmlKacis(gorev.aciklama) + "</p>" : "") +
     '<div class="gorev-alt">' +
@@ -147,6 +202,9 @@ async function gorevlerEkraniCiz(kok) {
     (gorevler.length === 0
       ? '<div class="bos"><h3>Henüz görev yok</h3>İlk görevi ekle ya da bir toplantı kararından görev oluştur.</div>'
       : '<div class="pano">' + sutunlar + "</div>");
+
+  const pano = kok.querySelector(".pano");
+  if (pano) panoSurukleBirakBagla(pano);
 
   sec("#gorev-filtre").onchange = (olay) => {
     gorevSorumluFiltresi = olay.target.value;
