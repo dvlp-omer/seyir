@@ -202,9 +202,11 @@ function tutanakCiz(kok, toplanti, uyeler, gorevler) {
     // kararın gorev_id alanına yeni görevin kimliği yazılır.
     "karardan-gorev": (sira) => {
       const karar = toplanti.kararlar[Number(sira)];
+      // Metinde bir üyenin adı geçiyorsa sorumlu o olsun (js/kolaylik.js)
+      const sorumlu = sorumluBul(karar.metin, uyeler);
       gorevFormu({
         uyeler: uyeler,
-        varsayilan: { baslik: karar.metin, toplanti_id: toplanti.id },
+        varsayilan: { baslik: karar.metin, toplanti_id: toplanti.id, sorumlu_id: sorumlu ? sorumlu.id : "" },
         kaydedince: async (gorev) => {
           const yeniKararlar = toplanti.kararlar.map((k, i) =>
             i === Number(sira) ? { ...k, gorev_id: gorev.id } : k);

@@ -518,6 +518,18 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 /* Olumlu bilgi kutusu (ör. "bağlantı gönderdik"); .form-hata'nın yeşil eşi */
 .form-bilgi { margin-bottom: 12px; padding: 8px 10px; border-radius: 8px; background: var(--rahat-z); color: var(--rahat-y); font-size: 14px; }
 .oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
+/* Geri yüklenen taslak notu (js/arayuz.js > formAc, tutanak listesi) */
+.taslak-notu .baglanti-dugme { margin-top: 0; min-height: 0; color: inherit; }
+/* Resmî tutanak: kararlardan görev oluşturma bölümü */
+.tutanak-gorevler { margin-bottom: 18px; }
+.tutanak-gorevler summary { cursor: pointer; }
+.tutanak-gorevler > p { margin: 8px 0 4px; }
+.karar-liste { list-style: none; padding: 0; margin: 0; }
+.karar-liste li { padding: 8px 0; border-top: 1px solid var(--cizgi); }
+.karar-liste .karar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.karar-liste .karar > span:first-child { overflow-wrap: anywhere; }
+.karar-liste .dugme, .karar-liste .rozet { flex-shrink: 0; }
+@media (max-width: 600px) { .karar-liste .karar { flex-direction: column; } }
 /* Tutanak: dosya not kartının üstüne sürüklenirken */
 .surukle-hedef { outline: 2px dashed var(--vurgu); outline-offset: 4px; }
 

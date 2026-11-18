@@ -151,7 +151,32 @@ function tutanakSayfaStiliniYaz(tutanak) {
   stil.textContent = tutanakSayfaCss(tutanak);
 }
 
-function tutanakGoruntuleCiz(kok, tutanak, tutanaklar) {
+/* Kararlardan görev: tutanağın kararları (Madde 2) ve görev maddeleri (Madde 3)
+   tek tıkla Görev panosuna aktarılır. Görev formu madde metniyle dolu açılır;
+   metinde bir takım üyesinin adı geçiyorsa sorumlu olarak o seçilir
+   (js/kolaylik.js > sorumluBul). Aynı başlıkta görev zaten varsa düğme yerine
+   "görev var" yazar. Bu bölüm yazdırılmaz (.yazdirma). */
+function tutanakGorevBolumuHtml(tutanak, gorevler) {
+  const maddeler = [
+    ...(tutanak.kararlar || []).map((metin, sira) => ({ metin, etiket: "Karar " + (sira + 1) })),
+    ...(tutanak.gorevler || []).map((metin, sira) => ({ metin, etiket: "Madde 3." + (sira + 1) })),
+  ];
+  if (!maddeler.length) return "";
+  const satirlar = maddeler.map((m, sira) => {
+    const var_ = gorevler.find((g) => g.baslik === m.metin);
+    const sag = var_
+      ? '<span class="rozet rahat">Görev var · ' + htmlKacis(gorevDurumEtiketi(var_.durum)) + "</span>"
+      : kayitDugmesi("karardan-gorev", String(sira), "+ Görev yap", m.metin);
+    return '<li><div class="karar"><span><small class="soluk">' + m.etiket + "</small> " + htmlKacis(m.metin) + "</span>" + sag + "</div></li>";
+  }).join("");
+  const acik = maddeler.some((m) => !gorevler.some((g) => g.baslik === m.metin));
+  return '<details class="kart yazdirma tutanak-gorevler"' + (acik ? " open" : "") + ">" +
+    "<summary><b>Kararlardan görev oluştur</b> <span class=\"soluk kucuk-yazi\">(" + maddeler.length + " madde)</span></summary>" +
+    '<p class="soluk kucuk-yazi">Görev formu madde metniyle açılır; metinde takımdan birinin adı geçiyorsa sorumlu olarak o seçilir. Kaydetmeden önce düzeltebilirsin.</p>' +
+    '<ol class="karar-liste">' + satirlar + "</ol></details>";
+}
+
+function tutanakGoruntuleCiz(kok, tutanak, tutanaklar, gorevler = [], uyeler = []) {
   tutanakSayfaStiliniYaz(tutanak);
 
   kok.innerHTML =
@@ -168,7 +193,10 @@ function tutanakGoruntuleCiz(kok, tutanak, tutanaklar) {
     '<p class="soluk kucuk-yazi yazdirma" style="margin-bottom:14px">PDF için açılan yazdırma penceresinde hedef olarak ' +
     "<b>“PDF olarak kaydet”</b>i seç. Kâğıt boyutu A4, kenar boşlukları “Varsayılan” kalsın; “Üst bilgi ve alt bilgiler” " +
     "kutusu işaretliyse kaldır.</p>" +
+    tutanakGorevBolumuHtml(tutanak, gorevler) +
     '<div class="rt-sarici">' + tutanakBelgeHtml(tutanak) + "</div>";
+
+  const maddeler = [...(tutanak.kararlar || []), ...(tutanak.gorevler || [])];
 
   eylemleriBagla(kok, {
     geri: () => { tutanakListesineDon(); return yenile(); },
@@ -177,6 +205,13 @@ function tutanakGoruntuleCiz(kok, tutanak, tutanaklar) {
     sil: () => tutanagiSil(tutanak),
     // Mesajlar ekranına geçer: tarih/saat "Sonraki Toplantı"dan, kişiler katılımcılardan (mesajlar.js)
     mesaj: () => tutanaktanMesajHazirla(tutanak.id),
+    "karardan-gorev": (sira) => {
+      const metin = maddeler[Number(sira)];
+      if (!metin) return;
+      const sorumlu = sorumluBul(metin, uyeler);
+      gorevFormu({ uyeler: uyeler, varsayilan: { baslik: metin, sorumlu_id: sorumlu ? sorumlu.id : "" } });
+      if (sorumlu) bildir("Sorumlu olarak " + sorumlu.ad + " seçildi (metinde adı geçiyor)");
+    },
     // PDF: tarayıcının yazdırma motoru üretir (sayfalara bölme, çerçeve, "Sayfa N").
     // Dosya adı sayfa başlığından gelir (belgeYazdir: toplantilar.js).
     pdf: () => belgeYazdir(tutanakDosyaAdi(tutanak)),
@@ -493,7 +528,8 @@ async function tutanaklarEkraniCiz(kok) {
   }
   const acik = tutanaklar.find((t) => t.id === tutanakEkrani.id);
   if (tutanakEkrani.kip === "goruntule" && acik) {
-    return tutanakGoruntuleCiz(kok, acik, tutanaklar);
+    const [gorevler, uyeler] = await Promise.all([takimKayitlari("gorevler"), takimKayitlari("uyeler")]);
+    return tutanakGoruntuleCiz(kok, acik, tutanaklar, gorevler, uyeler);
   }
   // Açık tutanak bu takımda yoksa (takım değişti ya da silindi) listeye dön.
   tutanakListesineDon();
