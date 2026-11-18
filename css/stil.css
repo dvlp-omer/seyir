@@ -518,6 +518,8 @@ fieldset.alan { border: 0; padding: 0; margin-left: 0; margin-right: 0; min-widt
 /* Olumlu bilgi kutusu (ör. "bağlantı gönderdik"); .form-hata'nın yeşil eşi */
 .form-bilgi { margin-bottom: 12px; padding: 8px 10px; border-radius: 8px; background: var(--rahat-z); color: var(--rahat-y); font-size: 14px; }
 .oturumsuz .menu, .oturumsuz .takim-sec { display: none; }
+/* Tutanak: dosya not kartının üstüne sürüklenirken */
+.surukle-hedef { outline: 2px dashed var(--vurgu); outline-offset: 4px; }
 
 /* Kişiler ve WhatsApp mesajları (js/ekranlar/kisiler.js, mesajlar.js) */
 .sablon-onizleme { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

@@ -167,8 +167,8 @@ function tutanakFormuHtml(t) {
 
   return '<form class="tutanak-form" id="tutanak-formu" novalidate>' +
 
-    '<section class="kart"><h3>Notlardan ya da dosyadan doldur <span class="soluk kucuk-yazi">(isteğe bağlı)</span></h3>' +
-    "<p class=\"soluk kucuk-yazi\">Toplantı notlarını yapıştır ya da bir dosya yükle; tanıdığım başlıklar forma yerleşir. " +
+    '<section class="kart" id="tf-not-karti"><h3>Notlardan ya da dosyadan doldur <span class="soluk kucuk-yazi">(isteğe bağlı)</span></h3>' +
+    "<p class=\"soluk kucuk-yazi\">Toplantı notlarını yapıştır, bir dosya yükle ya da Word / .txt dosyasını bu kutuya sürükleyip bırak; tanıdığım başlıklar forma yerleşir. " +
     "Tanınan başlıklar: <i>Toplantı Tarihi, Tutanak Tarihi, Sonraki Toplantı, Katılımcılar, Devreden Kararlar, Kararlar, Görev Durumu</i>. " +
     "Numaralı satırlar (1. 2. ya da -) ayrı madde olur. " +
     "Başlık yazmadıysan cümlelere bakarım: “toplantı katılımcıları …”, “bir sonraki toplantı …”, “(1. toplantı, Karar 3) …” ya da sonu “devreden” olan satırlar kendi yerine, geri kalanı kararlara gider. " +
@@ -351,10 +351,8 @@ function tutanakDuzenleCiz(kok, tutanaklar) {
     }
   };
 
-  const dosyaSecici = sec("#tf-dosya");
-  dosyaSecici.onchange = async () => {
-    const dosya = dosyaSecici.files[0];
-    dosyaSecici.value = ""; // aynı dosya yeniden seçilebilsin
+  // Seçilen ya da sürüklenen dosyayı oku ve forma yerleştir.
+  const dosyayiIsle = async (dosya) => {
     if (!dosya) return;
     try {
       const metin = await notDosyasiniOku(dosya);
@@ -364,6 +362,43 @@ function tutanakDuzenleCiz(kok, tutanaklar) {
       console.error(hataNesnesi);
       hataGosterForm("Dosya okunamadı: " + hataNesnesi.message);
     }
+  };
+
+  const dosyaSecici = sec("#tf-dosya");
+  dosyaSecici.onchange = () => {
+    const dosya = dosyaSecici.files[0];
+    dosyaSecici.value = ""; // aynı dosya yeniden seçilebilsin
+    dosyayiIsle(dosya);
+  };
+
+  // Sürükle-bırak: dosya kartın (ya da içindeki not kutusunun) üstüne bırakılır.
+  // Yalnızca dosya sürüklenince devreye girer; kutuya metin sürüklemek eskisi gibi çalışır.
+  const notKarti = sec("#tf-not-karti");
+  const dosyaMi = (olay) => [...(olay.dataTransfer?.types || [])].includes("Files");
+  let surukleSayaci = 0; // iç öğelere girip çıkarken vurgu yanıp sönmesin
+  notKarti.ondragenter = (olay) => {
+    if (!dosyaMi(olay)) return;
+    olay.preventDefault();
+    surukleSayaci++;
+    notKarti.classList.add("surukle-hedef");
+  };
+  notKarti.ondragover = (olay) => {
+    if (!dosyaMi(olay)) return;
+    olay.preventDefault(); // bırakmaya izin ver
+    olay.dataTransfer.dropEffect = "copy";
+  };
+  notKarti.ondragleave = (olay) => {
+    if (!dosyaMi(olay)) return;
+    if (--surukleSayaci <= 0) { surukleSayaci = 0; notKarti.classList.remove("surukle-hedef"); }
+  };
+  notKarti.ondrop = (olay) => {
+    if (!dosyaMi(olay)) return;
+    olay.preventDefault(); // tarayıcı dosyayı kendisi açmasın
+    surukleSayaci = 0;
+    notKarti.classList.remove("surukle-hedef");
+    const dosyalar = olay.dataTransfer.files;
+    if (dosyalar.length > 1) bildir("Birden çok dosya bırakıldı; yalnızca ilki okundu");
+    dosyayiIsle(dosyalar[0]);
   };
 
   eylemleriBagla(kok, {
