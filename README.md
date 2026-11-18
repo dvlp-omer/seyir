@@ -37,16 +37,18 @@ da bir gemi dümeni.
 | | |
 |---|---|
 | **Takım ve üyeler** | Takım oluştur, üye ekle, rol ver (kaptan / üye). Birden fazla takım. |
-| **Görev panosu** | Yapılacak / Yapılıyor / Bitti; sorumlu, bitiş tarihi, sorumluya göre süzme. |
+| **Görev panosu** | Yapılacak / Yapılıyor / Bitti; kartları sürükleyerek taşı (ya da ◀ ▶). Sorumlu, bitiş tarihi, sorumluya göre süzme. |
 | **Son tarih takibi** | Rapor, izin, etkinlik tarihleri için geri sayım; yaklaşan ve geciken vurgulanır. |
-| **Takvim** | Son tarihler, toplantılar ve etkinlikler tek ayda. |
+| **Takvim** | Son tarihler, toplantılar ve etkinlikler tek ayda. **Takvimime aktar (.ics)**: Google Takvim ya da telefon takvimine tek dosyayla. |
 | **Toplantı tutanağı** | Tarih, yer, katılanlar, gündem, kararlar, görevler. Karardan tek tıkla görev. Yazdırılabilir / PDF. |
-| **Resmî tutanak (PDF / Word)** | Kulübün resmî toplantı tutanağı: A4, çerçeveli, imza bölümlü. Formu elle doldur, notlarını yapıştır ya da .txt / .docx yükle; numara kendiliğinden artar, devreden kararlar önceki tutanaklardan atfıyla seçilir. PDF ve Word (.docx) çıktısı. |
+| **Resmî tutanak (PDF / Word)** | Kulübün resmî toplantı tutanağı: A4, çerçeveli, imza bölümlü. Formu elle doldur, notlarını yapıştır ya da .txt / .docx yükle; Word dosyasını sürükleyip bırakmak da olur; başlıksız serbest notlar da cümlelerine bakılarak yerleşir. Numara kendiliğinden artar, devreden kararlar önceki tutanaklardan atfıyla seçilir. Kararlardan tek tıkla görev (metinde adı geçen üye sorumlu seçilir). PDF ve Word (.docx) çıktısı. |
 | **Yoklama** | Toplantı ve etkinliklere kim katıldı; üye bazında katılım yüzdesi. |
 | **Etkinlik ve faaliyet raporu** | Etkinlik kaydı; seçilen tarih aralığı için yazdırılabilir rapor taslağı. |
 | **Kişiler** | Rehber: ad, hitap adı, telefon, etiket (başvuran, kabul edildi, üye…), not. CSV dosyası, Excel'den yapıştırma ya da "kabul mesajları" HTML dosyasından önizlemeli içe aktarma. Numaralar tek biçime çevrilir (`0532…`, `+90…`, `0090…` → `90…`); geçersiz ve yinelenenler gösterilir. |
 | **WhatsApp mesajları** | Kaydedilebilir şablonlar (`{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`); kişileri süzüp seç, her biri için mesajı hazır açan **WhatsApp'ta aç** düğmesi, gönderildi işareti ve sayaç (12/72); her gönderim ayrı kayıt. Gruba duyuru: kopyala ya da WhatsApp'ta paylaş. Resmî tutanaktan tek tıkla toplantı hatırlatması. Otomatik toplu gönderim **yok** (WhatsApp resmî olarak desteklemez). |
 | **Duyuru şablonu** | Toplantı daveti, özeti ya da hatırlatma için WhatsApp'a yapıştırılmaya hazır metin (yapay zekâ yok, düz şablon). |
+| **Arama ve kısayollar** | **Ctrl+K** ya da **/** ile bütün kayıtlarda ara (Türkçe harf farkı önemsenmez); **Ctrl+S** kaydeder, **?** kısayol listesini açar. |
+| **Yarım kalan form kaybolmaz** | Form yazılırken taslak tarayıcıya saklanır; sayfa yenilense de geri gelir. |
 | **Yedekleme** | Bütün veriyi JSON olarak indir, başka cihazda geri yükle. |
 | **Koyu / açık tema** | Cihaza uyar ya da elle seçilir. |
 | **Ana ekrana eklenebilir** | Telefonda uygulama gibi açılır; internet yokken de çalışır (PWA). |
@@ -94,7 +96,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-216 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+230 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -199,16 +201,18 @@ Plain HTML, CSS and JavaScript — no framework, no build step, no dependencies.
 ### Features
 
 - **Team & members** — roles (captain / member), multiple teams.
-- **Task board** — To do / Doing / Done, assignee, due date, per-person filter.
+- **Task board** — To do / Doing / Done with drag and drop (or ◀ ▶ buttons for keyboard and touch), assignee, due date, per-person filter.
 - **Deadline tracking** — countdowns; upcoming and overdue items are highlighted.
-- **Calendar** — deadlines, meetings and events in one month view.
+- **Calendar** — deadlines, meetings and events in one month view; export upcoming items as an `.ics` file (RFC 5545, hand-written) for Google Calendar or a phone.
 - **Meeting minutes** — agenda, decisions, tasks; turn a decision into a task in one click; printable / PDF.
-- **Official minutes (PDF / Word)** — the club's formal A4 minutes with page frame, numbered articles and a signature block. Fill the form, paste free-text notes, or upload a .txt / .docx; numbering auto-increments and carried-over decisions are picked from earlier minutes with citations. Exports to PDF (browser print engine) and .docx (hand-written ZIP + WordprocessingML, no library).
+- **Official minutes (PDF / Word)** — the club's formal A4 minutes with page frame, numbered articles and a signature block. Fill the form, paste free-text notes, or upload a .txt / .docx; numbering auto-increments and carried-over decisions are picked from earlier minutes with citations. Drag and drop a Word file; free-form notes without headings are sorted line by line with rules (no AI, nothing leaves the browser). Turn any decision into a task, with the assignee guessed from a member name in the text. Exports to PDF (browser print engine) and .docx (hand-written ZIP + WordprocessingML, no library).
 - **Attendance** — who attended each meeting or event; attendance rate per member.
 - **Events & activity report** — event log and a printable draft report for a chosen date range.
 - **Contacts** — name, salutation, phone, tag, note. Import from CSV, pasted spreadsheet rows, or the "acceptance messages" HTML page (the array is parsed as data, never executed). Phone numbers are normalised to `90XXXXXXXXXX`; invalid and duplicate rows are listed before anything is saved.
 - **WhatsApp messages** — saved templates with `{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`; filter and pick contacts, then a per-person **Open in WhatsApp** (`wa.me`) button with a sent marker and a 12/72 progress counter; every send list is stored. Group announcements via copy or `wa.me/?text=`. One-click meeting reminder from an official minutes record. No automated bulk sending (WhatsApp does not officially support it).
 - **Announcement templates** — ready-to-paste WhatsApp text (plain templates, no AI).
+- **Search & shortcuts** — Ctrl+K or / searches every record (Turkish-letter-insensitive); Ctrl+S saves the open form; ? lists shortcuts.
+- **Drafts** — unsaved forms are kept in the browser and restored after a reload.
 - **Backup** — export / import all data as JSON.
 - **Light / dark theme**, **installable PWA** with offline support.
 
@@ -235,7 +239,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-216 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+230 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF

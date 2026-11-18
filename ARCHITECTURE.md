@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 216 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 230 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -28,7 +28,8 @@ js/
   mantik.js                Saf fonksiyonlar: tarih, takvim, yoklama, rapor, duyuru metni
   yedek.js                 Veri şeması + JSON dışa/içe aktarma
   tema.js                  Açık / koyu tema
-  arayuz.js                Ortak arayüz: form penceresi, bildirim, tıklama eylemleri
+  kolaylik.js              Saf yardımcılar: taslak, sorumlu tahmini, .ics, arama, kısayollar
+  arayuz.js                Ortak arayüz: form penceresi, arama, kısayollar, bildirim, tıklama eylemleri
   ornek-veri.js            "Örnek veriyle dene" için hayali takım
   uygulama.js              Başlatma, ekran geçişi, odak yönetimi
   ekranlar/                Her ekran bir dosya
@@ -41,7 +42,7 @@ supabase/schema.sql        Tablolar ve satır düzeyinde güvenlik kuralları
 araclar/env-aktar.js       Ortam değişkenlerini js/ayarlar.js'e yazar
 araclar/ikon-uret.py       İkonları üretir
 netlify.toml               Yayın ayarları ve güvenlik başlıkları
-testler/                   216 test (Node'un kendi test aracı)
+testler/                   230 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar
