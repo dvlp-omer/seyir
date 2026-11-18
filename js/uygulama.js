@@ -242,6 +242,7 @@ async function baslat() {
     await yenile();
   };
   window.addEventListener("hashchange", yenile);
+  kisayollariKur(); // Ctrl+K arama, Ctrl+S kaydet, ? yardım (js/arayuz.js)
 
   // Başka bir sekmede veri değişirse bu sekme de güncellensin (RAPOR.md > H5).
   // Form açıkken yenilemiyoruz; kullanıcının yazdığı kaybolmasın.

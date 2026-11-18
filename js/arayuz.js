@@ -254,6 +254,142 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
   if (!pencere.open) pencere.showModal(); // "Taslağı at" formu açıkken yeniden çizer
 }
 
+/* ---------- Genel arama penceresi (Ctrl+K, "/" ya da üstteki "Ara") ----------
+   Açılınca takımın bütün kayıtları bir kez okunur ve dizin kurulur
+   (js/kolaylik.js > aramaDizini). Her tuşta yalnızca bu dizinde aranır;
+   ağa istek gitmez. ↑ ↓ sonuçlar arasında gezer, Enter açar. */
+async function aramaPenceresiAc() {
+  const pencere = sec("#pencere");
+  if (pencere.open || !durum.takim) return; // açık bir formun üstüne açma (yazılan kaybolmasın)
+  const kayitlar = {};
+  const koleksiyonlar = { gorevler: "gorevler", sonTarihler: "son_tarihler", toplantilar: "toplantilar",
+    tutanaklar: "tutanaklar", etkinlikler: "etkinlikler", kisiler: "kisiler", uyeler: "uyeler" };
+  try {
+    await Promise.all(Object.entries(koleksiyonlar).map(async ([ad, koleksiyon]) => {
+      kayitlar[ad] = await takimKayitlari(koleksiyon);
+    }));
+  } catch (hata) {
+    return hataGoster(hata);
+  }
+  const dizin = aramaDizini(kayitlar);
+
+  pencere.setAttribute("aria-labelledby", "pencere-baslik");
+  pencere.innerHTML =
+    '<div class="form arama-pencere">' +
+    '<h2 id="pencere-baslik">Ara</h2>' +
+    '<label class="alan"><span class="gizli">Aranacak sözcük</span>' +
+    '<input type="search" id="arama-kutu" placeholder="Görev, toplantı, tutanak, kişi…" autocomplete="off" aria-describedby="arama-ipucu"></label>' +
+    '<p id="arama-durum" class="soluk kucuk-yazi" role="status"></p>' +
+    '<ul id="arama-sonuc" class="arama-sonuc"></ul>' +
+    '<p id="arama-ipucu" class="soluk kucuk-yazi">↑ ↓ ile seç, Enter ile aç, Esc ile kapat. Türkçe harf farkı önemsenmez (“gorev” = “görev”).</p>' +
+    '<div class="form-dugmeler"><button type="button" class="dugme" data-kapat>Kapat</button></div></div>';
+
+  const kutu = pencere.querySelector("#arama-kutu");
+  const liste = pencere.querySelector("#arama-sonuc");
+  const durumYazi = pencere.querySelector("#arama-durum");
+  let sonuclar = [];
+
+  const ciz = () => {
+    sonuclar = aramaYap(dizin, kutu.value);
+    liste.innerHTML = sonuclar.map((s, sira) =>
+      '<li><button type="button" class="arama-oge" data-sira="' + sira + '">' +
+      '<span class="arama-tur">' + htmlKacis(s.turAdi) + "</span>" +
+      '<span class="arama-baslik">' + htmlKacis(s.baslik) + "</span>" +
+      (s.ayrinti ? '<span class="soluk kucuk-yazi">' + htmlKacis(s.ayrinti) + "</span>" : "") +
+      "</button></li>").join("");
+    durumYazi.textContent = kutu.value.trim()
+      ? (sonuclar.length ? sonuclar.length + " sonuç" : "Sonuç yok")
+      : dizin.length + " kayıt içinde ara";
+  };
+  const ac = (sira) => {
+    const sonuc = sonuclar[sira];
+    if (!sonuc) return;
+    pencere.close();
+    aramaSonucunuAc(sonuc, kayitlar);
+  };
+
+  kutu.oninput = ciz;
+  kutu.onkeydown = (olay) => {
+    if (olay.key === "Enter") { olay.preventDefault(); ac(0); }
+    if (olay.key === "ArrowDown") { olay.preventDefault(); const ilk = liste.querySelector("button"); if (ilk) ilk.focus(); }
+  };
+  liste.onclick = (olay) => {
+    const dugme = olay.target.closest("[data-sira]");
+    if (dugme) ac(Number(dugme.dataset.sira));
+  };
+  liste.onkeydown = (olay) => {
+    const dugmeler = [...liste.querySelectorAll("button")];
+    const sira = dugmeler.indexOf(document.activeElement);
+    if (olay.key === "ArrowDown" && sira < dugmeler.length - 1) { olay.preventDefault(); dugmeler[sira + 1].focus(); }
+    if (olay.key === "ArrowUp") { olay.preventDefault(); (sira > 0 ? dugmeler[sira - 1] : kutu).focus(); }
+  };
+  pencere.querySelector("[data-kapat]").onclick = () => pencere.close();
+
+  ciz();
+  pencere.showModal();
+  kutu.focus();
+}
+
+// Seçilen sonucun ekranına git; mümkünse kaydın kendisini aç.
+function aramaSonucunuAc(sonuc, kayitlar) {
+  const bul = (liste) => liste.find((k) => k.id === sonuc.id);
+  if (sonuc.tur === "tutanak") Object.assign(tutanakEkrani, { kip: "goruntule", id: sonuc.id, taslak: null });
+  if (sonuc.tur === "toplanti") acikToplantiId = sonuc.id;
+  if (sonuc.tur === "kisi") Object.assign(kisiEkrani, { arama: sonuc.baslik, etiket: "" });
+  ekranaGit(sonuc.ekran);
+  if (sonuc.tur === "gorev") {
+    const gorev = bul(kayitlar.gorevler);
+    if (gorev) gorevFormu({ gorev: gorev, uyeler: kayitlar.uyeler });
+  }
+}
+
+/* ---------- Klavye kısayolları ----------
+   Hangi tuşun ne yaptığı js/kolaylik.js > kisayolBul'da (testli). */
+function yaziAlanindaMi(eleman) {
+  return !!eleman && (eleman.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(eleman.tagName));
+}
+
+function kisayolYardimiAc() {
+  const pencere = sec("#pencere");
+  if (pencere.open) return;
+  pencere.setAttribute("aria-labelledby", "pencere-baslik");
+  pencere.innerHTML =
+    '<div class="form"><h2 id="pencere-baslik">Klavye kısayolları</h2>' +
+    '<dl class="kisayol-liste">' + KISAYOLLAR.map((k) =>
+      "<dt><kbd>" + htmlKacis(k.tuslar).replace(/ {2}ya da {2}/g, "</kbd> ya da <kbd>") + "</kbd></dt><dd>" + htmlKacis(k.aciklama) + "</dd>").join("") +
+    "</dl>" +
+    '<p class="soluk kucuk-yazi">Mac\'te Ctrl yerine ⌘ (Cmd) de olur.</p>' +
+    '<div class="form-dugmeler"><button type="button" class="dugme ana" data-kapat>Tamam</button></div></div>';
+  pencere.querySelector("[data-kapat]").onclick = () => pencere.close();
+  pencere.showModal();
+}
+
+function kisayollariKur() {
+  document.addEventListener("keydown", (olay) => {
+    if (olay.defaultPrevented || olay.isComposing || document.body.classList.contains("oturumsuz")) return;
+    const is = kisayolBul({
+      key: olay.key, ctrlKey: olay.ctrlKey, metaKey: olay.metaKey, altKey: olay.altKey,
+      yaziAlaninda: yaziAlanindaMi(document.activeElement),
+    });
+    if (is === "arama") {
+      olay.preventDefault();
+      aramaPenceresiAc();
+    } else if (is === "yardim") {
+      olay.preventDefault();
+      kisayolYardimiAc();
+    } else if (is === "kaydet") {
+      // Açık pencerede form varsa onu, yoksa sayfadaki tutanak formunu kaydet.
+      // Kaydedilecek form yoksa tarayıcının kendi Ctrl+S'si çalışır.
+      const pencere = sec("#pencere");
+      const form = pencere.open ? pencere.querySelector("form") : sec("#tutanak-formu");
+      if (!form) return;
+      olay.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  sec("#arama-dugme").onclick = aramaPenceresiAc;
+}
+
 /* ---------- Küçük HTML yardımcıları ---------- */
 
 // Menüde kullanılan çizgi simgeler (24x24 SVG yolu).
