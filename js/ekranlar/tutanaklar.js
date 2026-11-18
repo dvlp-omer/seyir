@@ -25,9 +25,36 @@ function tutanakListesineDon() {
   Object.assign(tutanakEkrani, { kip: "liste", id: null, taslak: null, artan: [], notlar: "" });
 }
 
+/* Yarım kalan tutanak (js/kolaylik.js > taslak). Takım başına TEK taslak
+   saklanır: { id, taslak, notlar }. Form her değiştiğinde yazılır; kayıt ya
+   da "Vazgeç" ile silinir. Sayfa yenilenirse listede "Devam et" çıkar. */
+const tutanakTaslakAdi = () => "tutanak:" + (durum.takim ? durum.takim.id : "-");
+
+function tutanakTaslaginiSakla() {
+  const depo = tarayiciDeposu();
+  if (!depo || !tutanakEkrani.degisti || !sec("#tutanak-formu")) return;
+  const taslak = tutanakFormunuOku();
+  taslakKaydet(depo, tutanakTaslakAdi(), { id: tutanakEkrani.id, taslak: taslak, notlar: tutanakEkrani.notlar });
+}
+
+function tutanakTaslaginiSil() {
+  const depo = tarayiciDeposu();
+  if (depo) taslakSil(depo, tutanakTaslakAdi());
+}
+
+function tutanakTaslaginiOku() {
+  const depo = tarayiciDeposu();
+  const kayit = depo && taslakOku(depo, tutanakTaslakAdi());
+  return kayit && kayit.veri.taslak ? kayit : null;
+}
+
 // Düzenleme formunu verilen taslakla açar. id null ise kaydedince YENİ tutanak olur.
+// Saklı bir taslak varsa önce sorulur: yeni form onun üzerine yazacaktır.
 function tutanakFormunuAc(taslak, id) {
-  Object.assign(tutanakEkrani, { kip: "duzenle", id: id, taslak: taslak, artan: [], notlar: "" });
+  if (tutanakTaslaginiOku() &&
+      !confirm("Yarım kalmış bir tutanak taslağın var. Yeni bir forma başlarsan o taslak silinecek. Devam edilsin mi?")) return;
+  tutanakTaslaginiSil();
+  Object.assign(tutanakEkrani, { kip: "duzenle", id: id, taslak: taslak, artan: [], notlar: "", degisti: false });
   return yenile();
 }
 
@@ -52,9 +79,18 @@ function tutanakListesiCiz(kok, tutanaklar) {
       "</div></li>";
   }).join("");
 
+  const yarim = tutanakTaslaginiOku();
+  const yarimAdi = yarim && (yarim.veri.taslak.numara || "adsız tutanak");
+
   kok.innerHTML =
     '<div class="arac-cubugu"><span class="bosluk"></span>' +
     '<button class="dugme ana" data-eylem="yeni">+ Yeni tutanak</button></div>' +
+    (yarim
+      ? '<div class="bilgi-kutusu taslak-notu" role="status"><b>Yarım kalmış bir tutanak var:</b> ' + htmlKacis(yarimAdi) +
+        " (" + (yarim.veri.id ? "düzenleme" : "yeni") + ", son değişiklik " + htmlKacis(saatYaz(yarim.zaman)) + "). " +
+        '<button class="dugme kucuk ana" data-eylem="taslak-devam">Devam et</button> ' +
+        '<button class="dugme kucuk" data-eylem="taslak-sil">Taslağı sil</button></div>'
+      : "") +
     (sirali.length
       ? '<ul class="tarih-liste">' + satirlar + "</ul>"
       : '<div class="bos"><h3>Henüz resmî tutanak yok</h3>Formu elle doldur, toplantı notlarını yapıştır ya da bir Word dosyası yükle; ' +
@@ -67,6 +103,21 @@ function tutanakListesiCiz(kok, tutanaklar) {
     duzenle: (id) => bul(id) && tutanakFormunuAc({ ...bosTutanak(), ...bul(id) }, id),
     kopyala: (id) => tutanagiKopyala(bul(id), tutanaklar),
     sil: (id) => tutanagiSil(bul(id)),
+    "taslak-devam": () => {
+      const kayit = tutanakTaslaginiOku();
+      if (!kayit) return yenile();
+      // Düzenlenen tutanak bu arada silindiyse taslak yeni tutanak olarak kaydedilir.
+      const id = kayit.veri.id && bul(kayit.veri.id) ? kayit.veri.id : null;
+      Object.assign(tutanakEkrani, { kip: "duzenle", id: id, taslak: { ...bosTutanak(), ...kayit.veri.taslak },
+        artan: [], notlar: kayit.veri.notlar || "", degisti: true });
+      return yenile();
+    },
+    "taslak-sil": () => {
+      if (!confirm("Yarım kalmış tutanak taslağı silinsin mi?")) return;
+      tutanakTaslaginiSil();
+      bildir("Taslak silindi");
+      return yenile();
+    },
   });
 }
 
@@ -257,6 +308,7 @@ function tutanakFormunuYenile(degistir) {
   const taslak = tutanakFormunuOku();
   if (degistir) degistir(taslak);
   tutanakEkrani.taslak = taslak;
+  tutanakEkrani.degisti = true; // yeniden çizilince taslak olarak saklanır
   return yenile();
 }
 
@@ -321,6 +373,11 @@ function tutanakDuzenleCiz(kok, tutanaklar) {
   const hataGosterForm = (mesaj) => { hata.textContent = mesaj; hata.hidden = false; hata.scrollIntoView({ block: "center" }); };
   let kaydediliyor = false;
 
+  // Taslak: her değişiklikte sakla; satır ekleme / not yerleştirme sonrası
+  // yeniden çizimde de (degisti) sakla.
+  form.addEventListener("input", () => { tutanakEkrani.degisti = true; tutanakTaslaginiSakla(); });
+  tutanakTaslaginiSakla();
+
   form.onsubmit = async (olay) => {
     olay.preventDefault();
     if (kaydediliyor) return; // çift tıklama çift kayıt oluşturmasın
@@ -340,7 +397,8 @@ function tutanakDuzenleCiz(kok, tutanaklar) {
       const kaydedilen = tutanakEkrani.id
         ? await durum.depo.guncelle("tutanaklar", tutanakEkrani.id, kayit)
         : await durum.depo.ekle("tutanaklar", kayit);
-      Object.assign(tutanakEkrani, { kip: "goruntule", id: kaydedilen.id, taslak: null, artan: [], notlar: "" });
+      tutanakTaslaginiSil();
+      Object.assign(tutanakEkrani, { kip: "goruntule", id: kaydedilen.id, taslak: null, artan: [], notlar: "", degisti: false });
       bildir("Tutanak kaydedildi");
       await yenile();
     } catch (hataNesnesi) {
@@ -415,6 +473,8 @@ function tutanakDuzenleCiz(kok, tutanaklar) {
     },
     vazgec: () => {
       if (!confirm("Kaydedilmemiş değişiklikler kaybolacak. Çıkılsın mı?")) return;
+      tutanakTaslaginiSil();
+      tutanakEkrani.degisti = false;
       // Var olan bir tutanak düzenleniyorduysa onun görünümüne, yeniyse listeye dön.
       if (tutanakEkrani.id) Object.assign(tutanakEkrani, { kip: "goruntule", taslak: null, artan: [], notlar: "" });
       else tutanakListesineDon();

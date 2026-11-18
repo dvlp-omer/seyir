@@ -14,8 +14,8 @@
    ========================================================================== */
 
 // Dosya listesi değişince bu adı da değiştir; eski önbellek silinir.
-// (v5: proje adı Seyir oldu, logo ve ikonlar değişti)
-const ONBELLEK = "seyir-v5";
+// (v6: js/kolaylik.js eklendi)
+const ONBELLEK = "seyir-v6";
 
 // Uygulamanın açılması için gereken dosyalar ("kabuk").
 // index.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).
@@ -35,6 +35,7 @@ const KABUK = [
   "js/tutanak.js",
   "js/docx.js",
   "js/kisiler.js",
+  "js/kolaylik.js",
   "js/arayuz.js",
   "js/ornek-veri.js",
   "js/ekranlar/ozet.js",

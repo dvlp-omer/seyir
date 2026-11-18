@@ -160,13 +160,37 @@ function formHatasi(alanlar, degerler) {
   return null;
 }
 
+/* Taslak: form yazılırken değerler tarayıcıya saklanır (js/kolaylik.js).
+   Sayfa yenilenir ya da pencere yanlışlıkla kapanırsa, aynı form yeniden
+   açıldığında yazılanlar geri gelir. Taslak; kayıt başarılı olunca ya da
+   "Vazgeç"e basılınca silinir. Anahtar formun başlangıç değerlerini de
+   içerir: başka bir kaydın formunda bu taslak çıkmaz. */
+function tarayiciDeposu() {
+  try { return window.localStorage; } catch (hata) { return null; }
+}
+
+function saatYaz(zaman) {
+  const d = new Date(zaman);
+  const gun = d.toDateString() === new Date().toDateString() ? "bugün" : d.toLocaleDateString("tr-TR");
+  return gun + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+}
+
 function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet }) {
   const pencere = sec("#pencere");
+  const depo = tarayiciDeposu();
+  const taslakAdi = taslakAnahtari("form", durum.takim && durum.takim.id, baslik, degerler);
+  const taslak = depo && taslakOku(depo, taslakAdi);
+  const gosterilen = taslak ? { ...degerler, ...taslak.veri } : degerler;
+
   pencere.setAttribute("aria-labelledby", "pencere-baslik"); // ekran okuyucu pencerenin adını okusun
   pencere.innerHTML =
     '<form class="form" novalidate>' +
     '<h2 id="pencere-baslik">' + htmlKacis(baslik) + "</h2>" +
-    alanlar.map((alan) => alanHtml(alan, degerler[alan.ad])).join("") +
+    (taslak
+      ? '<p class="form-bilgi taslak-notu">Kaydedilmemiş taslağın geri yüklendi (' + htmlKacis(saatYaz(taslak.zaman)) + "). " +
+        '<button type="button" class="baglanti-dugme" data-taslak-at>Taslağı at</button></p>'
+      : "") +
+    alanlar.map((alan) => alanHtml(alan, gosterilen[alan.ad])).join("") +
     '<p class="form-hata" role="alert" hidden></p>' +
     '<div class="form-dugmeler">' +
     '<button type="button" class="dugme" data-kapat>Vazgeç</button>' +
@@ -176,7 +200,22 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
   const form = pencere.querySelector("form");
   const hataKutusu = form.querySelector(".form-hata");
   const kaydetDugmesi = form.querySelector('[type="submit"]');
-  form.querySelector("[data-kapat]").onclick = () => pencere.close();
+  form.querySelector("[data-kapat]").onclick = () => {
+    if (depo) taslakSil(depo, taslakAdi);
+    pencere.close();
+  };
+  const taslakAt = form.querySelector("[data-taslak-at]");
+  if (taslakAt) {
+    taslakAt.onclick = () => {
+      taslakSil(depo, taslakAdi);
+      formAc({ baslik, alanlar, degerler, kaydetYazi, kaydet }); // özgün değerlerle yeniden aç
+      bildir("Taslak silindi");
+    };
+  }
+  // Her değişiklikte sakla (yazı, seçim, işaret kutusu)
+  form.oninput = form.onchange = () => {
+    if (depo) taslakKaydet(depo, taslakAdi, formDegerleri(form, alanlar));
+  };
 
   form.onsubmit = async (olay) => {
     olay.preventDefault(); // sayfanın yenilenmesini engelle
@@ -193,6 +232,7 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
     kaydetDugmesi.disabled = true;
     try {
       await kaydet(sonuc);
+      if (depo) taslakSil(depo, taslakAdi);
       pencere.close(); // odak, pencereyi açan düğmeye geri döner
       await yenile();  // ekranı güncel veriyle yeniden çiz (uygulama.js)
     } catch (hataNesnesi) {
@@ -211,7 +251,7 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
     }
   };
 
-  pencere.showModal();
+  if (!pencere.open) pencere.showModal(); // "Taslağı at" formu açıkken yeniden çizer
 }
 
 /* ---------- Küçük HTML yardımcıları ---------- */
