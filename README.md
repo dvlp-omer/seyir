@@ -59,17 +59,24 @@ yalnızca kendi takımına görünür. Örnek veri, testler ve ekran görüntül
 gerçek kişi yok (numaralar kullanılmayan `0500 000 00 xx` aralığında; bir test
 depoda gerçek görünen numara arar). Ücretli servis kullanılmaz.
 
-| Takvim | Görev panosu (koyu tema) |
+| Genel arama (Ctrl+K) | Görev panosu: kart sürüklenirken (koyu tema) |
 |---|---|
-| ![Takvim: son tarihler, toplantılar ve etkinlikler tek ayda](docs/ekran/takvim.png) | ![Görev panosu, koyu tema](docs/ekran/gorevler-koyu.png) |
+| ![Arama penceresi: "rapor" sorgusu bir görev, bir son tarih ve bir toplantı buluyor](docs/ekran/arama.png) | ![Koyu temada görev panosu; bir kart sürükleniyor, bırakılacak sütun kesik çizgiyle vurgulu](docs/ekran/gorevler-koyu.png) |
+
+| Resmî tutanak: kararlardan görev | Takvim ve .ics aktarımı |
+|---|---|
+| ![Tutanak görünümü: her kararın yanında "+ Görev yap" düğmesi, görevi olan kararda "Görev var" rozeti](docs/ekran/tutanak-gorev.png) | ![Takvim: son tarihler, toplantılar ve etkinlikler tek ayda; "Takvimime aktar (.ics)" düğmesi](docs/ekran/takvim.png) |
+
+| Başlıksız serbest notlar… | …forma kendiliğinden yerleşir |
+|---|---|
+| ![Not kutusuna yapıştırılmış, başlıksız serbest toplantı notları](docs/ekran/tutanak-notlar.png) | ![Aynı notlardan doldurulan form: katılımcılar, atıflı devreden karar ve kararlar](docs/ekran/tutanak-yerlesti.png) |
 
 | Etkinlikler | Dar ekran |
 |---|---|
 | ![Etkinlik listesi](docs/ekran/etkinlikler.png) | <img src="docs/ekran/mobil.png" alt="Dar ekranda görev panosu ve alt menü" width="300"> |
 
-<!-- Görüntüler örnek veriyle, araçla alındı (index.html?ornek=1).
-     Toplantı tutanağının ve kendi takımının görüntüsünü eklemek istersen
-     docs/ekran/ klasörüne koyup bu tabloya satır ekle. -->
+<!-- Görüntüler uydurma örnek veriyle (index.html?ornek=1, yerel mod), penceresiz
+     Chrome ile alındı. Kişiler ve kurum adları uydurmadır. -->
 
 ### Nasıl çalıştırılır?
 
@@ -221,6 +228,14 @@ in shared (Supabase) mode sign-in is required, sign-up is **invite-only** (the
 first account becomes admin), and row-level security limits every row to its
 team. Demo data, tests and screenshots contain no real people (a test scans
 the repo for real-looking phone numbers).
+
+| Search (Ctrl+K) | Official minutes: decisions → tasks |
+|---|---|
+| ![Search dialog: the query "rapor" finds a task, a deadline and a meeting](docs/ekran/arama.png) | ![Official minutes view with a "+ Görev yap" (make task) button next to each decision](docs/ekran/tutanak-gorev.png) |
+
+| Free-form notes… | …sorted into the form by rules |
+|---|---|
+| ![Pasted meeting notes without headings](docs/ekran/tutanak-notlar.png) | ![The same notes placed into participants, carried-over decision with citation, and decisions](docs/ekran/tutanak-yerlesti.png) |
 
 ### Running it
 

@@ -488,7 +488,7 @@ a { color: var(--su); }
 /* Form alanları */
 .alan { display: block; margin-bottom: 14px; }
 .alan > span, .alan > legend { display: block; margin-bottom: 4px; padding: 0; font-size: 14px; font-weight: 600; }
-.alan input[type="text"], .alan input[type="email"], .alan input[type="password"], .alan input[type="number"],
+.alan input[type="text"], .alan input[type="search"], .alan input[type="email"], .alan input[type="password"], .alan input[type="number"],
 .alan input[type="date"], .alan input[type="time"], .alan select, .alan textarea, .satir-form input {
   width: 100%; min-height: 42px; padding: 8px 10px;
   border: 1px solid var(--giris-cizgi); border-radius: 8px; background: var(--giris-zemin);

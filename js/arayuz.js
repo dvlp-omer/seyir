@@ -295,7 +295,9 @@ async function aramaPenceresiAc() {
       '<li><button type="button" class="arama-oge" data-sira="' + sira + '">' +
       '<span class="arama-tur">' + htmlKacis(s.turAdi) + "</span>" +
       '<span class="arama-baslik">' + htmlKacis(s.baslik) + "</span>" +
-      (s.ayrinti ? '<span class="soluk kucuk-yazi">' + htmlKacis(s.ayrinti) + "</span>" : "") +
+      (s.ayrinti ? '<span class="soluk kucuk-yazi">' +
+        // "2026-11-25 · Atölye" -> "25 Kasım 2026 · Atölye"
+        htmlKacis(s.ayrinti.replace(/\d{4}-\d{2}-\d{2}/g, (t) => tarihGecerli(t) ? tarihYaz(t, false) : t)) + "</span>" : "") +
       "</button></li>").join("");
     durumYazi.textContent = kutu.value.trim()
       ? (sonuclar.length ? sonuclar.length + " sonuç" : "Sonuç yok")
