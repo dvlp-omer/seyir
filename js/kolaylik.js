@@ -284,9 +284,22 @@ function renkSirasi(metin, adet = 6) {
   return parseInt(kisaOzet(String(metin || "")), 36) % adet;
 }
 
+/* ---------- Örnek (demo) modu ----------
+   Adreste ?ornek varsa (tanıtım sayfasındaki "Örnek takımla dene" düğmesi) uygulama
+   ayar dosyasını yok sayar, giriş istemez ve uydurma bir takımı sekmenin geçici
+   deposunda (sessionStorage) açar. Böylece:
+   - takımın ortak (Supabase) verisine hiçbir şey yazılmaz,
+   - aynı tarayıcıdaki gerçek kayıtlarla karışmaz (ayrı ön ek),
+   - sekme kapanınca örnek veri kendiliğinden silinir. */
+const ORNEK_ONEKI = "seyir-ornek:";
+function ornekModuMu(arama) {
+  return new URLSearchParams(arama || "").has("ornek");
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     sadelestir,
+    ORNEK_ONEKI, ornekModuMu,
     TASLAK_ONEKI, TASLAK_OMRU_GUN, taslakAnahtari, taslakKaydet, taslakOku, taslakSil,
     sorumluBul,
     icsOlustur, takvimOlaylari, saatCoz,

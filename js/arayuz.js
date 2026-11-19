@@ -166,7 +166,8 @@ function formHatasi(alanlar, degerler) {
    "Vazgeç"e basılınca silinir. Anahtar formun başlangıç değerlerini de
    içerir: başka bir kaydın formunda bu taslak çıkmaz. */
 function tarayiciDeposu() {
-  try { return window.localStorage; } catch (hata) { return null; }
+  // Örnek modda taslaklar da sekmenin geçici deposuna gider (gerçek kayıtlara karışmasın)
+  try { return ornekModuMu(location.search) ? window.sessionStorage : window.localStorage; } catch (hata) { return null; }
 }
 
 function saatYaz(zaman) {

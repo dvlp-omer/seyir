@@ -4,6 +4,8 @@ import { motion, useInView, animate, useReducedMotion } from "framer-motion";
 
 // Adresler: tanıtım ana sayfada (/), uygulama /uygulama adresinde
 export const UYGULAMA = "/uygulama";
+// Örnek mod: giriş yok, uydurma takım sekmede açılır (js/kolaylik.js > ornekModuMu)
+export const ORNEK = "/uygulama?ornek=1";
 export const KAYNAK_KOD = "https://github.com/dvlp-omer/seyir";
 
 // Logo: pusula yıldızı, küre ve önünden geçen yörünge şeridi (ikonlar/logo.svg ile aynı çizim).

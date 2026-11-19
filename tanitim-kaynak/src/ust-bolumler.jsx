@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Github, Search, CalendarPlus, WifiOff, MessageCircle, FileText,
-  SquareKanban, Sparkles, MoveRight,
+  SquareKanban, Sparkles, Play,
 } from "lucide-react";
-import { Logo, Belir, IsikliKart, BolumBasligi, UYGULAMA, KAYNAK_KOD } from "./ortak.jsx";
+import { Logo, Belir, IsikliKart, BolumBasligi, UYGULAMA, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
 import gorevlerGorseli from "./gorseller/gorevler.png";
 import ozetGorseli from "./gorseller/ozet.png";
 import tutanakGorseli from "./gorseller/tutanak-gorev.png";
@@ -92,9 +92,12 @@ export function Hero() {
           <a href={UYGULAMA} className="parlak-dugme">
             Uygulamayı aç <ArrowRight size={18} />
           </a>
-          <a href="#demo" className="ikincil-dugme">
-            Nasıl çalışır? <MoveRight size={18} />
+          <a href={ORNEK} className="ikincil-dugme">
+            <Play size={16} /> Örnek takımla dene
           </a>
+        </Belir>
+        <Belir gecikme={0.3} as="p" className="mt-4 text-sm text-slate-500">
+          Hesap açmadan dene: uydurma bir takım açılır, sekmeyi kapatınca silinir.
         </Belir>
       </div>
 

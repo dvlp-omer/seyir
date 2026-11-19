@@ -227,6 +227,11 @@ a { color: var(--su); }
 .depo-rozet::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 50%; background: #6fd3a0; }
 
 .govde { min-width: 0; }
+/* Örnek mod şeridi (uygulama.html > #ornek-bant) */
+.ornek-bant { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; justify-content: space-between; padding: 10px 24px; background: var(--rozet-z); color: var(--rozet-y); font-size: 14px; }
+.ornek-bant[hidden] { display: none; }
+.ornek-bant a { color: inherit; font-weight: 700; white-space: nowrap; }
+
 .ust {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 22px 32px 0;

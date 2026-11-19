@@ -2,10 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useInView, useReducedMotion } from "framer-motion";
 import {
-  ArrowRight, Github, RotateCcw, ShieldCheck, KeyRound, Lock, GitMerge, UserCheck,
-  Users, ClipboardList, ListChecks,
+  ArrowRight, RotateCcw, ShieldCheck, KeyRound, Lock, GitMerge, UserCheck,
+  Users, ClipboardList, ListChecks, Play,
 } from "lucide-react";
-import { Logo, Belir, IsikliKart, BolumBasligi, Sayac, UYGULAMA, KAYNAK_KOD } from "./ortak.jsx";
+import { Logo, Belir, IsikliKart, BolumBasligi, Sayac, UYGULAMA, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
 import ozetGorseli from "./gorseller/ozet.png";
 import takvimGorseli from "./gorseller/takvim.png";
 import tutanakGorseli from "./gorseller/tutanak-gorev.png";
@@ -259,7 +259,7 @@ export function Kapanis() {
         </Belir>
         <Belir gecikme={0.2} className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a href={UYGULAMA} className="parlak-dugme">Uygulamayı aç <ArrowRight size={18} /></a>
-          <a href={KAYNAK_KOD} className="ikincil-dugme"><Github size={18} /> Kaynak kodu incele</a>
+          <a href={ORNEK} className="ikincil-dugme"><Play size={16} /> Örnek takımla dene</a>
         </Belir>
       </div>
     </section>

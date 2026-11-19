@@ -219,3 +219,14 @@ test("renkSirasi: aynı kimlik hep aynı renk, değer 0..adet-1 arasında", () =
   }
   assert.equal(gorulen.size, 6, "renkler dağılmalı");
 });
+
+test("örnek mod: yalnızca adreste ?ornek varsa açılır; ön ek gerçek kayıtlardan ayrı", () => {
+  assert.equal(k.ornekModuMu("?ornek=1"), true);
+  assert.equal(k.ornekModuMu("?ornek"), true);
+  assert.equal(k.ornekModuMu("?a=1&ornek=1"), true);
+  assert.equal(k.ornekModuMu(""), false);
+  assert.equal(k.ornekModuMu("?"), false); // "Gerçek uygulamaya geç" bağlantısı
+  assert.equal(k.ornekModuMu("?ornekler=1"), false);
+  assert.equal(k.ornekModuMu(undefined), false);
+  assert.notEqual(k.ORNEK_ONEKI, "takim-asistani:"); // yerel deponun varsayılan ön eki
+});

@@ -14,6 +14,7 @@ const AKTIF_TAKIM_ANAHTARI = "takim-asistani:aktif-takim";
 // Uygulamanın o anki durumu. Bütün ekranlar buradan okur.
 const durum = {
   depo: null,       // veri katmanı (js/veri.js)
+  demo: false,     // örnek mod (?ornek): giriş yok, veri sekmenin geçici deposunda
   oturum: null,     // giriş yönetimi (js/oturum.js); localStorage kullanılırken null
   takimlar: [],     // bütün takımlar
   takim: null,      // seçili takım
@@ -30,16 +31,24 @@ function takimKayitlari(koleksiyon) {
 
 /* ---------- Takım seçimi ---------- */
 
+// Son seçilen takım nerede hatırlanır: örnek modda sekmenin deposunda, yoksa tarayıcıda
+function aktifTakimDeposu() {
+  return durum.demo ? window.sessionStorage : window.localStorage;
+}
+function aktifTakimAnahtari() {
+  return durum.demo ? ORNEK_ONEKI + "aktif-takim" : AKTIF_TAKIM_ANAHTARI;
+}
+
 async function takimlariYukle() {
   durum.takimlar = await durum.depo.listele("takimlar");
-  const kayitliId = localStorage.getItem(AKTIF_TAKIM_ANAHTARI);
+  const kayitliId = aktifTakimDeposu().getItem(aktifTakimAnahtari());
   // Son seçilen takım duruyorsa onu, yoksa ilk takımı seç.
   durum.takim = durum.takimlar.find((t) => t.id === kayitliId) || durum.takimlar[0] || null;
   takimSeciciCiz();
 }
 
 async function takimSec(id) {
-  localStorage.setItem(AKTIF_TAKIM_ANAHTARI, id);
+  aktifTakimDeposu().setItem(aktifTakimAnahtari(), id);
   await takimlariYukle();
 }
 
@@ -277,22 +286,29 @@ async function baslat() {
     return baslatmaHatasi("Tarayıcı bu sayfanın veri saklamasına izin vermiyor. Gizli moddaysan normal pencerede aç.", hata);
   }
 
+  durum.demo = ornekModuMu(location.search);
   try {
-    // Supabase seçildiyse giriş yönetimini kur; depo her istekte jetonu oradan alır.
-    if (veriKatmaniTuru(ayarlar) === "supabase") {
-      // sessionStorage: "Beni hatırla" işaretsizken oturum orada durur (tarayıcı kapanınca silinir)
-      let gecici = null;
-      try { gecici = window.sessionStorage; } catch (hata) { gecici = null; }
-      durum.oturum = oturumOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY, window.localStorage,
-        undefined, undefined, gecici);
+    if (durum.demo) {
+      // Örnek mod: ayar dosyası ne derse desin yerel, sekmeye ait depo (js/kolaylik.js > ornekModuMu)
+      durum.depo = yerelDepoOlustur(window.sessionStorage, ORNEK_ONEKI);
+    } else {
+      // Supabase seçildiyse giriş yönetimini kur; depo her istekte jetonu oradan alır.
+      if (veriKatmaniTuru(ayarlar) === "supabase") {
+        // sessionStorage: "Beni hatırla" işaretsizken oturum orada durur (tarayıcı kapanınca silinir)
+        let gecici = null;
+        try { gecici = window.sessionStorage; } catch (hata) { gecici = null; }
+        durum.oturum = oturumOlustur(ayarlar.SUPABASE_URL, ayarlar.SUPABASE_ANON_KEY, window.localStorage,
+          undefined, undefined, gecici);
+      }
+      durum.depo = depoSec(ayarlar, window.localStorage, { jetonGetir: () => durum.oturum.jeton() });
     }
-    durum.depo = depoSec(ayarlar, window.localStorage, { jetonGetir: () => durum.oturum.jeton() });
   } catch (hata) {
     return baslatmaHatasi("Ayarlar hatalı (js/ayarlar.js).", hata);
   }
 
-  sec("#depo-rozet").textContent =
-    durum.depo.tur === "supabase" ? "Supabase'e bağlı" : "Veriler bu tarayıcıda saklanıyor";
+  sec("#depo-rozet").textContent = durum.demo ? "Örnek mod: veriler bu sekmede"
+    : durum.depo.tur === "supabase" ? "Supabase'e bağlı" : "Veriler bu tarayıcıda saklanıyor";
+  sec("#ornek-bant").hidden = !durum.demo;
 
   menuCiz();
   sec("#menu").onclick = (olay) => {
