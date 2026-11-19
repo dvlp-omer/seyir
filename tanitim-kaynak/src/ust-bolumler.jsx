@@ -31,6 +31,7 @@ export function UstMenu() {
           <a className="transition hover:text-white" href="#demo">Nasıl çalışır</a>
           <a className="transition hover:text-white" href="#vitrin">Ekranlar</a>
           <a className="transition hover:text-white" href="#guvenlik">Güvenlik</a>
+          <a className="transition hover:text-white" href="#sss">SSS</a>
         </div>
         <div className="flex items-center gap-2">
           <a href={KAYNAK_KOD} className="hidden rounded-full p-2 text-slate-400 transition hover:bg-white/5 hover:text-white sm:inline-flex" aria-label="Kaynak kod (GitHub)">

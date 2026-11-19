@@ -6,6 +6,7 @@ import "./stil.css";
 import { uygulamayaYonlendir } from "./yonlendir.js";
 import { UstMenu, Hero, KayanBant, Bento } from "./ust-bolumler.jsx";
 import { NotDemosu, Vitrin, Sayilar, Adimlar, Guvenlik, Kapanis, AltBilgi } from "./alt-bolumler.jsx";
+import { Sss } from "./sss.jsx";
 
 function Uygulama() {
   return (
@@ -22,6 +23,7 @@ function Uygulama() {
         <Sayilar />
         <Adimlar />
         <Guvenlik />
+        <Sss />
         <Kapanis />
       </main>
       <AltBilgi />

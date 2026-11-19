@@ -126,9 +126,16 @@
   filter: blur(14px);
 }
 
+/* SSS (sss.jsx): tarayıcının üçgen işaretini gizle, cevaptaki bağlantılar, açılırken yumuşak belirme */
+.sss-oge summary::-webkit-details-marker { display: none; }
+.sss-oge summary:focus-visible { outline: 2px solid theme("colors.su.300"); outline-offset: 4px; border-radius: 6px; }
+.sss-cevap a { color: theme("colors.su.300"); text-decoration: underline; text-underline-offset: 3px; }
+.sss-oge[open] .sss-cevap { animation: sss-ac .35s ease both; }
+@keyframes sss-ac { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
 /* Hareket azaltma tercihi: sürekli dönen animasyonlar durur */
 @media (prefers-reduced-motion: reduce) {
-  .logo-canli *, .yazi-parilti { animation: none !important; }
+  .logo-canli *, .yazi-parilti, .sss-cevap { animation: none !important; }
   .logo-canli .logo-isik, .logo-canli .logo-halka-isik, .logo-canli .logo-igne, .logo-canli .logo-parcaciklar { display: none; }
   .animate-aurora, .animate-aurora-yavas, .animate-kayan, .animate-parilti, .animate-imlec { animation: none !important; }
   html { scroll-behavior: auto; }
