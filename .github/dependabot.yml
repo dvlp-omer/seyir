@@ -11,6 +11,11 @@ updates:
     groups:
       tanitim:
         patterns: ["*"]
+    # Büyük sürüm atlamaları (React 19, Tailwind 4 gibi) kod değişikliği ister;
+    # otomatik PR açılmasın. Güvenlik yamaları ve küçük güncellemeler gelir.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
