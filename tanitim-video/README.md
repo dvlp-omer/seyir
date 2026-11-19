@@ -17,4 +17,6 @@ Render için Remotion kendi tarayıcısını indirir; bilgisayarda Chrome varsa
 `--browser-executable="C:/Program Files/Google/Chrome/Application/chrome.exe"` ile o kullanılabilir.
 Çıktı `out/` klasörüne yazılır ve depoya girmez.
 
+Müzik: `node araclar/muzik-uret.cjs` ile kodla üretilir (public/muzik.wav); kimsenin eserinden parça içermez, telif sorunu yoktur.
+
 Lisans notu: Remotion, 3 kişiye kadar ekipler için ücretsizdir.
