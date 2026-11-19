@@ -53,25 +53,85 @@ function takimSeciciCiz() {
 
 /* ---------- Menü ---------- */
 
+/* Menü grupları. Masaüstünde yan menü bu başlıklarla bölünür. Telefonda alt
+   çubukta yalnızca ALT_CUBUK'taki 4 ekran ve "Daha fazla" düğmesi görünür;
+   gerisi "Daha fazla" penceresinde. Gruplarda olmayan bir ekran eklenirse
+   menünün sonuna düşer (unutulup kaybolmaz). */
+const MENU_GRUPLARI = [
+  { baslik: "", ekranlar: ["ozet"] },
+  { baslik: "Planlama", ekranlar: ["gorevler", "tarihler", "takvim"] },
+  { baslik: "Toplantı ve etkinlik", ekranlar: ["toplantilar", "tutanaklar", "etkinlikler"] },
+  { baslik: "İletişim", ekranlar: ["kisiler", "mesajlar", "duyuru"] },
+  { baslik: "Takım", ekranlar: ["takim", "ayarlar"] },
+];
+const ALT_CUBUK = ["ozet", "gorevler", "takvim", "tutanaklar"];
+const DAHA_FAZLA_SIMGE = "M5 12h.01M12 12h.01M19 12h.01";
+
+function menuGruplari() {
+  const grupta = new Set(MENU_GRUPLARI.flatMap((g) => g.ekranlar));
+  return [
+    ...MENU_GRUPLARI.map((g) => ({ baslik: g.baslik, ekranlar: g.ekranlar.filter((ad) => EKRANLAR[ad]) })),
+    { baslik: "", ekranlar: EKRAN_SIRASI.filter((ad) => !grupta.has(ad)) },
+  ].filter((g) => g.ekranlar.length);
+}
+
+function menuDugmesi(ad, sinif) {
+  return '<button type="button" class="' + sinif + '" data-ekran="' + ad + '">' +
+    simgeHtml(EKRANLAR[ad].simge) + "<span>" + EKRANLAR[ad].kisaAd + "</span></button>";
+}
+
 // Menü bir kez çizilir. Sonradan yalnızca "hangi ekran açık" işareti
 // güncellenir; böylece menüdeki klavye odağı kaybolmaz (RAPOR.md > E1).
 function menuCiz() {
-  sec("#menu").innerHTML = EKRAN_SIRASI.map((ad) =>
-    '<button type="button" data-ekran="' + ad + '">' +
-    simgeHtml(EKRANLAR[ad].simge) + "<span>" + EKRANLAR[ad].kisaAd + "</span></button>"
-  ).join("");
+  sec("#menu").innerHTML = menuGruplari().map((g) =>
+    '<div class="menu-grup" role="group"' + (g.baslik ? ' aria-label="' + g.baslik + '"' : "") + ">" +
+    (g.baslik ? '<p class="menu-grup-baslik" aria-hidden="true">' + g.baslik + "</p>" : "") +
+    g.ekranlar.map((ad) => menuDugmesi(ad, ALT_CUBUK.includes(ad) ? "" : "ikincil")).join("") +
+    "</div>").join("") +
+    '<button type="button" class="daha-fazla" data-daha-fazla aria-haspopup="dialog">' +
+    simgeHtml(DAHA_FAZLA_SIMGE) + "<span>Daha fazla</span></button>";
 }
 
 function menuGuncelle() {
   for (const dugme of document.querySelectorAll("#menu [data-ekran]")) {
-    if (dugme.dataset.ekran === durum.ekran) {
-      dugme.setAttribute("aria-current", "page");
-      // Mobilde sekme çubuğu yana kayar; açık sekme görünür olsun.
-      dugme.scrollIntoView({ block: "nearest", inline: "nearest" });
-    } else {
-      dugme.removeAttribute("aria-current");
-    }
+    if (dugme.dataset.ekran === durum.ekran) dugme.setAttribute("aria-current", "page");
+    else dugme.removeAttribute("aria-current");
   }
+  // Telefonda açık ekran alt çubukta yoksa "Daha fazla" işaretli görünsün
+  const dahaFazla = sec("#menu [data-daha-fazla]");
+  if (dahaFazla) dahaFazla.classList.toggle("aktif", !!durum.ekran && !ALT_CUBUK.includes(durum.ekran));
+}
+
+// Menüden (ya da "Daha fazla"dan) bir ekrana geçiş: ekran ilk hâline döner (ör. açık tutanak kapanır).
+function menudenGit(ad) {
+  const ekran = EKRANLAR[ad];
+  if (!ekran) return;
+  if (ekran.sifirla) ekran.sifirla();
+  ekranaGit(ad);
+}
+
+// Telefonda "Daha fazla": bütün ekranlar gruplarıyla, dokunmaya uygun karolar hâlinde.
+function dahaFazlaAc() {
+  const pencere = sec("#pencere");
+  if (pencere.open) return;
+  pencere.setAttribute("aria-labelledby", "pencere-baslik");
+  pencere.innerHTML =
+    '<div class="form daha-fazla-panel"><h2 id="pencere-baslik">Bütün ekranlar</h2>' +
+    menuGruplari().map((g) =>
+      (g.baslik ? "<h3>" + g.baslik + "</h3>" : "") +
+      '<div class="ekran-karolari">' + g.ekranlar.map((ad) =>
+        menuDugmesi(ad, "ekran-karo").replace("<button", ad === durum.ekran ? '<button aria-current="page"' : "<button")).join("") +
+      "</div>").join("") +
+    '<div class="form-dugmeler"><button type="button" class="dugme" data-kapat>Kapat</button></div></div>';
+  const panel = pencere.querySelector(".daha-fazla-panel");
+  panel.onclick = (olay) => {
+    if (olay.target.closest("[data-kapat]")) return pencere.close();
+    const dugme = olay.target.closest("[data-ekran]");
+    if (!dugme) return;
+    pencere.close();
+    menudenGit(dugme.dataset.ekran);
+  };
+  pencere.showModal();
 }
 
 // Adres çubuğundaki #gorevler gibi kısmı değiştirir; asıl çizimi
@@ -230,12 +290,9 @@ async function baslat() {
 
   menuCiz();
   sec("#menu").onclick = (olay) => {
+    if (olay.target.closest("[data-daha-fazla]")) return dahaFazlaAc();
     const dugme = olay.target.closest("[data-ekran]");
-    if (!dugme) return;
-    const ekran = EKRANLAR[dugme.dataset.ekran];
-    // Menüden basılınca ekran ilk hâline döner (ör. açık tutanak kapanır).
-    if (ekran.sifirla) ekran.sifirla();
-    ekranaGit(dugme.dataset.ekran);
+    if (dugme) menudenGit(dugme.dataset.ekran);
   };
   sec("#takim-sec").onchange = async (olay) => {
     await takimSec(olay.target.value);

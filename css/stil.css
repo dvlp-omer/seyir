@@ -163,10 +163,16 @@ a { color: var(--su); }
 .marka svg { width: 34px; height: 34px; flex: none; }
 .marka small { display: block; font-weight: 400; font-size: 12px; color: var(--gece-soluk); letter-spacing: .02em; }
 
-.menu { display: flex; flex-direction: column; gap: 4px; }
+.menu { display: flex; flex-direction: column; gap: 2px; }
+.menu-grup { display: flex; flex-direction: column; gap: 2px; }
+.menu-grup-baslik {
+  margin: 14px 12px 4px; font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--gece-soluk);
+}
+.menu .daha-fazla { display: none; }
 .menu button {
   display: flex; align-items: center; gap: 12px;
-  width: 100%; padding: 10px 12px;
+  width: 100%; padding: 8px 12px;
   border: 0; border-radius: 8px; background: none;
   color: inherit; text-align: left; cursor: pointer;
 }
@@ -619,10 +625,13 @@ dialog::backdrop { background: var(--perde); }
     overflow: visible;
   }
   .marka, .yan-alt { display: none; }
-  .menu { flex-direction: row; gap: 0; overflow-x: auto; scrollbar-width: none; }
-  .menu::-webkit-scrollbar { display: none; }
-  .menu button { flex: 1 0 64px; flex-direction: column; gap: 2px; min-height: 52px; padding: 7px 2px; font-size: 11px; text-align: center; }
-  .menu button[aria-current="page"] { box-shadow: inset 0 3px 0 var(--gece-vurgu); }
+  /* Alt çubuk: 4 ana ekran + "Daha fazla" (gerisi orada; js/uygulama.js > ALT_CUBUK) */
+  .menu { flex-direction: row; gap: 0; }
+  .menu-grup { display: contents; }
+  .menu-grup-baslik, .menu .ikincil { display: none; }
+  .menu .daha-fazla { display: flex; }
+  .menu button { flex: 1 1 0; min-width: 0; flex-direction: column; gap: 2px; min-height: 52px; padding: 7px 2px; font-size: 11px; text-align: center; }
+  .menu button[aria-current="page"], .menu .daha-fazla.aktif { background: rgba(255, 255, 255, .14); color: #ffffff; font-weight: 600; box-shadow: inset 0 3px 0 var(--gece-vurgu); }
   .ust { padding: 16px 16px 0; }
   .ust h1 { font-size: 22px; }
   .takim-sec { max-width: 46vw; }
@@ -738,3 +747,21 @@ dialog::backdrop { background: var(--perde); }
 }
 @media (hover: none) { .gorev-alt .gorev-dugmeler .dugme { min-height: 40px; min-width: 40px; } }
 .form-dugmeler .form-sil { margin-right: auto; }
+
+/* "Daha fazla" penceresi (telefonda bütün ekranlar; js/uygulama.js > dahaFazlaAc) */
+.daha-fazla-panel h3 { margin: 14px 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--soluk); }
+.ekran-karolari { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ekran-karo {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  min-height: 76px; padding: 10px 4px; border: 1px solid var(--cizgi); border-radius: 10px;
+  background: var(--kagit); color: var(--yazi); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.ekran-karo svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ekran-karo[aria-current="page"] { border-color: var(--vurgu); box-shadow: inset 0 0 0 1px var(--vurgu); }
+.ekran-karo:hover { background: var(--rozet-z); }
+/* Dar ekranda (telefon, tablet) ◀ ▶ her zaman görünür: fare üstüne gelme yok */
+@media (max-width: 820px) {
+  .gorev-alt .gorev-dugmeler { opacity: 1; }
+  .gorev-alt .gorev-dugmeler .dugme { min-height: 40px; min-width: 40px; }
+}
+.menu .daha-fazla svg { stroke-width: 3.4; }
