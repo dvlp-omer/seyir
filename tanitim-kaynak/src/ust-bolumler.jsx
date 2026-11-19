@@ -24,7 +24,7 @@ export function UstMenu() {
       (kaydi ? "border-b border-white/10 bg-obsidyen/70 backdrop-blur-xl" : "border-b border-transparent")}>
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5" aria-label="Ana menü">
         <a href="#" className="flex items-center gap-2.5 font-semibold tracking-tight">
-          <Logo boyut={30} canli /> Seyir
+          <Logo boyut={30} canli /> <span className="yazi-parilti">Seyir</span>
         </a>
         <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
           <a className="transition hover:text-white" href="#ozellikler">Özellikler</a>

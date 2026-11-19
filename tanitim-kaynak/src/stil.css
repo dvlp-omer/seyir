@@ -94,12 +94,32 @@
   .kbd { font-family: theme("fontFamily.mono"); font-size: 11px; padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: #b8c7cd; }
 }
 
-/* Canlı logo: yörünge şeridinde ışık gezer, devre noktaları nefes alır (ortak.jsx > Logo canli) */
-.logo-canli .logo-isik { stroke-dasharray: 14 186; stroke-dashoffset: 114; opacity: .85; animation: logo-isik 4.5s cubic-bezier(.45,0,.25,1) infinite; }
+/* Canlı logo (ortak.jsx > Logo canli): logo GIF'indeki hareket, 6 sn'lik tek döngü.
+   0-%15 durgun · %15-%40 halkada ışık, şerit parlar · %35-%60 şerit söner, iğne belirir ·
+   %55-%85 yörünge salınır · sonra başa döner. */
+.logo-canli .logo-salin, .logo-canli .logo-igne { transform-box: view-box; transform-origin: 32px 32px; }
+.logo-canli .logo-isik { stroke-dasharray: 14 186; stroke-dashoffset: 114; opacity: 0; animation: logo-isik 6s cubic-bezier(.45,0,.25,1) infinite; }
+.logo-canli .logo-halka-isik { stroke-dasharray: 22 78; stroke-dashoffset: 0; opacity: 0; filter: drop-shadow(0 0 1.5px #7cf0f7); animation: logo-halka 6s linear infinite; }
+.logo-canli .logo-serit { animation: logo-serit 6s ease-in-out infinite; }
+.logo-canli .logo-salin { animation: logo-salin 6s ease-in-out infinite; }
+.logo-canli .logo-igne { opacity: 0; animation: logo-igne 6s ease-in-out infinite; }
+.logo-canli .logo-parcaciklar circle { opacity: 0; animation: logo-parca 3s ease-in-out infinite; }
 .logo-canli .logo-nokta { animation: logo-nokta 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .logo-canli .logo-nokta + .logo-nokta { animation-delay: 1.5s; }
-@keyframes logo-isik { 0% { stroke-dashoffset: 114; opacity: 0; } 12% { opacity: .9; } 55% { stroke-dashoffset: 0; opacity: .9; } 65%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes logo-isik { 0%, 15% { stroke-dashoffset: 114; opacity: 0; } 20% { opacity: .95; } 38% { stroke-dashoffset: 0; opacity: .95; } 44%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes logo-halka { 0%, 15% { stroke-dashoffset: 0; opacity: 0; } 20% { opacity: .9; } 80% { opacity: .9; } 88%, 100% { stroke-dashoffset: -200; opacity: 0; } }
+@keyframes logo-serit { 0%, 15%, 85%, 100% { opacity: 1; filter: none; } 28% { opacity: 1; filter: brightness(1.6) drop-shadow(0 0 2px #7cf0f7); } 45%, 58% { opacity: .3; filter: none; } }
+@keyframes logo-salin { 0%, 55%, 92%, 100% { transform: rotate(0deg); } 72% { transform: rotate(24deg); } }
+@keyframes logo-igne { 0%, 33%, 70%, 100% { opacity: 0; transform: rotate(-30deg) scale(.6); } 45% { opacity: 1; transform: rotate(8deg) scale(1); } 55% { opacity: 1; transform: rotate(0deg) scale(1); } }
+@keyframes logo-parca { 0%, 100% { opacity: 0; } 50% { opacity: .9; } }
 @keyframes logo-nokta { 0%, 100% { opacity: .65; } 50% { opacity: 1; filter: drop-shadow(0 0 2px currentColor); } }
+/* Yanındaki "Seyir" yazısının üstünden ışık geçer (GIF'teki yazı parıltısı) */
+.yazi-parilti {
+  background: linear-gradient(100deg, #fff 42%, #a8f1fb 50%, #fff 58%) 0 0 / 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: yazi-parilti 6s ease-in-out infinite;
+}
+@keyframes yazi-parilti { 0%, 40% { background-position: 100% 0; } 65%, 100% { background-position: 0 0; } }
 .logo-hale::before {
   content: ""; position: absolute; inset: -30%; border-radius: 999px; z-index: -1;
   background: radial-gradient(closest-side, rgba(91,124,250,.45), rgba(166,92,246,.18) 55%, transparent);
@@ -108,8 +128,8 @@
 
 /* Hareket azaltma tercihi: sürekli dönen animasyonlar durur */
 @media (prefers-reduced-motion: reduce) {
-  .logo-canli .logo-isik { display: none; }
-  .logo-canli .logo-nokta { animation: none; }
+  .logo-canli *, .yazi-parilti { animation: none !important; }
+  .logo-canli .logo-isik, .logo-canli .logo-halka-isik, .logo-canli .logo-igne, .logo-canli .logo-parcaciklar { display: none; }
   .animate-aurora, .animate-aurora-yavas, .animate-kayan, .animate-parilti, .animate-imlec { animation: none !important; }
   html { scroll-behavior: auto; }
 }
