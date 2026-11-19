@@ -6,16 +6,40 @@ import { motion, useInView, animate, useReducedMotion } from "framer-motion";
 export const UYGULAMA = "/uygulama";
 export const KAYNAK_KOD = "https://github.com/dvlp-omer/seyir";
 
-// Logo: gemi dümeni (uygulamadaki ikonla aynı çizim)
-export function Logo({ boyut = 28 }) {
+// Logo: pusula yıldızı, küre ve önünden geçen yörünge şeridi (ikonlar/logo.svg ile aynı çizim).
+// canli: yörünge şeridinde ışık gezer, devre noktaları sırayla yanar (stil.css > .logo-canli;
+// "hareketi azalt" açıksa durur). Aynı kimlikli gradyanlar sayfada birden çok kez olsa da çizim aynı.
+export function Logo({ boyut = 28, canli = false }) {
   return (
-    <svg width={boyut} height={boyut} viewBox="0 0 40 40" aria-hidden="true">
-      <g stroke="#cfe3e8" strokeLinecap="round" fill="none">
-        <path strokeWidth="2.4" d="M20 5v30M5 20h30M9.4 9.4l21.2 21.2M30.6 9.4L9.4 30.6" />
-        <circle cx="20" cy="20" r="10.5" strokeWidth="2.8" />
+    <svg width={boyut} height={boyut} viewBox="0 0 64 64" aria-hidden="true" className={canli ? "logo-canli" : undefined}>
+      <defs>
+        <linearGradient id="sy-a" x1="10" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#5ee6f2" /><stop offset=".5" stopColor="#5b7cfa" /><stop offset="1" stopColor="#a65cf6" />
+        </linearGradient>
+        <linearGradient id="sy-y" x1="-28" y1="0" x2="28" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#5b7cfa" /><stop offset=".5" stopColor="#4fd8ec" /><stop offset="1" stopColor="#c4f3fa" />
+        </linearGradient>
+        <radialGradient id="sy-c" cx="40" cy="25" r="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#2c4590" /><stop offset=".55" stopColor="#18205a" /><stop offset="1" stopColor="#0c0f26" />
+        </radialGradient>
+      </defs>
+      <path fill="url(#sy-a)" d="M32 1.5l5.6 23.2L62.5 32l-24.9 7.3L32 62.5l-5.6-23.2L1.5 32l24.9-7.3z" />
+      <g transform="rotate(-45 32 32) translate(32 32)">
+        <path d="M28 0A28 8 0 0 1-28 0" fill="none" stroke="url(#sy-y)" strokeWidth="1.4" opacity=".55" />
       </g>
-      <circle cx="20" cy="20" r="4.2" fill="#ee6a2f" />
-      <circle cx="20" cy="20" r="1.5" fill="#05070a" />
+      <circle cx="32" cy="32" r="18.5" fill="url(#sy-c)" stroke="url(#sy-a)" strokeWidth="3.4" />
+      <circle cx="32" cy="32" r="12.5" fill="none" stroke="url(#sy-a)" strokeWidth="1" opacity=".6" />
+      <g strokeLinecap="round">
+        <path d="M10.5 10.5l11 11" stroke="#5ee6f2" strokeWidth="1.2" />
+        <path d="M42.5 42.5l11 11" stroke="#a65cf6" strokeWidth="1.2" />
+      </g>
+      <g fill="#5ee6f2" className="logo-nokta"><circle cx="10.5" cy="10.5" r="1.7" /><circle cx="17" cy="17" r="2" /><circle cx="21.5" cy="21.5" r="1.2" /></g>
+      <g fill="#a65cf6" className="logo-nokta"><circle cx="53.5" cy="53.5" r="1.7" /><circle cx="47" cy="47" r="2" /><circle cx="42.5" cy="42.5" r="1.2" /></g>
+      <g transform="rotate(-45 32 32) translate(32 32)">
+        <path d="M-29 0A29 10.5 0 0 1 29 0A29 6 0 0 0-29 0z" fill="#0c0f26" opacity=".8" transform="translate(0 -1)" />
+        <path d="M-29 0A29 10 0 0 1 29 0A29 6.5 0 0 0-29 0z" fill="url(#sy-y)" />
+        {canli && <path className="logo-isik" d="M-28.5 -.6A29 9.4 0 0 1 28.5 -.6" pathLength="100" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />}
+      </g>
     </svg>
   );
 }

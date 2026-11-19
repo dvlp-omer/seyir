@@ -24,7 +24,7 @@ export function UstMenu() {
       (kaydi ? "border-b border-white/10 bg-obsidyen/70 backdrop-blur-xl" : "border-b border-transparent")}>
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5" aria-label="Ana menü">
         <a href="#" className="flex items-center gap-2.5 font-semibold tracking-tight">
-          <Logo /> Seyir
+          <Logo boyut={30} canli /> Seyir
         </a>
         <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
           <a className="transition hover:text-white" href="#ozellikler">Özellikler</a>
@@ -65,6 +65,11 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-5 text-center">
+        <Belir className="mb-8 flex justify-center">
+          <div className="logo-hale relative">
+            <Logo boyut={84} canli />
+          </div>
+        </Belir>
         <Belir>
           <a href="#demo" className="parilti animate-parilti inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium text-slate-300 transition hover:border-white/20 sm:text-sm">
             <Sparkles size={14} className="text-su-300" />

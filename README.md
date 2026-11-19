@@ -2,7 +2,7 @@
 
 [![Testler](https://github.com/dvlp-omer/seyir/actions/workflows/testler.yml/badge.svg)](https://github.com/dvlp-omer/seyir/actions/workflows/testler.yml)
 
-<img src="ikonlar/ikon.svg" alt="Seyir logosu: gemi dümeni" width="72" align="right">
+<img src="ikonlar/ikon.svg" alt="Seyir logosu: pusula yıldızı ve yörünge" width="72" align="right">
 
 **Seyir — Öğrenci Takımları İçin Takım Asistanı**
 
@@ -31,8 +31,8 @@ izin tarihleri son anda hatırlanır, dönem sonunda "bu dönem ne yaptık?"
 sorusuna cevap aranır. Seyir bunları tek sayfada toplar.
 
 Ad nereden geliyor? *Seyir*, denizcilikte bir teknenin rotasında ilerleyişidir
-(seyir defteri, seyir hâli). Proje bir sualtı aracı takımı için başladı; logo
-da bir gemi dümeni.
+(seyir defteri, seyir hâli). Proje bir sualtı aracı takımı için başladı; logodaki pusula
+yıldızı yönü, küre ve yörünge şeridi de takımın etrafında döndüğü işi anlatır.
 
 ### Özellikler
 
@@ -105,7 +105,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-236 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+241 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -256,7 +256,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-236 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+241 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF
