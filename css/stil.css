@@ -790,3 +790,37 @@ dialog::backdrop { background: var(--perde); }
 .yuk-sayi { flex: 0 0 118px; display: flex; align-items: center; gap: 6px; font-family: var(--sayi-tipi); font-weight: 700; }
 .yuk-sayi .rozet { font-family: var(--yazi-tipi); font-weight: 600; white-space: nowrap; }
 @media (max-width: 480px) { .yuk-ad { flex-basis: 96px; } .yuk-sayi { flex-basis: 96px; } }
+
+/* ---------- Takvim hücreleri (tasarım 4) ----------
+   Gün numarası gövde yazı tipinde, eşit genişlikli rakamlarla (eş aralıklı yazı
+   tipi bazı rakamları farklı gösteriyordu). Kayıt adı kendi kutusunda "…" ile
+   kısalır; hücrede hafif renkli bir şerit olarak görünür. */
+.gun-dugme .gun-no { font-family: inherit; font-variant-numeric: tabular-nums; font-weight: 600; }
+.gun-oge { min-width: 0; padding: 1px 5px 1px 4px; border-radius: 4px; background: var(--sutun); }
+.gun-oge-ad { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.takvim .disari .gun-oge { background: none; }
+
+/* ---------- Küçük cilalar (tasarım 5) ----------
+   Hepsi "hareket azaltma" tercihinde kapanır (yukarıdaki prefers-reduced-motion kuralı). */
+dialog[open] { animation: pencere-ac .18s ease-out; }
+dialog[open]::backdrop { animation: perde-ac .18s ease-out; }
+@keyframes pencere-ac { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+@keyframes perde-ac { from { opacity: 0; } }
+.gorev-kart { transition: box-shadow .15s, transform .15s, border-color .15s; }
+.gorev-kart:hover { box-shadow: 0 6px 18px rgba(0, 0, 0, .10); transform: translateY(-1px); }
+.gorev-kart.suruklenen { transform: none; box-shadow: none; }
+/* Sütun değiştiren kart kısa bir an vurgulanır (js/ekranlar/gorevler.js > sonTasinanGorev) */
+.gorev-kart.yeni-tasindi { animation: kart-geldi .7s ease-out; }
+@keyframes kart-geldi { from { box-shadow: 0 0 0 3px var(--su); transform: scale(1.02); } }
+/* Yalnızca başka ekrana geçince (her kayıttan sonraki yeniden çizimde değil; js/uygulama.js > ekran-yeni) */
+.ekran-yeni .kart, .ekran-yeni .one-cikan, .ekran-yeni .pano, .ekran-yeni .bos { animation: kart-belir .22s ease-out; }
+@keyframes kart-belir { from { opacity: 0; transform: translateY(4px); } }
+.ekran-yeni .ilerleme-cubuk span, .ekran-yeni .yuk-cubuk span { animation: cubuk-dol .6s ease-out; transform-origin: left; }
+@keyframes cubuk-dol { from { transform: scaleX(0); } }
+/* Boş ekranlar: küçük bir dümen ve dalga çizimi (renk temaya uyar: maske + --su) */
+.bos:has(h3)::before {
+  content: ""; display: block; width: 72px; height: 72px; margin: 0 auto 14px;
+  background: var(--su); opacity: .55;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='36' cy='30' r='13'/%3E%3Ccircle cx='36' cy='30' r='3.5' fill='black'/%3E%3Cpath d='M36 9v8M36 43v8M15 30h8M49 30h8M21.2 15.2l5.6 5.6M45.2 39.2l5.6 5.6M50.8 15.2l-5.6 5.6M26.8 39.2l-5.6 5.6'/%3E%3Cpath d='M6 62c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 10-4 5 4 10 4'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='36' cy='30' r='13'/%3E%3Ccircle cx='36' cy='30' r='3.5' fill='black'/%3E%3Cpath d='M36 9v8M36 43v8M15 30h8M49 30h8M21.2 15.2l5.6 5.6M45.2 39.2l5.6 5.6M50.8 15.2l-5.6 5.6M26.8 39.2l-5.6 5.6'/%3E%3Cpath d='M6 62c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 10-4 5 4 10 4'/%3E%3C/svg%3E") center / contain no-repeat;
+}

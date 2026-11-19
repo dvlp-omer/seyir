@@ -40,8 +40,10 @@ function gunHucresiHtml(tarih, ogeler) {
   const etiket = tarihYaz(tarih) + (tarih === bugun() ? " (bugün)" : "") + ", " +
     (ogeler.length ? ogeler.length + " kayıt" : "kayıt yok");
 
+  // Başlık ayrı bir kutuda: uzunsa "…" ile kısalır; tamamı fareyle üstüne gelince görünür
   const basliklar = ogeler.slice(0, 2).map((oge) =>
-    '<span class="gun-oge">' + noktaHtml(oge.tur) + htmlKacis(oge.baslik) + "</span>").join("");
+    '<span class="gun-oge ' + oge.tur + '" title="' + htmlKacis(oge.baslik) + '">' + noktaHtml(oge.tur) +
+    '<span class="gun-oge-ad">' + htmlKacis(oge.baslik) + "</span></span>").join("");
   const fazla = ogeler.length > 2 ? '<span class="gun-fazla">+' + (ogeler.length - 2) + " daha</span>" : "";
   const noktalar = ogeler.length
     ? '<span class="noktalar">' + ogeler.slice(0, 4).map((oge) => noktaHtml(oge.tur)).join("") + "</span>"

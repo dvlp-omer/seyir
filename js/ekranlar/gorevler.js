@@ -6,6 +6,8 @@
 
 // Panodaki "sorumluya göre süz" seçimi. "" = herkes.
 let gorevSorumluFiltresi = "";
+// Az önce sütun değiştiren görev (bir sonraki çizimde vurgulanır, sonra unutulur)
+let sonTasinanGorev = null;
 
 // "yapiliyor" -> "Yapılıyor". Beklenmeyen bir değer gelirse çökmeden yazar.
 function gorevDurumEtiketi(deger) {
@@ -62,6 +64,7 @@ async function gorevDurumunuDegistir(id, yeniDurum) {
   const yeni = GOREV_DURUMLARI.find((d) => d.deger === yeniDurum);
   if (!yeni || gorev.durum === yeni.deger) return;
   await durum.depo.guncelle("gorevler", id, { durum: yeni.deger });
+  sonTasinanGorev = id; // yeni sütununda kısa bir an vurgulansın (css > yeni-tasindi)
   await yenile();
   bildir('"' + gorev.baslik + '" → ' + yeni.etiket); // ekran okuyucu da duyar (role=status)
 }
@@ -159,6 +162,7 @@ function gorevKartiHtml(gorev, uyeler) {
 
   // Kartın tamamı düzenlemeyi açar (fare); klavye ve ekran okuyucu için başlık bir düğmedir.
   // Silme, düzenleme penceresinin içindedir.
+  if (sonTasinanGorev === gorev.id) vurgu += " yeni-tasindi";
   return '<article class="gorev-kart ' + vurgu + '" draggable="true" data-eylem="duzenle" data-id="' + id + '">' +
     '<h4><button type="button" class="kart-baslik" data-eylem="duzenle" data-id="' + id + '" aria-label="Düzenle: ' + baslik + '">' + baslik + "</button></h4>" +
     (gorev.aciklama ? '<p class="aciklama">' + htmlKacis(gorev.aciklama) + "</p>" : "") +
@@ -203,6 +207,7 @@ async function gorevlerEkraniCiz(kok) {
       ? '<div class="bos"><h3>Henüz görev yok</h3>İlk görevi ekle ya da bir toplantı kararından görev oluştur.</div>'
       : '<div class="pano">' + sutunlar + "</div>");
 
+  sonTasinanGorev = null; // vurgu yalnızca bir kez
   const pano = kok.querySelector(".pano");
   if (pano) panoSurukleBirakBagla(pano);
 

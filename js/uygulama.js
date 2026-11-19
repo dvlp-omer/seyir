@@ -220,6 +220,12 @@ async function ekraniCiz() {
     kok.innerHTML = '<div class="hata-kutusu" role="alert"><b>Veri yüklenemedi.</b><br>' + htmlKacis(hata.message) + "</div>";
   }
 
+  // Yeni ekrana geçildiyse kartlar kısa bir belirme animasyonuyla gelsin (css > ekran-yeni)
+  if (ekranDegisti) {
+    kok.classList.add("ekran-yeni");
+    setTimeout(() => kok.classList.remove("ekran-yeni"), 700);
+  }
+
   if (ekranDegisti && !ilkCizim) {
     // Yeni ekrana geçildi: odağı başlığa taşı ki ekran okuyucu yeni ekranı okusun.
     sec("#ekran-baslik").focus();
