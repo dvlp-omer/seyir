@@ -12,9 +12,9 @@ bağımlılık yok.
 
 **[Türkçe](#türkçe)** · **[English](#english)**
 
-**Tanıtım / Landing:** <https://seyir-takim.vercel.app/tanitim/>
+**Tanıtım / Landing:** <https://seyir-takim.vercel.app> · **Uygulama / App:** <https://seyir-takim.vercel.app/uygulama>
 
-**Canlı / Live:** <https://seyir-takim.vercel.app> — Supabase kipinde çalışır;
+**Canlı / Live:** uygulama Supabase kipinde çalışır;
 hesap açmak davetlidir (sign-up is invite-only).
 
 ![Özet ekranı: en yakın son tarih, görev sayıları ve önümüzdeki 7 gün](docs/ekran/ozet.png)
@@ -77,12 +77,12 @@ depoda gerçek görünen numara arar). Ücretli servis kullanılmaz.
 |---|---|
 | ![Etkinlik listesi](docs/ekran/etkinlikler.png) | <img src="docs/ekran/mobil.png" alt="Dar ekranda görev panosu ve alt menü" width="300"> |
 
-<!-- Görüntüler uydurma örnek veriyle (index.html?ornek=1, yerel mod), penceresiz
+<!-- Görüntüler uydurma örnek veriyle (uygulama.html?ornek=1, yerel mod), penceresiz
      Chrome ile alındı. Kişiler ve kurum adları uydurmadır. -->
 
 ### Nasıl çalıştırılır?
 
-**En kolay yol:** `index.html` dosyasına çift tıkla.
+**En kolay yol:** `uygulama.html` dosyasına çift tıkla.
 
 Ana ekrana ekleme ve çevrimdışı çalışma için yerel sunucuyla aç:
 
@@ -90,10 +90,10 @@ Ana ekrana ekleme ve çevrimdışı çalışma için yerel sunucuyla aç:
 python -m http.server 8765
 ```
 
-Sonra tarayıcıda `http://localhost:8765`.
+Sonra tarayıcıda `http://localhost:8765/uygulama.html`.
 
 İlk açılışta **Örnek veriyle dene** düğmesi hayali bir takım yükler. Adresin
-sonuna `?ornek=1` eklersen (ör. `index.html?ornek=1`) örnek takım kendiliğinden
+sonuna `?ornek=1` eklersen (ör. `uygulama.html?ornek=1`) örnek takım kendiliğinden
 yüklenir; demo bağlantısı olarak paylaşmak için kullanışlıdır.
 
 Veriler varsayılan olarak **tarayıcının localStorage alanında** durur: yalnızca
@@ -241,7 +241,7 @@ the repo for real-looking phone numbers).
 
 ### Running it
 
-Double-click `index.html`, or serve the folder (needed for install / offline):
+Double-click `uygulama.html`, or serve the folder (needed for install / offline):
 
 ```bash
 python -m http.server 8765

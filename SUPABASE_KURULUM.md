@@ -130,7 +130,7 @@ Sol altta **Project Settings** → **API** (ya da **API Keys**):
    python -m http.server 8765
    ```
 
-   Tarayıcıda `http://localhost:8765` → **Giriş yap** ekranı çıkmalı.
+   Tarayıcıda `http://localhost:8765/uygulama.html` → **Giriş yap** ekranı çıkmalı.
 
 `.env` ve `js/ayarlar.js` depoya girmez (`.gitignore`). Yerel kayda dönmek
 için `.env` içinde `VERI_KATMANI=yerel` yapıp betiği yeniden çalıştır.

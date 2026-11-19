@@ -4,6 +4,30 @@
   "outputDirectory": ".",
   "installCommand": "",
   "framework": null,
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/tanitim",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tanitim/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/tanitim/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -59,12 +83,6 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/tanitim",
-      "destination": "/tanitim/index.html"
     }
   ]
 }

@@ -16,7 +16,8 @@ sıfır bağımlılık, derleme adımı yok.
 ## 1. Klasör yapısı
 
 ```
-index.html                 Tek sayfa. Boş bir iskelet; içini JavaScript doldurur.
+uygulama.html              Uygulamanın tek sayfası (/uygulama). Boş bir iskelet; içini JavaScript doldurur.
+robots.txt, sitemap.xml    Arama motorları: ana sayfa (tanıtım) dizinlenir, uygulama dizinlenmez
 css/stil.css               Bütün görünüm: renk değişkenleri, açık/koyu tema, mobil, yazdırma
 manifest.webmanifest       "Ana ekrana ekle" için uygulama kimliği
 sw.js                      Service worker: dosyaları önbelleğe alır, çevrimdışı açar
@@ -115,9 +116,9 @@ parametre olarak alırlar. **Neden:** Tarayıcı açmadan, her gün aynı sonucu
 verecek şekilde test edilebilsinler. Testlerin çoğu buradadır.
 
 ### Karar 4 — Framework ve derleme yok, klasik `<script>`
-**Neden:** (a) Proje sahibinin her satırı anlatabilmesi. (b) `index.html`'e
+**Neden:** (a) Proje sahibinin her satırı anlatabilmesi. (b) `uygulama.html`'e
 çift tıklayınca çalışması. (c) Yayınlanan dosyaların depodakilerle aynı olması.
-**Bedeli:** Fonksiyonlar global; dosyaların `index.html`'deki sırası önemli.
+**Bedeli:** Fonksiyonlar global; dosyaların `uygulama.html`'deki sırası önemli.
 Proje büyüseydi ES modüllerine geçmek gerekirdi.
 
 ### Karar 5 — Güvenlik veritabanında

@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, animate, useReducedMotion } from "framer-motion";
 
-// Uygulamanın kendi adresleri (tanıtım /tanitim/ altında, uygulama kökte)
-export const UYGULAMA = "/";
+// Adresler: tanıtım ana sayfada (/), uygulama /uygulama adresinde
+export const UYGULAMA = "/uygulama";
 export const KAYNAK_KOD = "https://github.com/dvlp-omer/seyir";
 
 // Logo: gemi dümeni (uygulamadaki ikonla aynı çizim)

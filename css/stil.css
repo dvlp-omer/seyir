@@ -824,3 +824,10 @@ dialog[open]::backdrop { animation: perde-ac .18s ease-out; }
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='36' cy='30' r='13'/%3E%3Ccircle cx='36' cy='30' r='3.5' fill='black'/%3E%3Cpath d='M36 9v8M36 43v8M15 30h8M49 30h8M21.2 15.2l5.6 5.6M45.2 39.2l5.6 5.6M50.8 15.2l-5.6 5.6M26.8 39.2l-5.6 5.6'/%3E%3Cpath d='M6 62c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 10-4 5 4 10 4'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'%3E%3Ccircle cx='36' cy='30' r='13'/%3E%3Ccircle cx='36' cy='30' r='3.5' fill='black'/%3E%3Cpath d='M36 9v8M36 43v8M15 30h8M49 30h8M21.2 15.2l5.6 5.6M45.2 39.2l5.6 5.6M50.8 15.2l-5.6 5.6M26.8 39.2l-5.6 5.6'/%3E%3Cpath d='M6 62c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 10-4 5 4 10 4'/%3E%3C/svg%3E") center / contain no-repeat;
 }
+
+/* Tanıtım sayfasına bağlantılar (yan menünün altı ve giriş ekranı) */
+.yan-alt { display: flex; flex-direction: column; gap: 8px; }
+.tanitim-baglanti { color: var(--gece-soluk); font-size: 12px; text-decoration: none; }
+.tanitim-baglanti:hover { color: var(--gece-yazi); text-decoration: underline; }
+.giris-tanitim { max-width: 420px; margin: 16px 0 0; text-align: center; font-size: 14px; }
+.giris-tanitim a { color: var(--su); }

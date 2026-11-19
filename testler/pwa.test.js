@@ -1,7 +1,7 @@
 // PWA ve tema testleri.  npm test
 //
 // Service worker'ı Node'da çalıştıramayız; ama en sık yapılan hatayı
-// yakalayabiliriz: index.html'e yeni bir dosya eklenip sw.js'teki önbellek
+// yakalayabiliriz: uygulama.html'e yeni bir dosya eklenip sw.js'teki önbellek
 // listesine eklenmezse uygulama çevrimdışıyken açılmaz. Bu testler dosya
 // listelerinin birbiriyle ve diskle tutarlı olduğunu denetler.
 const test = require("node:test");
@@ -14,7 +14,7 @@ const kok = path.join(__dirname, "..");
 const oku = (dosya) => fs.readFileSync(path.join(kok, dosya), "utf8");
 
 const sw = oku("sw.js");
-const html = oku("index.html");
+const html = oku("uygulama.html");
 const kabuk = [...sw.slice(sw.indexOf("const KABUK = ["), sw.indexOf("];")).matchAll(/"([^"]+)"/g)].map((e) => e[1]);
 
 test("sw.js: önbellek listesindeki her dosya diskte var", () => {
@@ -22,7 +22,7 @@ test("sw.js: önbellek listesindeki her dosya diskte var", () => {
   assert.deepEqual(eksikler, []);
 });
 
-test("sw.js: index.html'deki bütün betikler ve stil dosyası önbellek listesinde", () => {
+test("sw.js: uygulama.html'deki bütün betikler ve stil dosyası önbellek listesinde", () => {
   const betikler = [...html.matchAll(/<script src="([^"]+)"/g)].map((e) => e[1]);
   const stiller = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((e) => e[1]);
   assert.ok(betikler.length > 10, "betikler bulunamadı");
@@ -53,7 +53,7 @@ test("manifest: zorunlu alanlar ve ikon dosyaları yerinde", () => {
   }
 });
 
-test("index.html: manifest bağlı, tema betiği head içinde ve stil dosyasından sonra", () => {
+test("uygulama.html: manifest bağlı, tema betiği head içinde ve stil dosyasından sonra", () => {
   const head = html.slice(0, html.indexOf("</head>"));
   assert.ok(head.includes('rel="manifest"'));
   assert.ok(head.includes('src="js/tema.js"'), "tema.js head içinde olmalı (yoksa açılışta beyaz parlama olur)");

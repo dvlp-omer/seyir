@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { MotionConfig } from "framer-motion";
 import "./stil.css";
+import { uygulamayaYonlendir } from "./yonlendir.js";
 import { UstMenu, Hero, KayanBant, Bento } from "./ust-bolumler.jsx";
 import { NotDemosu, Vitrin, Sayilar, Adimlar, Guvenlik, Kapanis, AltBilgi } from "./alt-bolumler.jsx";
 
@@ -28,4 +29,7 @@ function Uygulama() {
   );
 }
 
-createRoot(document.getElementById("kok")).render(<StrictMode><Uygulama /></StrictMode>);
+// Uygulamayı arayan ziyaretçi (eski bağlantı, e-posta, ana ekran simgesi) önce oraya gider
+if (!uygulamayaYonlendir()) {
+  createRoot(document.getElementById("kok")).render(<StrictMode><Uygulama /></StrictMode>);
+}

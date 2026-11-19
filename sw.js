@@ -14,14 +14,13 @@
    ========================================================================== */
 
 // Dosya listesi değişince bu adı da değiştir; eski önbellek silinir.
-// (v6: js/kolaylik.js eklendi)
-const ONBELLEK = "seyir-v6";
+// (v7: uygulama /uygulama adresine taşındı, ana sayfa tanıtım oldu)
+const ONBELLEK = "seyir-v7";
 
 // Uygulamanın açılması için gereken dosyalar ("kabuk").
-// index.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).
+// uygulama.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).
 const KABUK = [
-  "./",
-  "index.html",
+  "uygulama.html",
   "manifest.webmanifest",
   "css/stil.css",
   "ikonlar/ikon.svg",
@@ -94,8 +93,8 @@ self.addEventListener("fetch", (olay) => {
         // Ağ yok: önbellekteki kopyayı ver. "?x=1" gibi ekler önemsenmez.
         const kayitli = await caches.match(istek, { ignoreSearch: true });
         if (kayitli) return kayitli;
-        // Sayfa isteğiyse (adres çubuğu) ana sayfayı ver; değilse hata dön.
-        if (istek.mode === "navigate") return caches.match("index.html");
+        // Sayfa isteğiyse (adres çubuğu) uygulamayı ver: internet yokken işe yarayan o.
+        if (istek.mode === "navigate") return caches.match("uygulama.html");
         return Response.error();
       })
   );

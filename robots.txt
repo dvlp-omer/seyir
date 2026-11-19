@@ -1,0 +1,6 @@
+# Arama motorları: tanıtım sayfası (/) dizinlensin. Uygulama (/uygulama) kendi
+# sayfasında "noindex" der; giriş ekranı arama sonuçlarında çıkmaz.
+User-agent: *
+Allow: /
+
+Sitemap: https://seyir-takim.vercel.app/sitemap.xml

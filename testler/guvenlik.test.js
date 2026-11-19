@@ -174,7 +174,26 @@ test("tanıtım sayfası: derlenmiş HTML'de satır içi betik yok, dışarıdan
   if (!fs.existsSync(dosya)) return t.skip("tanıtım sayfası henüz derlenmemiş (npm --prefix tanitim-kaynak run build)");
   const html = fs.readFileSync(dosya, "utf8");
   for (const [, nitelik] of html.matchAll(/<script\b([^>]*)>/g)) {
+    // Arama motorları için yapılandırılmış veri çalıştırılmaz; ona izin var
+    if (/type="application\/ld\+json"/.test(nitelik)) continue;
     assert.match(nitelik, /\bsrc="\/tanitim\//, "satır içi ya da dış betik: <script" + nitelik + ">");
   }
-  assert.doesNotMatch(html, /(src|href)="https?:\/\//, "dış adresten dosya yükleniyor");
+  // Dışarıdan yüklenen dosya yok (canonical / og:url gibi adres bilgileri yükleme değildir)
+  assert.doesNotMatch(html, /\bsrc="https?:\/\//, "dış adresten betik / görsel yükleniyor");
+  assert.doesNotMatch(html, /<link\b[^>]*rel="(stylesheet|icon|preload|modulepreload)"[^>]*href="https?:\/\//, "dış adresten stil / yazı tipi yükleniyor");
+});
+
+test("yayın: ana sayfa tanıtım, uygulama /uygulama; eski /tanitim yönlenir; uygulama dizinlenmez", () => {
+  const vercel = JSON.parse(fs.readFileSync(path.join(KOK, "vercel.json"), "utf8"));
+  assert.equal(vercel.cleanUrls, true, "uygulama.html, /uygulama adresinden sunulmalı");
+  assert.ok(vercel.rewrites.some((r) => r.source === "/" && r.destination === "/tanitim/index.html"));
+  for (const eski of ["/tanitim", "/tanitim/"]) {
+    assert.ok(vercel.redirects.some((r) => r.source === eski && r.destination === "/" && r.permanent), eski);
+  }
+  // Kökte index.html olmamalı; olursa Vercel yeniden yazmayı yok sayar ve tanıtım görünmez
+  assert.equal(fs.existsSync(path.join(KOK, "index.html")), false);
+  assert.match(fs.readFileSync(path.join(KOK, "uygulama.html"), "utf8"), /<meta name="robots" content="noindex">/);
+  const netlify = fs.readFileSync(path.join(KOK, "netlify.toml"), "utf8");
+  assert.match(netlify, /from = "\/"\s+to = "\/tanitim\/index.html"\s+status = 200/);
+  assert.match(fs.readFileSync(path.join(KOK, "robots.txt"), "utf8"), /Sitemap: https:\/\/seyir-takim\.vercel\.app\/sitemap\.xml/);
 });

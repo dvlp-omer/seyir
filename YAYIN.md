@@ -175,7 +175,7 @@ Kalıcı yayın: `vercel --prod`. Supabase değişkenleri için: `vercel env add
 
 `main` dalına her `git push` yeni bir yayın başlatır. Kullanıcılar bir sonraki
 açılışta yeni sürümü alır (service worker "önce ağ" çalışır; eski sürümde
-takılma olmaz). `index.html`'e yeni bir dosya eklediysen `sw.js` içindeki
+takılma olmaz). `uygulama.html`'e yeni bir dosya eklediysen `sw.js` içindeki
 `KABUK` listesine de ekle ve `ONBELLEK` adındaki sürüm numarasını artır;
 unutursan `npm test` uyarır.
 
@@ -195,3 +195,21 @@ Depodaki her dosya (belgeler, testler, `schema.sql`, `.env.example`) sitede de
 erişilebilir olur; hiçbiri gizli bilgi içermez. Gizli olması gereken tek şey
 `service_role` anahtarı ve veritabanı şifresidir; ikisi de bu projede hiçbir
 dosyada yer almaz.
+
+
+## Adresler (ana sayfa tanıtım, uygulama /uygulama)
+
+| Adres | Ne açılır |
+|---|---|
+| `/` | Tanıtım sayfası (`tanitim-kaynak/`, derlenince `tanitim/index.html`) |
+| `/uygulama` | Uygulama (`uygulama.html`; `cleanUrls` ile uzantısız sunulur) |
+| `/tanitim`, `/tanitim/` | Ana sayfaya kalıcı yönlendirme (eski adres) |
+
+Eski bağlantılar kırılmaz: ana sayfa, `/#gorevler` gibi eski ekran adreslerini,
+e-postadaki `#access_token=…` bağlantılarını, `?ornek=1`'i ve ana ekrana
+eklenmiş eski uygulama simgesini `/uygulama`'ya iletir
+(`tanitim-kaynak/src/yonlendir.js`, testi `testler/yonlendir.test.js`).
+
+İsteğe bağlı: Supabase'te **Authentication → URL Configuration → Site URL**
+`https://seyir-takim.vercel.app/uygulama` yapılırsa e-posta bağlantıları
+doğrudan uygulamaya gelir (yapılmasa da yönlendirme sayesinde çalışır).

@@ -100,7 +100,9 @@ function girisEkraniCiz(kok) {
     "</div>" +
     // Kayıt herkese açık değil (schema.sql > bölüm 5). Kullanıcı neden hesap açamadığını bilsin.
     '<p class="soluk kucuk-yazi" style="margin-top:14px">Hesap açmak <b>davetlidir</b>: e-postanı önce takım yöneticisi ' +
-    "davet listesine eklemelidir. Uygulamayı kuran ilk kişinin hesabı yönetici olur.</p></form>";
+    "davet listesine eklemelidir. Uygulamayı kuran ilk kişinin hesabı yönetici olur.</p></form>" +
+    // Uygulamayı ilk kez gören (ör. CV'deki bağlantıyla gelen) biri ne olduğunu öğrenebilsin
+    '<p class="giris-tanitim"><a href="/">Seyir nedir? Tanıtım sayfasına git →</a></p>';
 
   const form = sec("#giris-formu");
   const mesaj = form.querySelector(".form-hata");
