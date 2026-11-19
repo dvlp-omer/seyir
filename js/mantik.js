@@ -123,6 +123,30 @@ function gorevSayilari(gorevler, bugunTarihi) {
   return sayilar;
 }
 
+// Özet ekranı: bugün ve sonrasındaki ilk birkaç toplantı / etkinlik, tarihe göre.
+//   [{ tur: "toplanti" | "etkinlik", id, baslik, tarih, saat, yer }]
+function siradakiBulusmalar(toplantilar, etkinlikler, bugunTarihi, adet = 3) {
+  const liste = [
+    ...toplantilar.map((t) => ({ tur: "toplanti", id: t.id, baslik: t.baslik, tarih: t.tarih, saat: t.saat || "", yer: t.yer || "" })),
+    ...etkinlikler.map((e) => ({ tur: "etkinlik", id: e.id, baslik: e.ad, tarih: e.tarih, saat: "", yer: e.yer || "" })),
+  ].filter((b) => b.tarih && b.tarih >= bugunTarihi);
+  // Aynı günde saati olan önce, saatler kendi aralarında sıralı
+  liste.sort((a, b) => a.tarih.localeCompare(b.tarih) || (a.saat || "99").localeCompare(b.saat || "99"));
+  return liste.slice(0, adet);
+}
+
+// Özet ekranı: kimde kaç açık (bitmemiş) görev var; çoktan aza. Görevi olmayan
+// üyeler de listede (0) — iş dağılımındaki dengesizlik görünsün.
+//   [{ uye_id, ad, acik, geciken }]
+function uyeYukleri(uyeler, gorevler, bugunTarihi) {
+  return uyeler
+    .map((u) => {
+      const acik = gorevler.filter((g) => g.sorumlu_id === u.id && g.durum !== "bitti");
+      return { uye_id: u.id, ad: u.ad, acik: acik.length, geciken: acik.filter((g) => gorevGecikti(g, bugunTarihi)).length };
+    })
+    .sort((a, b) => b.acik - a.acik || a.ad.localeCompare(b.ad, "tr"));
+}
+
 /* ---------- Toplantı tutanağı ---------- */
 
 // Çok satırlı metni maddelere ayırır. Formda gündem ve kararlar
@@ -319,7 +343,7 @@ if (typeof module !== "undefined") {
   module.exports = {
     AYLAR, GUNLER,
     htmlKacis, tarihMetni, bugun, kalanGun, kalanGunMetni, aciliyet, tarihYaz, gunEkle,
-    tariheGoreSirala, GOREV_DURUMLARI, gorevGecikti, gorevSayilari,
+    tariheGoreSirala, GOREV_DURUMLARI, gorevGecikti, gorevSayilari, siradakiBulusmalar, uyeYukleri,
     satirlaraAyir, kararlariBirlestir,
     duyuruToplantiDaveti, duyuruToplantiOzeti, duyuruHatirlatma,
     EN_ERKEN_TARIH, EN_GEC_TARIH, tarihGecerli, araliktaMi,

@@ -150,3 +150,36 @@ test("faaliyetOzeti: katılımcı sayısı eksik ya da metin olsa da toplam bozu
     [{ ad: "A", tarih: "2026-11-01" }, { ad: "B", tarih: "2026-11-02", katilimci_sayisi: "12" }], [], "", "");
   assert.equal(ozet.toplam_katilimci, 12);
 });
+
+/* ---------- Özet: sıradaki buluşmalar ve üye yükleri ---------- */
+
+test("siradakiBulusmalar: bugün ve sonrası, tarihe sonra saate göre, en çok 'adet' kadar", () => {
+  const toplantilar = [
+    { id: "t1", baslik: "Eski", tarih: "2026-11-01", saat: "17:00" },
+    { id: "t2", baslik: "Akşam", tarih: "2026-11-20", saat: "18:00", yer: "Atölye" },
+    { id: "t3", baslik: "Öğle", tarih: "2026-11-20", saat: "12:30" },
+    { id: "t4", baslik: "Uzak", tarih: "2026-12-20", saat: "" },
+  ];
+  const etkinlikler = [{ id: "e1", ad: "Tanıtım", tarih: "2026-11-19", yer: "Kampüs" }];
+  const s = m.siradakiBulusmalar(toplantilar, etkinlikler, "2026-11-19");
+  assert.deepEqual(s.map((b) => b.id), ["e1", "t3", "t2"]);
+  assert.deepEqual(s[0], { tur: "etkinlik", id: "e1", baslik: "Tanıtım", tarih: "2026-11-19", saat: "", yer: "Kampüs" });
+  assert.equal(m.siradakiBulusmalar(toplantilar, etkinlikler, "2026-11-19", 10).length, 4);
+  assert.deepEqual(m.siradakiBulusmalar([], [], "2026-11-19"), []);
+});
+
+test("uyeYukleri: üye başına açık ve geciken görev; çoktan aza, görevi olmayan da listede", () => {
+  const uyeler = [{ id: "u1", ad: "Çağla" }, { id: "u2", ad: "Ali" }, { id: "u3", ad: "Banu" }];
+  const gorevler = [
+    { sorumlu_id: "u1", durum: "yapilacak", bitis_tarihi: "2026-11-01" },
+    { sorumlu_id: "u1", durum: "yapiliyor", bitis_tarihi: "" },
+    { sorumlu_id: "u1", durum: "bitti", bitis_tarihi: "2026-11-01" },
+    { sorumlu_id: "u3", durum: "yapilacak", bitis_tarihi: "2026-12-01" },
+    { sorumlu_id: "", durum: "yapilacak" },
+  ];
+  assert.deepEqual(m.uyeYukleri(uyeler, gorevler, "2026-11-19"), [
+    { uye_id: "u1", ad: "Çağla", acik: 2, geciken: 1 },
+    { uye_id: "u3", ad: "Banu", acik: 1, geciken: 0 },
+    { uye_id: "u2", ad: "Ali", acik: 0, geciken: 0 },
+  ]);
+});

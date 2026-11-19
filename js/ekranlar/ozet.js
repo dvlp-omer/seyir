@@ -10,8 +10,9 @@
 const OZET_GUN_SAYISI = 7;
 
 async function ozetEkraniCiz(kok) {
-  const [gorevler, sonTarihler, uyeler] = await Promise.all([
+  const [gorevler, sonTarihler, uyeler, toplantilar, etkinlikler] = await Promise.all([
     takimKayitlari("gorevler"), takimKayitlari("son_tarihler"), takimKayitlari("uyeler"),
+    takimKayitlari("toplantilar"), takimKayitlari("etkinlikler"),
   ]);
   const bugunTarihi = bugun();
 
@@ -46,9 +47,39 @@ async function ozetEkraniCiz(kok) {
     '<div class="sayi-kutu"><b>' + sayilar.yapiliyor + "</b><span>Yapılıyor</span></div>" +
     '<div class="sayi-kutu"><b>' + sayilar.bitti + "</b><span>Bitti</span></div>" +
     '<div class="sayi-kutu ' + (sayilar.geciken ? "uyari" : "") + '"><b>' + sayilar.geciken + "</b><span>Geciken</span></div>" +
-    "</div>" +
+    "</div>" + ilerlemeHtml(sayilar) +
     '<button class="baglanti-dugme" data-eylem="git" data-id="gorevler">Görev panosunu aç</button>' +
     "</section>";
+
+  /* 2b) Sıradaki toplantı ve etkinlikler */
+  const bulusmalar = siradakiBulusmalar(toplantilar, etkinlikler, bugunTarihi);
+  const bulusmaKarti =
+    '<section class="kart"><h3>Sıradaki buluşmalar</h3>' +
+    (bulusmalar.length
+      ? '<ul class="bulusma-liste">' + bulusmalar.map((b, sira) =>
+          '<li><button type="button" class="bulusma" data-eylem="bulusma" data-id="' + sira + '">' +
+          gunKutusuHtml(b.tarih) +
+          '<span class="ne">' + htmlKacis(b.baslik) +
+          "<small>" + htmlKacis([b.tur === "toplanti" ? "Toplantı" : "Etkinlik", b.saat, b.yer].filter(Boolean).join(" · ")) + "</small></span>" +
+          kalanRozet(b.tarih) + "</button></li>").join("") + "</ul>"
+      : '<p class="soluk">Yaklaşan toplantı ya da etkinlik yok.</p>' +
+        '<button class="baglanti-dugme" data-eylem="git" data-id="toplantilar">Toplantı ekle</button>') +
+    "</section>";
+
+  /* 2c) Kimde ne var: üye başına açık görev (iş dağılımı bir bakışta) */
+  const yukler = uyeYukleri(uyeler, gorevler, bugunTarihi);
+  const enCok = Math.max(1, ...yukler.map((y) => y.acik));
+  const yukKarti = yukler.length
+    ? '<section class="kart"><h3>Kimde ne var</h3><ul class="yuk-liste">' + yukler.map((y) =>
+        '<li><button type="button" class="yuk" data-eylem="kisinin-gorevleri" data-id="' + htmlKacis(y.uye_id) + '" aria-label="' +
+        htmlKacis(y.ad + ": " + y.acik + " açık görev" + (y.geciken ? ", " + y.geciken + " gecikmiş" : "") + ". Görevlerini göster") + '">' +
+        '<span class="avatar r' + (renkSirasi(y.uye_id) + 1) + '" aria-hidden="true">' + htmlKacis(basHarfler(y.ad)) + "</span>" +
+        '<span class="yuk-ad">' + htmlKacis(y.ad) + "</span>" +
+        '<span class="yuk-cubuk" aria-hidden="true"><span style="width:' + Math.round((y.acik / enCok) * 100) + '%"></span></span>' +
+        '<span class="yuk-sayi">' + y.acik + (y.geciken ? ' <span class="rozet gecikti">' + y.geciken + " gecikmiş</span>" : "") + "</span>" +
+        "</button></li>").join("") + "</ul>" +
+      '<p class="soluk kucuk-yazi">Açık (bitmemiş) görev sayısı. Birine basınca yalnızca onun görevleri gösterilir.</p></section>'
+    : "";
 
   /* 3) Önümüzdeki günler: açık görevler + açık son tarihler tek listede */
   const sinir = gunEkle(bugunTarihi, OZET_GUN_SAYISI);
@@ -78,9 +109,34 @@ async function ozetEkraniCiz(kok) {
       '<button class="dugme kucuk" data-eylem="git" data-id="tarihler">Son tarih ekle</button></div>'
     : "";
 
-  kok.innerHTML = '<div class="ozet-izgara">' + baslarken + oneCikan + gorevKarti + akisKarti + "</div>";
+  kok.innerHTML = '<div class="ozet-izgara">' + baslarken + oneCikan +
+    '<div class="ozet-sutun">' + gorevKarti + yukKarti + "</div>" +
+    '<div class="ozet-sutun">' + akisKarti + bulusmaKarti + "</div></div>";
 
-  eylemleriBagla(kok, { git: (ekranAdi) => ekranaGit(ekranAdi) });
+  eylemleriBagla(kok, {
+    git: (ekranAdi) => ekranaGit(ekranAdi),
+    bulusma: (sira) => {
+      const b = bulusmalar[Number(sira)];
+      if (!b) return;
+      if (b.tur === "toplanti") acikToplantiId = b.id; // doğrudan o toplantıyı aç
+      ekranaGit(b.tur === "toplanti" ? "toplantilar" : "etkinlikler");
+    },
+    "kisinin-gorevleri": (uyeId) => {
+      gorevSorumluFiltresi = uyeId; // görev panosu bu kişiye göre süzülü açılır
+      ekranaGit("gorevler");
+    },
+  });
+}
+
+// "7 / 12 görev bitti · %58" ve ilerleme çubuğu
+function ilerlemeHtml(sayilar) {
+  const toplam = sayilar.yapilacak + sayilar.yapiliyor + sayilar.bitti;
+  if (!toplam) return "";
+  const yuzde = Math.round((sayilar.bitti / toplam) * 100);
+  return '<div class="ilerleme">' +
+    '<div class="ilerleme-yazi"><span>İlerleme</span><b>' + sayilar.bitti + " / " + toplam + " görev bitti · %" + yuzde + "</b></div>" +
+    '<div class="ilerleme-cubuk" role="progressbar" aria-label="Biten görev oranı" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + yuzde + '">' +
+    '<span style="width:' + yuzde + '%"></span></div></div>';
 }
 
 ekranKaydet("ozet", {

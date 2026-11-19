@@ -765,3 +765,28 @@ dialog::backdrop { background: var(--perde); }
   .gorev-alt .gorev-dugmeler .dugme { min-height: 40px; min-width: 40px; }
 }
 .menu .daha-fazla svg { stroke-width: 3.4; }
+
+/* Özet: iki sütun, ilerleme, sıradaki buluşmalar, kimde ne var (js/ekranlar/ozet.js) */
+.ozet-sutun { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.ilerleme { margin: 14px 0 4px; }
+.ilerleme-yazi { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--soluk); margin-bottom: 6px; }
+.ilerleme-yazi b { color: var(--yazi); font-weight: 600; }
+.ilerleme-cubuk { height: 10px; border-radius: 999px; background: var(--sutun); overflow: hidden; }
+.ilerleme-cubuk span { display: block; height: 100%; border-radius: inherit; background: var(--su); transition: width .3s; }
+.bulusma-liste, .yuk-liste { list-style: none; margin: 0; padding: 0; }
+.bulusma-liste li + li, .yuk-liste li + li { border-top: 1px solid var(--cizgi); }
+.bulusma, .yuk {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 4px;
+  border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: 8px;
+}
+.bulusma:hover, .yuk:hover { background: var(--sutun); }
+.bulusma .ne { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.bulusma .ne small { display: block; font-weight: 400; font-size: 13px; color: var(--soluk); }
+.bulusma .gun-kutu { width: 48px; }
+.bulusma .gun-kutu b { font-size: 20px; }
+.yuk-ad { flex: 0 1 140px; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yuk-cubuk { flex: 1; height: 8px; border-radius: 999px; background: var(--sutun); overflow: hidden; }
+.yuk-cubuk span { display: block; height: 100%; border-radius: inherit; background: var(--su); }
+.yuk-sayi { flex: 0 0 118px; display: flex; align-items: center; gap: 6px; font-family: var(--sayi-tipi); font-weight: 700; }
+.yuk-sayi .rozet { font-family: var(--yazi-tipi); font-weight: 600; white-space: nowrap; }
+@media (max-width: 480px) { .yuk-ad { flex-basis: 96px; } .yuk-sayi { flex-basis: 96px; } }
