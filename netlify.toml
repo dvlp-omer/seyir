@@ -49,13 +49,9 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Adresler: / = tanıtım sayfası, /uygulama = uygulama (uygulama.html; Netlify
-# ".html" olmadan da sunar). Eski /tanitim adresi ana sayfaya yönlenir.
-[[redirects]]
-  from = "/"
-  to = "/tanitim/index.html"
-  status = 200
-
+# Adresler: / = tanıtım sayfası (derlemede köke kopyalanan index.html),
+# /uygulama = uygulama (uygulama.html; Netlify ".html" olmadan da sunar).
+# Eski /tanitim adresi ana sayfaya yönlenir.
 [[redirects]]
   from = "/tanitim/*"
   to = "/"

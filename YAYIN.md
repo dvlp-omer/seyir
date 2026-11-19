@@ -201,7 +201,7 @@ dosyada yer almaz.
 
 | Adres | Ne açılır |
 |---|---|
-| `/` | Tanıtım sayfası (`tanitim-kaynak/`, derlenince `tanitim/index.html`) |
+| `/` | Tanıtım sayfası (`tanitim-kaynak/`; derleme `tanitim/` klasörüne yazar ve `index.html`'i köke kopyalar) |
 | `/uygulama` | Uygulama (`uygulama.html`; `cleanUrls` ile uzantısız sunulur) |
 | `/tanitim`, `/tanitim/` | Ana sayfaya kalıcı yönlendirme (eski adres) |
 

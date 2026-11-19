@@ -22,12 +22,6 @@
       "permanent": true
     }
   ],
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/tanitim/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",

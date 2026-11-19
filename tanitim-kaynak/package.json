@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node -e \"require('fs').copyFileSync('../tanitim/index.html','../index.html')\"",
     "denetle": "npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {

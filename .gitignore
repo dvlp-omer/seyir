@@ -20,3 +20,5 @@ ozel/
 
 # Tanıtım sayfasının derleme çıktısı (kaynağı tanitim-kaynak/; yayında derlenir)
 tanitim/
+# ...ve kökteki kopyası (ana sayfa = tanıtım); kaynağı tanitim-kaynak/index.html
+/index.html
