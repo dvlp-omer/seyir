@@ -7,6 +7,7 @@ import { uygulamayaYonlendir } from "./yonlendir.js";
 import { UstMenu, Hero, KayanBant, Bento } from "./ust-bolumler.jsx";
 import { NotDemosu, Vitrin, Sayilar, Adimlar, Guvenlik, Kapanis, AltBilgi } from "./alt-bolumler.jsx";
 import { Sss } from "./sss.jsx";
+import { Hikaye } from "./hikaye.jsx";
 
 function Uygulama() {
   return (
@@ -21,6 +22,7 @@ function Uygulama() {
         <NotDemosu />
         <Vitrin />
         <Sayilar />
+        <Hikaye />
         <Adimlar />
         <Guvenlik />
         <Sss />

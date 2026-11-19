@@ -30,6 +30,7 @@ export function UstMenu() {
           <a className="transition hover:text-white" href="#ozellikler">Özellikler</a>
           <a className="transition hover:text-white" href="#demo">Nasıl çalışır</a>
           <a className="transition hover:text-white" href="#vitrin">Ekranlar</a>
+          <a className="transition hover:text-white" href="#hikaye">Hikâye</a>
           <a className="transition hover:text-white" href="#guvenlik">Güvenlik</a>
           <a className="transition hover:text-white" href="#sss">SSS</a>
         </div>
