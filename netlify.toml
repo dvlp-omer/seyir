@@ -2,13 +2,14 @@
 # Önerilen site adı: "seyir" (adres: seyir.netlify.app, boşsa). Site adı bu
 # dosyada değil, Netlify panelinde (Site configuration > Site name) seçilir.
 #
-# Bu projede derleme (build) yok; site, depodaki dosyaların kendisidir.
-# Tek "derleme" adımı, Netlify panelindeki ortam değişkenlerini tarayıcının
+# Uygulamanın derlemesi yok; site, depodaki dosyaların kendisidir. Yalnızca
+# tanıtım sayfası (/tanitim, React + Vite) derlenir. Diğer adım, Netlify panelindeki ortam değişkenlerini tarayıcının
 # okuyabileceği js/ayarlar.js dosyasına yazmaktır (araclar/env-aktar.js).
 # Hiç değişken tanımlamazsan VERI_KATMANI=yerel olur; site localStorage ile çalışır.
 
 [build]
-  command = "node araclar/env-aktar.js"
+  # Tanıtım sayfası (tanitim-kaynak/) derlenip tanitim/ klasörüne yazılır
+  command = "node araclar/env-aktar.js && npm --prefix tanitim-kaynak ci && npm --prefix tanitim-kaynak run build"
   publish = "."
 
 # Güvenlik başlıkları (bütün sayfalar için)
@@ -21,17 +22,34 @@
     X-Frame-Options = "DENY"
     # Başka siteye gidilirken adres bilgisi gönderilmesin
     Referrer-Policy = "no-referrer"
-    # Uygulama kamera, mikrofon, konum kullanmaz
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # Uygulama kamera, mikrofon, konum, ödeme vb. kullanmaz
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), browsing-topics=()"
+    # Tarayıcı bu siteye 2 yıl boyunca yalnızca HTTPS ile bağlansın
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
+    # Başka bir sitenin açtığı pencereyle bağlantı kurulmasın; dosyalarımız başka sitelerce gömülemesin
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
     # İçerik Güvenlik Politikası (CSP): sayfa yalnızca KENDİ dosyalarını
     # çalıştırabilir ve yalnızca kendi adresiyle + Supabase ile konuşabilir.
     # Bir XSS açığı olsa bile dışarıdan betik yüklenemez, veri başka adrese
-    # gönderilemez. (style-src 'unsafe-inline': birkaç satır içi style="" için.)
+    # gönderilemez. (style-src 'unsafe-inline': satır içi style="" ve tanıtım
+    # sayfasının animasyonları için; betik değil, yalnızca görünüm.)
     # Site açılmıyorsa F12 > Console'da "Content Security Policy" hatasına bak.
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
 
 # Service worker her zaman güncel gelsin (eski sürümde takılıp kalmasın)
 [[headers]]
   for = "/sw.js"
   [headers.values]
     Cache-Control = "no-cache"
+
+# Derlenen tanıtım dosyalarının adı içeriğe göre değişir: uzun süre önbellekte kalabilir
+[[headers]]
+  for = "/tanitim/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[redirects]]
+  from = "/tanitim"
+  to = "/tanitim/index.html"
+  status = 200

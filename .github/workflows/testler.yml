@@ -1,5 +1,7 @@
 # Her gönderimde (push) ve her pull request'te testleri GitHub'ın sunucusunda çalıştırır.
-# Projenin bağımlılığı yok: "npm install" gerekmez, yalnızca Node yeterli.
+# Uygulamanın bağımlılığı yok: testler için yalnızca Node yeterli.
+# Ayrıca tanıtım sayfası (tanitim-kaynak/) derlenir ve bağımlılıkları güvenlik
+# açığına karşı taranır (npm audit); yüksek düzeyde açık varsa iş kırmızı olur.
 # Sonuç GitHub'da "Actions" sekmesinde ve README'deki rozette görünür.
 name: Testler
 
@@ -27,3 +29,26 @@ jobs:
         run: npm test
         env:
           TZ: Europe/Istanbul
+
+  tanitim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: tanitim-kaynak
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tanitim-kaynak/package-lock.json
+      - name: Bağımlılıkları kur (kilit dosyasıyla birebir)
+        run: npm ci
+      - name: Güvenlik açığı taraması
+        run: npm audit --audit-level=high
+      - name: Derle
+        run: npm run build
+      - name: Derlenen sayfanın güvenlik testi
+        working-directory: .
+        run: node --test testler/guvenlik.test.js

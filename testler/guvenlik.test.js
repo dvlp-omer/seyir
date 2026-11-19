@@ -79,7 +79,7 @@ test("şema: takıma bağlı her tablonun kuralı 'yalnızca kendi takımım' (u
 
 // Depodaki metin dosyaları (referans/, .git, çıktılar ve resimler hariç)
 function metinDosyalari(klasor = KOK) {
-  const atla = new Set([".git", "node_modules", "referans", "cikti", ".claude"]);
+  const atla = new Set([".git", "node_modules", "referans", "cikti", ".claude", "tanitim"]); // tanitim: derleme çıktısı
   const sonuc = [];
   for (const oge of fs.readdirSync(klasor, { withFileTypes: true })) {
     if (atla.has(oge.name)) continue;
@@ -148,5 +148,33 @@ test("yayın: Netlify ve Vercel aynı güvenlik başlıklarını gönderir", () 
     assert.ok(netlify.includes(key + ' = "' + value + '"'), key + " iki dosyada farklı");
   }
   assert.ok(tumSayfalar.some((h) => h.key === "Content-Security-Policy" && h.value.includes("script-src 'self'")));
-  assert.equal(vercel.buildCommand, "node araclar/env-aktar.js");
+  assert.ok(vercel.buildCommand.startsWith("node araclar/env-aktar.js"));
+  assert.ok(netlify.includes('command = "' + vercel.buildCommand + '"'), "iki yayın aynı derleme komutunu çalıştırmalı");
+});
+
+test("yayın: sıkı güvenlik başlıkları (HSTS, yalıtım, CSP'de satır içi / eval betik yok)", () => {
+  const vercel = JSON.parse(fs.readFileSync(path.join(KOK, "vercel.json"), "utf8"));
+  const baslik = Object.fromEntries(vercel.headers.find((h) => h.source === "/(.*)").headers.map((h) => [h.key, h.value]));
+  assert.match(baslik["Strict-Transport-Security"], /max-age=(\d+)/);
+  assert.ok(Number(/max-age=(\d+)/.exec(baslik["Strict-Transport-Security"])[1]) >= 31536000, "HSTS en az bir yıl olmalı");
+  assert.equal(baslik["Cross-Origin-Opener-Policy"], "same-origin");
+  assert.equal(baslik["Cross-Origin-Resource-Policy"], "same-origin");
+  assert.equal(baslik["X-Frame-Options"], "DENY");
+  const csp = baslik["Content-Security-Policy"];
+  const betik = /script-src ([^;]+)/.exec(csp)[1].trim();
+  assert.equal(betik, "'self'", "betikler yalnızca kendi dosyalarımızdan: " + betik);
+  assert.doesNotMatch(csp, /unsafe-eval|\*;|https?:\/\/\*[^.]/);
+  assert.match(csp, /frame-ancestors 'none'/);
+  assert.match(csp, /object-src 'none'/);
+  assert.match(csp, /upgrade-insecure-requests/);
+});
+
+test("tanıtım sayfası: derlenmiş HTML'de satır içi betik yok, dışarıdan dosya çekilmiyor (derlendiyse)", (t) => {
+  const dosya = path.join(KOK, "tanitim/index.html");
+  if (!fs.existsSync(dosya)) return t.skip("tanıtım sayfası henüz derlenmemiş (npm --prefix tanitim-kaynak run build)");
+  const html = fs.readFileSync(dosya, "utf8");
+  for (const [, nitelik] of html.matchAll(/<script\b([^>]*)>/g)) {
+    assert.match(nitelik, /\bsrc="\/tanitim\//, "satır içi ya da dış betik: <script" + nitelik + ">");
+  }
+  assert.doesNotMatch(html, /(src|href)="https?:\/\//, "dış adresten dosya yükleniyor");
 });

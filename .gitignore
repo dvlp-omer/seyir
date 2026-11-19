@@ -17,3 +17,6 @@ testler/cikti/
 # Kişisel çalışma notları (mülakat hazırlığı, CV metni, ilerleme günlüğü,
 # yapılacaklar). Yalnızca bu bilgisayarda durur; depoya girmez.
 ozel/
+
+# Tanıtım sayfasının derleme çıktısı (kaynağı tanitim-kaynak/; yayında derlenir)
+tanitim/

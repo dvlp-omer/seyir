@@ -1,0 +1,101 @@
+/* Seyir tanıtım sayfası — temel stiller (Tailwind + birkaç özel parça) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Geist (SIL Open Font License) — projeyle birlikte sunulur, dışarıdan çekilmez */
+@font-face {
+  font-family: "Geist";
+  src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; color-scheme: dark; }
+  html, body { overflow-x: clip; } /* hiçbir süs öğesi sayfayı yana kaydırmasın */
+  body { font-feature-settings: "ss01", "cv11"; }
+  h1, h2, h3 { text-wrap: balance; }
+  ::selection { background: rgba(95, 211, 224, .35); }
+  :focus-visible { outline: 2px solid #5fd3e0; outline-offset: 3px; border-radius: 8px; }
+}
+
+@layer components {
+  /* İnce ızgara çizgileri; kenarlara doğru kaybolur */
+  .izgara-zemin {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 40%, transparent 100%);
+  }
+
+  /* Gradyan başlık metni */
+  .parlak-metin {
+    background: linear-gradient(180deg, #ffffff 0%, #e4f7fa 55%, #a7bcc6 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .su-metin {
+    background: linear-gradient(90deg, #8be3ee, #5fd3e0 40%, #ff8a52);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* Cam kart + fareyi izleyen ışık. --x / --y, Isik bileşeni tarafından yazılır. */
+  .cam {
+    position: relative; isolation: isolate; overflow: hidden;
+    border-radius: 1.5rem;
+    background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+    border: 1px solid rgba(255,255,255,.09);
+    backdrop-filter: blur(20px);
+    transition: border-color .3s, transform .3s;
+  }
+  .cam::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .35s;
+    background: radial-gradient(420px circle at var(--x, 50%) var(--y, 50%), rgba(95,211,224,.16), transparent 60%);
+  }
+  .cam::after {
+    /* kenar parlaması: yalnızca fareye yakın kenar aydınlanır */
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .35s;
+    background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(139,227,238,.7), transparent 55%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .cam:hover { border-color: rgba(255,255,255,.14); }
+  .cam:hover::before, .cam:hover::after { opacity: 1; }
+
+  /* Parlayan ana düğme */
+  .parlak-dugme {
+    position: relative; display: inline-flex; align-items: center; gap: .5rem;
+    padding: .85rem 1.4rem; border-radius: 999px; font-weight: 600; color: #04121a;
+    background: linear-gradient(180deg, #a6eef6, #5fd3e0);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.25) inset, 0 10px 40px -8px rgba(95,211,224,.7), 0 0 80px -20px rgba(95,211,224,.9);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
+  }
+  .parlak-dugme:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 0 1px rgba(255,255,255,.35) inset, 0 16px 50px -8px rgba(95,211,224,.85), 0 0 110px -16px rgba(95,211,224,1); }
+  .ikincil-dugme {
+    display: inline-flex; align-items: center; gap: .5rem; padding: .85rem 1.3rem; border-radius: 999px;
+    font-weight: 500; color: #e6f3f6; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12);
+    transition: background .25s, border-color .25s;
+  }
+  .ikincil-dugme:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); }
+
+  /* Parıltı geçen rozet */
+  .parilti {
+    background: linear-gradient(110deg, rgba(255,255,255,.04) 30%, rgba(255,255,255,.18) 50%, rgba(255,255,255,.04) 70%);
+    background-size: 200% 100%;
+  }
+
+  .kbd { font-family: theme("fontFamily.mono"); font-size: 11px; padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: #b8c7cd; }
+}
+
+/* Hareket azaltma tercihi: sürekli dönen animasyonlar durur */
+@media (prefers-reduced-motion: reduce) {
+  .animate-aurora, .animate-aurora-yavas, .animate-kayan, .animate-parilti, .animate-imlec { animation: none !important; }
+  html { scroll-behavior: auto; }
+}

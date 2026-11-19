@@ -1,0 +1,17 @@
+# Bağımlılık güncellemeleri: GitHub her hafta denetler; güvenlik açığı ya da yeni
+# sürüm varsa otomatik pull request açar. Uygulamanın kendisinin bağımlılığı yok;
+# yalnızca tanıtım sayfası (tanitim-kaynak/) ve GitHub Actions adımları izlenir.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /tanitim-kaynak
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      tanitim:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
