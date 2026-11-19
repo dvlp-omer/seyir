@@ -50,6 +50,9 @@ const YAZI_CIFTLERI = [
   ["yaklasiyor-y", "yaklasiyor-z", 4.5], ["rahat-y", "rahat-z", 4.5],
   ["gecikti-y", "kagit", 4.5], ["rahat-y", "sutun", 4.5],
   ["yazi", "balon", 4.5],
+  // Görev kartındaki baş harf yuvarlakları: beyaz yazı
+  ["vurgu-yazi", "avatar-1", 4.5], ["vurgu-yazi", "avatar-2", 4.5], ["vurgu-yazi", "avatar-3", 4.5],
+  ["vurgu-yazi", "avatar-4", 4.5], ["vurgu-yazi", "avatar-5", 4.5], ["vurgu-yazi", "avatar-6", 4.5],
   // Yan menü ve öne çıkan kutu (iki temada aynı)
   ["gece-yazi", "gece-1", 4.5], ["gece-yazi", "gece-3", 4.5],
   ["gece-soluk", "gece-1", 4.5], ["gece-soluk", "gece-2", 4.5], ["gece-vurgu", "gece-2", 4.5],

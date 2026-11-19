@@ -269,6 +269,21 @@ function aramaYap(dizin, sorgu, sinir = 30) {
     .map(({ oge }) => oge);
 }
 
+/* ---------- 6) Baş harf yuvarlağı (görev kartındaki sorumlu) ----------
+   "Ece Nur Demir" -> "ED" (ilk ve son ad), "şükrü ışık" -> "ŞI", "Can" -> "C".
+   Renk, kişinin kimliğinden hesaplanır: aynı kişi her yerde aynı renkte. */
+function basHarfler(ad) {
+  const parcalar = String(ad || "").trim().split(/\s+/).filter(Boolean);
+  if (!parcalar.length) return "?";
+  const ilk = parcalar[0].charAt(0);
+  const son = parcalar.length > 1 ? parcalar[parcalar.length - 1].charAt(0) : "";
+  return (ilk + son).toLocaleUpperCase("tr");
+}
+
+function renkSirasi(metin, adet = 6) {
+  return parseInt(kisaOzet(String(metin || "")), 36) % adet;
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     sadelestir,
@@ -277,5 +292,6 @@ if (typeof module !== "undefined") {
     icsOlustur, takvimOlaylari, saatCoz,
     KISAYOLLAR, kisayolBul,
     aramaDizini, aramaYap,
+    basHarfler, renkSirasi,
   };
 }

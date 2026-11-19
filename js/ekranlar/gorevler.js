@@ -33,6 +33,13 @@ function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null }
       { ad: "durum", etiket: "Durum", tur: "secim", secenekler: GOREV_DURUMLARI },
     ],
     degerler: gorev || { durum: "yapilacak", ...varsayilan },
+    // Düzenlemede "Sil" düğmesi formun içinde (kartta değil)
+    sil: gorev ? async () => {
+      if (!confirm('"' + gorev.baslik + '" görevi silinsin mi?')) return false;
+      await durum.depo.sil("gorevler", gorev.id);
+      bildir("Görev silindi");
+      return true;
+    } : null,
     kaydet: async (degerler) => {
       let kayit;
       if (gorev) {
@@ -115,15 +122,6 @@ function panoSurukleBirakBagla(pano) {
   };
 }
 
-async function gorevSil(id) {
-  const gorev = await durum.depo.oku("gorevler", id);
-  if (!gorev) return yenile();
-  if (!confirm('"' + gorev.baslik + '" görevi silinsin mi?')) return;
-  await durum.depo.sil("gorevler", id);
-  bildir("Görev silindi");
-  await yenile();
-}
-
 /* ---------- Çizim ---------- */
 
 function gorevKartiHtml(gorev, uyeler) {
@@ -153,17 +151,19 @@ function gorevKartiHtml(gorev, uyeler) {
       ' aria-label="' + htmlKacis(etiket) + '" title="' + htmlKacis(hedef ? hedef.etiket + " sütununa taşı" : "") + '">' + simge + "</button>";
   };
 
-  return '<article class="gorev-kart ' + vurgu + '" draggable="true" data-id="' + id + '" title="Başka bir sütuna sürükleyebilirsin">' +
-    "<h4>" + baslik + "</h4>" +
+  // Sorumlu: baş harfli renkli yuvarlak + ad (renk kişinin kimliğinden; js/kolaylik.js)
+  const kisi = sorumlu
+    ? '<span class="kisi"><span class="avatar r' + (renkSirasi(gorev.sorumlu_id) + 1) + '" aria-hidden="true">' +
+      htmlKacis(basHarfler(sorumlu)) + "</span>" + htmlKacis(sorumlu) + "</span>"
+    : '<span class="soluk">Sorumlu yok</span>';
+
+  // Kartın tamamı düzenlemeyi açar (fare); klavye ve ekran okuyucu için başlık bir düğmedir.
+  // Silme, düzenleme penceresinin içindedir.
+  return '<article class="gorev-kart ' + vurgu + '" draggable="true" data-eylem="duzenle" data-id="' + id + '">' +
+    '<h4><button type="button" class="kart-baslik" data-eylem="duzenle" data-id="' + id + '" aria-label="Düzenle: ' + baslik + '">' + baslik + "</button></h4>" +
     (gorev.aciklama ? '<p class="aciklama">' + htmlKacis(gorev.aciklama) + "</p>" : "") +
-    '<div class="gorev-alt">' +
-    (sorumlu ? '<span class="kisi">' + htmlKacis(sorumlu) + "</span>" : '<span class="soluk">Sorumlu yok</span>') +
-    tarih + "</div>" +
-    '<div class="gorev-dugmeler">' +
-    tasiDugmesi("geri", "◀", sira - 1) +
-    tasiDugmesi("ileri", "▶", sira + 1) +
-    kayitDugmesi("duzenle", gorev.id, "Düzenle", gorev.baslik) +
-    kayitDugmesi("sil", gorev.id, "Sil", gorev.baslik, "tehlike") +
+    '<div class="gorev-alt">' + kisi + tarih +
+    '<span class="gorev-dugmeler">' + tasiDugmesi("geri", "◀", sira - 1) + tasiDugmesi("ileri", "▶", sira + 1) + "</span>" +
     "</div></article>";
 }
 
@@ -220,7 +220,6 @@ async function gorevlerEkraniCiz(kok) {
     },
     ileri: (id) => gorevTasi(id, +1),
     geri: (id) => gorevTasi(id, -1),
-    sil: gorevSil,
     "suzgec-kaldir": () => { gorevSorumluFiltresi = ""; return yenile(); },
   });
 }

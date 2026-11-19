@@ -175,7 +175,9 @@ function saatYaz(zaman) {
   return gun + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
 }
 
-function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet }) {
+// sil (isteğe bağlı): verilirse formda solda "Sil" düğmesi çıkar. true dönerse
+// pencere kapanır ve ekran yenilenir (kullanıcı onaydan vazgeçerse false döner).
+function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet, sil = null }) {
   const pencere = sec("#pencere");
   const depo = tarayiciDeposu();
   const taslakAdi = taslakAnahtari("form", durum.takim && durum.takim.id, baslik, degerler);
@@ -193,6 +195,7 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
     alanlar.map((alan) => alanHtml(alan, gosterilen[alan.ad])).join("") +
     '<p class="form-hata" role="alert" hidden></p>' +
     '<div class="form-dugmeler">' +
+    (sil ? '<button type="button" class="dugme tehlike form-sil" data-sil>Sil</button>' : "") +
     '<button type="button" class="dugme" data-kapat>Vazgeç</button>' +
     '<button type="submit" class="dugme ana">' + htmlKacis(kaydetYazi) + "</button>" +
     "</div></form>";
@@ -204,11 +207,25 @@ function formAc({ baslik, alanlar, degerler = {}, kaydetYazi = "Kaydet", kaydet 
     if (depo) taslakSil(depo, taslakAdi);
     pencere.close();
   };
+  const silDugmesi = form.querySelector("[data-sil]");
+  if (silDugmesi) {
+    silDugmesi.onclick = async () => {
+      try {
+        if (!(await sil())) return;
+        if (depo) taslakSil(depo, taslakAdi);
+        pencere.close();
+        await yenile();
+      } catch (hata) {
+        pencere.close();
+        hataGoster(hata);
+      }
+    };
+  }
   const taslakAt = form.querySelector("[data-taslak-at]");
   if (taslakAt) {
     taslakAt.onclick = () => {
       taslakSil(depo, taslakAdi);
-      formAc({ baslik, alanlar, degerler, kaydetYazi, kaydet }); // özgün değerlerle yeniden aç
+      formAc({ baslik, alanlar, degerler, kaydetYazi, kaydet, sil }); // özgün değerlerle yeniden aç
       bildir("Taslak silindi");
     };
   }

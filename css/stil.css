@@ -32,6 +32,12 @@
   --vurgu: #b8451a;
   --vurgu-koyu: #9a3812;
   --vurgu-yazi: #ffffff;
+  --avatar-1: #1d6a85;       /* baş harf yuvarlakları (beyaz yazı; iki temada aynı) */
+  --avatar-2: #7a4bb0;
+  --avatar-3: #2f7d4f;
+  --avatar-4: #8a5a14;
+  --avatar-5: #4b5bb0;
+  --avatar-6: #a23b5a;
   --odak: #b8451a;          /* klavye odak halkası */
 
   /* Nötr rozet */
@@ -704,3 +710,31 @@ dialog::backdrop { background: var(--perde); }
   @bottom-left { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; color: #4d4d4d; vertical-align: top; padding: 1.2mm 0 0 9mm; }
   @bottom-right { font-family: "Times New Roman", Tinos, "Liberation Serif", serif; font-size: 9pt; color: #4d4d4d; vertical-align: top; padding: 1.2mm 9mm 0 0; }
 }
+
+/* Görev kartı (sade): kartın tamamı düzenlemeyi açar, başlık klavye için düğme,
+   ◀ ▶ masaüstünde yalnızca kartın üstüne gelince / odaktayken görünür. */
+.gorev-kart[data-eylem] { cursor: pointer; }
+.gorev-kart:hover { border-color: var(--giris-cizgi); }
+.kart-baslik {
+  padding: 0; border: 0; background: none; color: inherit; font: inherit;
+  text-align: left; cursor: pointer; overflow-wrap: anywhere;
+}
+.kart-baslik:hover { text-decoration: underline; }
+.sutun[data-durum="bitti"] .kart-baslik { text-decoration: line-through; }
+.gorev-alt .kisi { display: inline-flex; align-items: center; gap: 6px; }
+.avatar {
+  display: inline-grid; place-items: center; flex: none;
+  width: 24px; height: 24px; border-radius: 50%;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em; color: var(--vurgu-yazi);
+}
+.avatar.r1 { background: var(--avatar-1); } .avatar.r2 { background: var(--avatar-2); }
+.avatar.r3 { background: var(--avatar-3); } .avatar.r4 { background: var(--avatar-4); }
+.avatar.r5 { background: var(--avatar-5); } .avatar.r6 { background: var(--avatar-6); }
+.gorev-alt .gorev-dugmeler { display: inline-flex; gap: 4px; margin: 0 0 0 auto; }
+.gorev-alt .gorev-dugmeler .dugme { min-height: 32px; min-width: 32px; padding: 2px 8px; }
+@media (hover: hover) and (pointer: fine) {
+  .gorev-alt .gorev-dugmeler { opacity: 0; transition: opacity .15s; }
+  .gorev-kart:hover .gorev-dugmeler, .gorev-kart:focus-within .gorev-dugmeler { opacity: 1; }
+}
+@media (hover: none) { .gorev-alt .gorev-dugmeler .dugme { min-height: 40px; min-width: 40px; } }
+.form-dugmeler .form-sil { margin-right: auto; }

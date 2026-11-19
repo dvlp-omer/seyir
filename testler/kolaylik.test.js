@@ -198,3 +198,24 @@ test("kisayolBul: yazı yazarken '/' ve '?' karakter olarak kalır; Alt'lı ve t
   assert.equal(k.kisayolBul({ key: "a" }), null);
   assert.equal(k.kisayolBul({ key: "/", ctrlKey: true }), null);
 });
+
+/* ---------- 6) Baş harf yuvarlağı ---------- */
+
+test("basHarfler: ilk ve son adın baş harfi, Türkçe büyük harfle", () => {
+  assert.equal(k.basHarfler("Deniz Kaya"), "DK");
+  assert.equal(k.basHarfler("Ece Nur Demir"), "ED");
+  assert.equal(k.basHarfler("  şükrü   ışık "), "ŞI");
+  assert.equal(k.basHarfler("Can"), "C");
+  assert.equal(k.basHarfler(""), "?");
+});
+
+test("renkSirasi: aynı kimlik hep aynı renk, değer 0..adet-1 arasında", () => {
+  assert.equal(k.renkSirasi("u1"), k.renkSirasi("u1"));
+  const gorulen = new Set();
+  for (let i = 0; i < 200; i++) {
+    const r = k.renkSirasi("uye-" + i);
+    assert.ok(Number.isInteger(r) && r >= 0 && r < 6);
+    gorulen.add(r);
+  }
+  assert.equal(gorulen.size, 6, "renkler dağılmalı");
+});
