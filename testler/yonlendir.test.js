@@ -28,7 +28,7 @@ test("yönlendirme: örnek veri bağlantısı ve ana ekran simgesi uygulamaya gi
 });
 
 test("yönlendirme: tanıtımın kendi bölümleri ve boş adres yerinde kalır", async () => {
-  for (const ek of ["", "#", "#ozellikler", "#demo", "#vitrin", "#guvenlik", "#sss", "#hikaye"]) {
+  for (const ek of ["", "#", "#ozellikler", "#demo", "#vitrin", "#guvenlik", "#sss", "#hikaye", "#yenilikler"]) {
     assert.deepEqual(await dene(ek), { sonuc: false, gidilen: null }, ek);
   }
 });

@@ -40,10 +40,14 @@
   .parlak-metin {
     background: linear-gradient(180deg, #ffffff 0%, #e4f7fa 55%, #a7bcc6 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+    /* ş, ç, ğ gibi harflerin alt çengeli kutunun dışına taşar; boyalı alan biraz uzatılır */
+    padding-bottom: .12em; margin-bottom: -.12em;
   }
   .su-metin {
     background: linear-gradient(90deg, #8be3ee, #5fd3e0 40%, #ff8a52);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+    /* ş, ç, ğ gibi harflerin alt çengeli kutunun dışına taşar; boyalı alan biraz uzatılır */
+    padding-bottom: .12em; margin-bottom: -.12em;
   }
 
   /* Cam kart + fareyi izleyen ışık. --x / --y, Isik bileşeni tarafından yazılır. */

@@ -4,16 +4,18 @@ import { createRoot } from "react-dom/client";
 import { MotionConfig } from "framer-motion";
 import "./stil.css";
 import { uygulamayaYonlendir } from "./yonlendir.js";
-import { UstMenu, Hero, KayanBant, Bento } from "./ust-bolumler.jsx";
+import { UstMenu, Hero, KayanBant, Bento, KaydirmaCizgisi } from "./ust-bolumler.jsx";
 import { NotDemosu, Vitrin, Sayilar, Adimlar, Guvenlik, Kapanis, AltBilgi } from "./alt-bolumler.jsx";
 import { Sss } from "./sss.jsx";
 import { Hikaye } from "./hikaye.jsx";
+import { Yenilikler } from "./yenilikler.jsx";
 
 function Uygulama() {
   return (
     // reducedMotion="user": cihazda "hareket azaltma" açıksa Framer animasyonları kısalır
     <MotionConfig reducedMotion="user">
       <a href="#ozellikler" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-obsidyen">İçeriğe geç</a>
+      <KaydirmaCizgisi />
       <UstMenu />
       <main>
         <Hero />
@@ -25,6 +27,7 @@ function Uygulama() {
         <Hikaye />
         <Adimlar />
         <Guvenlik />
+        <Yenilikler />
         <Sss />
         <Kapanis />
       </main>

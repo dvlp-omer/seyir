@@ -1,6 +1,6 @@
 // Sayfanın üst yarısı: menü, hero, kayan bant, bento özellik kartları.
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useReducedMotion, useSpring, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Github, Search, CalendarPlus, WifiOff, MessageCircle, FileText,
   SquareKanban, Sparkles, Play,
@@ -11,6 +11,19 @@ import ozetGorseli from "./gorseller/ozet.png";
 import tutanakGorseli from "./gorseller/tutanak-gorev.png";
 
 /* ---------- Üst menü: kaydırınca cam efektli olur ---------- */
+/* ---------- Kaydırma ilerleme çizgisi ----------
+   Sayfanın en üstünde, aşağı indikçe soldan sağa dolan ince çizgi. Yaylı (spring)
+   geçiş titremeyi önler; "hareketi azalt" açıksa yay olmadan doğrudan izler. */
+export function KaydirmaCizgisi() {
+  const { scrollYProgress } = useScroll();
+  const azHareket = useReducedMotion();
+  const yayli = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.3 });
+  return (
+    <motion.div aria-hidden="true" style={{ scaleX: azHareket ? scrollYProgress : yayli }}
+      className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-gradient-to-r from-su-300 via-blue-400 to-violet-400" />
+  );
+}
+
 export function UstMenu() {
   const [kaydi, setKaydi] = useState(false);
   useEffect(() => {
@@ -73,9 +86,9 @@ export function Hero() {
           </div>
         </Belir>
         <Belir>
-          <a href="#demo" className="parilti animate-parilti inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium text-slate-300 transition hover:border-white/20 sm:text-sm">
+          <a href="#yenilikler" className="parilti animate-parilti inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium text-slate-300 transition hover:border-white/20 sm:text-sm">
             <Sparkles size={14} className="text-su-300" />
-            Yeni: başlıksız notlar da forma kendiliğinden yerleşiyor
+            Yeni: hesap açmadan örnek takımla dene
             <ArrowRight size={14} />
           </a>
         </Belir>
