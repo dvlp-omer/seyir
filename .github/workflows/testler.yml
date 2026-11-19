@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       # Tarih hesapları Türkiye saatine göre de denensin (sunucu UTC'dir)
@@ -38,7 +38,7 @@ jobs:
         working-directory: tanitim-kaynak
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
