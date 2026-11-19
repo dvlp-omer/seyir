@@ -2,39 +2,48 @@
 // olarak. Gerçek kişi adı kullanılmaz; yalnızca takımın adı ve herkese açık GitHub hesabı.
 import { MessagesSquare, Hammer, Sprout, Globe2, Github } from "lucide-react";
 import { Belir, BolumBasligi, IsikliKart, KAYNAK_KOD } from "./ortak.jsx";
+import { t } from "./dil.js";
 
 const DURAKLAR = [
   {
     ikon: MessagesSquare,
-    etiket: "Sorun",
-    baslik: "Kararlar sohbet akışında kayboluyordu",
-    metin: "ROTA İSAS, Teknofest'e sualtı aracı hazırlayan bir öğrenci takımı. Kararlar WhatsApp grubunda alınıyor, görevler bir tabloda, tutanaklar Word dosyalarında duruyordu. Kimin neyi üstlendiği karışıyor, rapor ve izin tarihleri son anda hatırlanıyordu.",
+    etiket: t("Sorun", "The problem"),
+    baslik: t("Kararlar sohbet akışında kayboluyordu", "Decisions got lost in the group chat"),
+    metin: t(
+      "ROTA İSAS, Teknofest'e sualtı aracı hazırlayan bir öğrenci takımı. Kararlar WhatsApp grubunda alınıyor, görevler bir tabloda, tutanaklar Word dosyalarında duruyordu. Kimin neyi üstlendiği karışıyor, rapor ve izin tarihleri son anda hatırlanıyordu.",
+      "ROTA İSAS is a student team building an underwater vehicle for Teknofest, Turkey's national technology festival. Decisions were made in a WhatsApp group, tasks sat in a spreadsheet, minutes in Word files. Who owned what got muddled, and report and permit deadlines were remembered at the last minute."),
   },
   {
     ikon: Hammer,
-    etiket: "İlk sürüm",
-    baslik: "Takımın kendi aracı olarak başladı",
-    metin: "Önce yalnızca görevler ve son tarihler vardı: tek sayfa, kurulum yok, herkesin telefonunda açılsın yeter. Hedef, toplantıdan çıkınca \"kim, neyi, ne zamana?\" sorusunun tek bir cevabının olmasıydı.",
+    etiket: t("İlk sürüm", "First version"),
+    baslik: t("Takımın kendi aracı olarak başladı", "It started as the team's own tool"),
+    metin: t(
+      "Önce yalnızca görevler ve son tarihler vardı: tek sayfa, kurulum yok, herkesin telefonunda açılsın yeter. Hedef, toplantıdan çıkınca \"kim, neyi, ne zamana?\" sorusunun tek bir cevabının olmasıydı.",
+      "At first it was just tasks and deadlines: one page, nothing to install, it only had to open on everyone's phone. The goal: after every meeting, \"who does what by when?\" should have exactly one answer."),
   },
   {
     ikon: Sprout,
-    etiket: "Büyüdü",
-    baslik: "Takımın gerçek işleriyle şekillendi",
-    metin: "Kulübün resmî tutanak formatı, karardan görev çıkarma, başvuranlara giden WhatsApp mesajları, takvim ve yoklama birer birer eklendi. Her özellik takımda tekrar eden bir sıkıntıdan doğdu.",
+    etiket: t("Büyüdü", "It grew"),
+    baslik: t("Takımın gerçek işleriyle şekillendi", "Shaped by the team's real work"),
+    metin: t(
+      "Kulübün resmî tutanak formatı, karardan görev çıkarma, başvuranlara giden WhatsApp mesajları, takvim ve yoklama birer birer eklendi. Her özellik takımda tekrar eden bir sıkıntıdan doğdu.",
+      "The club's official minutes format, tasks from decisions, WhatsApp messages to applicants, the calendar and attendance were added one by one. Every feature came from a problem the team kept running into."),
   },
   {
     ikon: Globe2,
-    etiket: "Bugün",
-    baslik: "Her öğrenci takımı için açık",
-    metin: "Aynı sorunları yaşayan başka takımlar da kullanabilsin diye ücretsiz ve açık kaynak olarak yayında. Kod, testler ve kurulum rehberi GitHub'da.",
+    etiket: t("Bugün", "Today"),
+    baslik: t("Her öğrenci takımı için açık", "Open to every student team"),
+    metin: t(
+      "Aynı sorunları yaşayan başka takımlar da kullanabilsin diye ücretsiz ve açık kaynak olarak yayında. Kod, testler ve kurulum rehberi GitHub'da.",
+      "It's free and open source so other teams with the same problems can use it too. The code, tests and setup guide are on GitHub."),
   },
 ];
 
 export function Hikaye() {
   return (
     <section id="hikaye" className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-28 sm:py-36">
-      <BolumBasligi etiket="Hikâye" baslik="Bir sualtı takımının not defterinden."
-        aciklama="Seyir bir girişim fikri olarak değil, bir takımın kendi derdine çözüm olarak doğdu." />
+      <BolumBasligi etiket={t("Hikâye", "Story")} baslik={t("Bir sualtı takımının not defterinden.", "From an underwater team's notebook.")}
+        aciklama={t("Seyir bir girişim fikri olarak değil, bir takımın kendi derdine çözüm olarak doğdu.", "Seyir wasn't born as a startup idea, but as one team's fix for its own problem.")} />
 
       <div className="mt-16 grid gap-12 lg:grid-cols-[3fr_2fr]">
         {/* Zaman çizelgesi: solda dikey çizgi, her durakta ikon */}
@@ -53,14 +62,15 @@ export function Hikaye() {
 
         {/* Yapan: kod herkese açık, ilkeler */}
         <IsikliKart gecikme={0.15} className="self-start rounded-3xl p-8">
-          <span className="text-xs font-medium uppercase tracking-widest text-slate-500">Yapan</span>
+          <span className="text-xs font-medium uppercase tracking-widest text-slate-500">{t("Yapan", "Built by")}</span>
           <p className="mt-4 text-lg leading-relaxed text-slate-200">
-            Takımın yazılım tarafındaki bir üniversite öğrencisi tarafından, takım arkadaşlarının geri bildirimleriyle geliştirildi.
+            {t("Takımın yazılım tarafındaki bir üniversite öğrencisi tarafından, takım arkadaşlarının geri bildirimleriyle geliştirildi.",
+              "A university student on the team's software side, with feedback from teammates.")}
           </p>
           <ul className="mt-6 space-y-3 text-sm text-slate-400">
-            <li className="flex gap-3"><span className="text-su-300" aria-hidden="true">—</span>Uygulama düz HTML, CSS ve JavaScript; framework ve paket yok.</li>
-            <li className="flex gap-3"><span className="text-su-300" aria-hidden="true">—</span>Her değişiklikte otomatik testler çalışır.</li>
-            <li className="flex gap-3"><span className="text-su-300" aria-hidden="true">—</span>Ücretli servis yok; gerçek kişi verisi örneklerde yok.</li>
+            <li className="flex gap-3"><span className="text-su-300" aria-hidden="true">—</span>{t("Uygulama düz HTML, CSS ve JavaScript; framework ve paket yok.", "The app is plain HTML, CSS and JavaScript; no framework, no packages.")}</li>
+            <li className="flex gap-3"><span className="text-su-300" aria-hidden="true">—</span>{t("Her değişiklikte otomatik testler çalışır.", "Automated tests run on every change.")}</li>
+            <li className="flex gap-3"><span className="text-su-300" aria-hidden="true">—</span>{t("Ücretli servis yok; gerçek kişi verisi örneklerde yok.", "No paid services; no real personal data in examples.")}</li>
           </ul>
           <a href={KAYNAK_KOD} className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-white/25 hover:text-white">
             <Github size={16} aria-hidden="true" /> github.com/dvlp-omer/seyir

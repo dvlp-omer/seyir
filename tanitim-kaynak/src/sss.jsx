@@ -1,45 +1,64 @@
 // Sık sorulan sorular. Yerli <details>/<summary> kullanılır: klavye ve ekran okuyucu
 // desteği tarayıcıdan gelir, JavaScript gerekmez. Cevaplar uygulamanın gerçek
-// davranışına göre yazıldı; uygulama değişirse burayı da güncelle.
+// davranışına göre yazıldı; uygulama değişirse burayı da (iki dilde) güncelle.
 import { Plus } from "lucide-react";
 import { Belir, BolumBasligi, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
+import { t } from "./dil.js";
 
 const SORULAR = [
   {
-    soru: "Seyir ücretli mi?",
-    cevap: <>Hayır. Tamamen ücretsiz ve açık kaynak. Ücretsiz katmanlarda çalışan servislerle yayında (Vercel ve Supabase); kart bilgisi istenmez, reklam yok.</>,
+    soru: t("Seyir ücretli mi?", "Does Seyir cost anything?"),
+    cevap: t(
+      <>Hayır. Tamamen ücretsiz ve açık kaynak. Ücretsiz katmanlarda çalışan servislerle yayında (Vercel ve Supabase); kart bilgisi istenmez, reklam yok.</>,
+      <>No. It's completely free and open source, hosted on the free tiers of Vercel and Supabase. No credit card, no ads.</>),
   },
   {
-    soru: "Hesap açmadan deneyebilir miyim?",
-    cevap: <>Evet. <a href={ORNEK}>Örnek takımla dene</a> düğmesi uydurma bir takımla dolu bir uygulama açar. Her şeyi kurcalayabilirsin; veriler yalnızca o sekmede durur, sekmeyi kapatınca silinir.</>,
+    soru: t("Hesap açmadan deneyebilir miyim?", "Can I try it without an account?"),
+    cevap: t(
+      <>Evet. <a href={ORNEK}>Örnek takımla dene</a> düğmesi uydurma bir takımla dolu bir uygulama açar. Her şeyi kurcalayabilirsin; veriler yalnızca o sekmede durur, sekmeyi kapatınca silinir.</>,
+      <>Yes. <a href={ORNEK}>Try a sample team</a> opens the app filled with a made-up team. Click around freely; the data lives only in that tab and is deleted when you close it. Note that the app's interface is in Turkish for now.</>),
   },
   {
-    soru: "Takımımızın verileri nerede duruyor, kim görebilir?",
-    cevap: <>Ortak kullanımda veriler Supabase veritabanında durur. Giriş zorunludur, hesap açmak yalnızca davetle olur ve veritabanı kuralları her kaydı yalnızca kendi takımının üyelerine gösterir. Kişiler için yalnızca ad, rol ve rehberde telefon tutulur.</>,
+    soru: t("Takımımızın verileri nerede duruyor, kim görebilir?", "Where is our team's data stored, and who can see it?"),
+    cevap: t(
+      <>Ortak kullanımda veriler Supabase veritabanında durur. Giriş zorunludur, hesap açmak yalnızca davetle olur ve veritabanı kuralları her kaydı yalnızca kendi takımının üyelerine gösterir. Kişiler için yalnızca ad, rol ve rehberde telefon tutulur.</>,
+      <>In shared use the data lives in a Supabase database. Signing in is required, accounts are invite-only, and database rules show each record only to members of its own team. For people, only name, role and (in the contacts list) phone number are stored.</>),
   },
   {
-    soru: "Takım arkadaşlarım nasıl katılır?",
-    cevap: <>Takım yöneticisi arkadaşlarının e-posta adreslerini davet listesine ekler; onlar da aynı adresle hesap açar ve doğrudan takıma girer. Uygulamayı ilk kuran kişi yönetici olur.</>,
+    soru: t("Takım arkadaşlarım nasıl katılır?", "How do my teammates join?"),
+    cevap: t(
+      <>Takım yöneticisi arkadaşlarının e-posta adreslerini davet listesine ekler; onlar da aynı adresle hesap açar ve doğrudan takıma girer. Uygulamayı ilk kuran kişi yönetici olur.</>,
+      <>The team admin adds their email addresses to the invite list; they sign up with the same address and land straight in the team. Whoever sets the app up first becomes the admin.</>),
   },
   {
-    soru: "İnternet yokken çalışır mı?",
-    cevap: <>Uygulama internet yokken de açılır. Takımca ortak kullanımda kayıtların gelip gitmesi için bağlantı gerekir. Tek cihazda, verileri tarayıcıda tutan kurulumda ise her şey çevrimdışı çalışır.</>,
+    soru: t("İnternet yokken çalışır mı?", "Does it work without internet?"),
+    cevap: t(
+      <>Uygulama internet yokken de açılır. Takımca ortak kullanımda kayıtların gelip gitmesi için bağlantı gerekir. Tek cihazda, verileri tarayıcıda tutan kurulumda ise her şey çevrimdışı çalışır.</>,
+      <>The app opens without internet. In shared team use, records need a connection to sync. In the single-device setup, where data stays in the browser, everything works offline.</>),
   },
   {
-    soru: "Telefona nasıl yüklerim?",
-    cevap: <>Mağazadan indirmen gerekmez. Android'de Chrome menüsünden (⋮) <b>Ana ekrana ekle</b>, iPhone'da Safari'de <b>Paylaş → Ana Ekrana Ekle</b>. Simgesiyle ayrı bir uygulama gibi açılır.</>,
+    soru: t("Telefona nasıl yüklerim?", "How do I install it on my phone?"),
+    cevap: t(
+      <>Mağazadan indirmen gerekmez. Android'de Chrome menüsünden (⋮) <b>Ana ekrana ekle</b>, iPhone'da Safari'de <b>Paylaş → Ana Ekrana Ekle</b>. Simgesiyle ayrı bir uygulama gibi açılır.</>,
+      <>No app store needed. On Android, use Chrome's menu (⋮) → <b>Add to Home screen</b>; on iPhone, Safari → <b>Share → Add to Home Screen</b>. It then opens like its own app.</>),
   },
   {
-    soru: "WhatsApp mesajlarını kendisi mi gönderiyor?",
-    cevap: <>Hayır. Şablondan her kişi için mesaj hazırlanır ve WhatsApp'ta hazır açılır; <b>Gönder</b>'e sen basarsın. WhatsApp otomatik toplu gönderimi resmî olarak desteklemediği için bilerek eklenmedi; numaranın engellenme riski de olmaz.</>,
+    soru: t("WhatsApp mesajlarını kendisi mi gönderiyor?", "Does it send WhatsApp messages by itself?"),
+    cevap: t(
+      <>Hayır. Şablondan her kişi için mesaj hazırlanır ve WhatsApp'ta hazır açılır; <b>Gönder</b>'e sen basarsın. WhatsApp otomatik toplu gönderimi resmî olarak desteklemediği için bilerek eklenmedi; numaranın engellenme riski de olmaz.</>,
+      <>No. A message is prepared from a template for each person and opens ready in WhatsApp; you press <b>Send</b>. Automatic bulk sending was left out on purpose because WhatsApp doesn't officially support it, so your number isn't at risk of being banned.</>),
   },
   {
-    soru: "Eski Word tutanaklarımızı aktarabilir miyim?",
-    cevap: <>Evet. .docx ya da .txt dosyasını yükle veya sürükleyip bırak; başlıksız serbest notlar bile cümlelerine bakılarak forma yerleşir. Tutanağı A4, imzaya hazır PDF ya da Word olarak geri alırsın.</>,
+    soru: t("Eski Word tutanaklarımızı aktarabilir miyim?", "Can we import our old Word minutes?"),
+    cevap: t(
+      <>Evet. .docx ya da .txt dosyasını yükle veya sürükleyip bırak; başlıksız serbest notlar bile cümlelerine bakılarak forma yerleşir. Tutanağı A4, imzaya hazır PDF ya da Word olarak geri alırsın.</>,
+      <>Yes. Upload or drag in a .docx or .txt file; even free-form notes without headings are placed into the form by reading their sentences (Turkish notes). You get the minutes back as an A4, ready-to-sign PDF or Word file.</>),
   },
   {
-    soru: "Kendi kulübüm için ayrı kurabilir miyim?",
-    cevap: <>Evet. Kod açık; GitHub'daki kurulum rehberi ücretsiz bir Supabase projesi ve Vercel ile kendi kopyanı nasıl yayınlayacağını adım adım anlatır.</>,
+    soru: t("Kendi kulübüm için ayrı kurabilir miyim?", "Can I set up my own copy for my club?"),
+    cevap: t(
+      <>Evet. Kod açık; GitHub'daki kurulum rehberi ücretsiz bir Supabase projesi ve Vercel ile kendi kopyanı nasıl yayınlayacağını adım adım anlatır.</>,
+      <>Yes. The code is open; the setup guide on GitHub walks you through publishing your own copy with a free Supabase project and Vercel.</>),
   },
 ];
 
@@ -47,11 +66,11 @@ export function Sss() {
   return (
     <section id="sss" className="relative mx-auto grid max-w-6xl scroll-mt-24 gap-12 px-5 py-28 sm:py-36 lg:grid-cols-[2fr_3fr]">
       <div className="lg:sticky lg:top-28 lg:self-start">
-        <BolumBasligi etiket="Sık sorulanlar" baslik="Aklına takılan var mı?" ortali={false}
-          aciklama="Kısa ve dürüst cevaplar. Burada olmayan bir şey sormak istersen GitHub'da yazabilirsin." />
+        <BolumBasligi etiket={t("Sık sorulanlar", "FAQ")} baslik={t("Aklına takılan var mı?", "Got questions?")} ortali={false}
+          aciklama={t("Kısa ve dürüst cevaplar. Burada olmayan bir şey sormak istersen GitHub'da yazabilirsin.", "Short, honest answers. If your question isn't here, ask on GitHub.")} />
         <Belir gecikme={0.2} className="mt-6">
           <a href={KAYNAK_KOD + "/issues"} className="text-sm font-medium text-su-300 underline-offset-4 hover:underline">
-            Soru sor (GitHub) →
+            {t("Soru sor (GitHub) →", "Ask a question (GitHub) →")}
           </a>
         </Belir>
       </div>

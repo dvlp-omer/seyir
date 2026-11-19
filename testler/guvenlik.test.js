@@ -189,12 +189,27 @@ test("yayın: ana sayfa tanıtım, uygulama /uygulama; eski /tanitim yönlenir; 
   for (const eski of ["/tanitim", "/tanitim/"]) {
     assert.ok(vercel.redirects.some((r) => r.source === eski && r.destination === "/" && r.permanent), eski);
   }
-  // Ana sayfa: derleme, tanıtımın index.html'ini köke kopyalar (depoya girmez)
+  // Ana sayfa: derleme, tanıtımın index.html'ini köke (tr) ve en/ altına (en) yazar (ikisi de depoya girmez)
   const paket = JSON.parse(fs.readFileSync(path.join(KOK, "tanitim-kaynak/package.json"), "utf8"));
-  assert.match(paket.scripts.build, /copyFileSync\('\.\.\/tanitim\/index\.html','\.\.\/index\.html'\)/);
-  assert.match(fs.readFileSync(path.join(KOK, ".gitignore"), "utf8"), /^\/index\.html$/m);
+  assert.match(paket.scripts.build, /node sayfalari-yaz\.cjs/);
+  const yazici = fs.readFileSync(path.join(KOK, "tanitim-kaynak/sayfalari-yaz.cjs"), "utf8");
+  assert.match(yazici, /"\.\.", "index\.html"/);
+  assert.match(yazici, /"\.\.", "en", "index\.html"/);
+  const yoksay = fs.readFileSync(path.join(KOK, ".gitignore"), "utf8");
+  assert.match(yoksay, /^\/index\.html$/m);
+  assert.match(yoksay, /^\/en\/$/m);
   const kokSayfa = path.join(KOK, "index.html");
   if (fs.existsSync(kokSayfa)) assert.match(fs.readFileSync(kokSayfa, "utf8"), /<div id="kok">/, "kökteki index.html tanıtım sayfası olmalı");
+  const enSayfa = path.join(KOK, "en", "index.html");
+  if (fs.existsSync(enSayfa)) {
+    const en = fs.readFileSync(enSayfa, "utf8");
+    assert.match(en, /<html lang="en">/);
+    assert.match(en, /<link rel="canonical" href="https:\/\/seyir-takim\.vercel\.app\/en"/);
+  }
+  // İki dil birbirini hreflang ile gösterir; site haritasında ikisi de var
+  const kaynakHtml = fs.readFileSync(path.join(KOK, "tanitim-kaynak/index.html"), "utf8");
+  assert.match(kaynakHtml, /hreflang="en" href="https:\/\/seyir-takim\.vercel\.app\/en"/);
+  assert.match(fs.readFileSync(path.join(KOK, "sitemap.xml"), "utf8"), /<loc>https:\/\/seyir-takim\.vercel\.app\/en<\/loc>/);
   assert.match(fs.readFileSync(path.join(KOK, "uygulama.html"), "utf8"), /<meta name="robots" content="noindex">/);
   assert.match(fs.readFileSync(path.join(KOK, "robots.txt"), "utf8"), /Sitemap: https:\/\/seyir-takim\.vercel\.app\/sitemap\.xml/);
 });

@@ -6,6 +6,7 @@ import {
   Users, ClipboardList, ListChecks, Play,
 } from "lucide-react";
 import { Logo, Belir, IsikliKart, BolumBasligi, Sayac, UYGULAMA, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
+import { t } from "./dil.js";
 import ozetGorseli from "./gorseller/ozet.png";
 import takvimGorseli from "./gorseller/takvim.png";
 import tutanakGorseli from "./gorseller/tutanak-gorev.png";
@@ -15,17 +16,22 @@ import mobilGorseli from "./gorseller/mobil.png";
 /* ---------- Not demosu: serbest notlar forma akar ----------
    Uygulamadaki gerçek kurallarla aynı sonucu canlandırır (js/tutanak.js >
    serbestNotuYerlestir). Adlar ve içerik uydurmadır. */
-const NOTLAR = [
+const NOTLAR = t([
   "Toplantı katılımcıları deniz kaya, elif aydın",
   "Bir sonraki toplantı 26 kasım 17.30",
   "(1. toplantı, Karar 2) Kamera kablosu yenilenecek",
   "İtici motor tekliflerini mert şahin toplayacak",
-];
+], [
+  "Attendees deniz kaya, elif aydın",
+  "Next meeting nov 26 17.30",
+  "(Meeting 1, Decision 2) Replace the camera cable",
+  "mert şahin will collect thruster quotes",
+]);
 const ALANLAR = [
-  { etiket: "Katılımcılar", deger: "Deniz Kaya, Elif Aydın" },
-  { etiket: "Sonraki toplantı", deger: "26 Kasım, 17.30" },
-  { etiket: "Devreden karar", deger: "Kamera kablosu yenilenecek", ek: "1. toplantı, Karar 2" },
-  { etiket: "Karar → Görev", deger: "İtici motor teklifleri", kisi: "MŞ" },
+  { etiket: t("Katılımcılar", "Attendees"), deger: "Deniz Kaya, Elif Aydın" },
+  { etiket: t("Sonraki toplantı", "Next meeting"), deger: t("26 Kasım, 17.30", "Nov 26, 17:30") },
+  { etiket: t("Devreden karar", "Carried over"), deger: t("Kamera kablosu yenilenecek", "Replace the camera cable"), ek: t("1. toplantı, Karar 2", "Meeting 1, Decision 2") },
+  { etiket: t("Karar → Görev", "Decision → Task"), deger: t("İtici motor teklifleri", "Thruster quotes"), kisi: "MŞ" },
 ];
 
 export function NotDemosu() {
@@ -50,17 +56,18 @@ export function NotDemosu() {
     <section id="demo" className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-28 sm:py-36">
       <div className="pointer-events-none absolute left-1/2 top-1/3 -z-10 h-[30rem] w-[50rem] -translate-x-1/2 rounded-full bg-su-600/10 blur-[120px]" aria-hidden="true" />
       <BolumBasligi
-        etiket="Nasıl çalışır"
-        baslik="Notları yapıştır. Gerisi kendiliğinden."
-        aciklama="Toplantıda tuttuğun dağınık notları ya da Word dosyasını bırak; katılımcılar, sonraki toplantı, devreden kararlar ve görevler yerine oturur. Yapay zekâ yok, veri dışarı çıkmaz: tamamen tarayıcıda çalışan kurallar."
+        etiket={t("Nasıl çalışır", "How it works")}
+        baslik={t("Notları yapıştır. Gerisi kendiliğinden.", "Paste your notes. The rest falls into place.")}
+        aciklama={t("Toplantıda tuttuğun dağınık notları ya da Word dosyasını bırak; katılımcılar, sonraki toplantı, devreden kararlar ve görevler yerine oturur. Yapay zekâ yok, veri dışarı çıkmaz: tamamen tarayıcıda çalışan kurallar.",
+          "Drop in your messy meeting notes or a Word file; attendees, the next meeting, carried-over decisions and tasks land in the right fields. No AI and no data leaves the device: just rules running in your browser. (The app reads Turkish notes.)")}
       />
 
       <div ref={ref} className="mt-16 grid gap-4 lg:grid-cols-2">
         {/* Sol: dağınık notlar */}
         <div className="cam p-6 sm:p-8">
           <div className="mb-5 flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-slate-500">Notlar</span>
-            <span className="rounded-md border border-white/10 px-2 py-0.5 font-mono text-[11px] text-slate-500">toplanti-3.docx</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-slate-500">{t("Notlar", "Notes")}</span>
+            <span className="rounded-md border border-white/10 px-2 py-0.5 font-mono text-[11px] text-slate-500">{t("toplanti-3.docx", "meeting-3.docx")}</span>
           </div>
           <div className="min-h-[190px] space-y-2.5 font-mono text-[13px] leading-relaxed sm:text-sm">
             {NOTLAR.map((satir, i) => (
@@ -75,10 +82,10 @@ export function NotDemosu() {
         {/* Sağ: dolan form */}
         <div className="cam p-6 sm:p-8">
           <div className="mb-5 flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-slate-500">Resmî tutanak</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-slate-500">{t("Resmî tutanak", "Official minutes")}</span>
             <button type="button" onClick={() => setTur((t) => t + 1)}
               className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400 transition hover:border-white/25 hover:text-white">
-              <RotateCcw size={12} /> Tekrar oynat
+              <RotateCcw size={12} /> {t("Tekrar oynat", "Replay")}
             </button>
           </div>
           <div className="space-y-3">
@@ -110,10 +117,10 @@ export function NotDemosu() {
 
 /* ---------- Vitrin: kaydırdıkça yatay akan büyük ekranlar ---------- */
 const EKRANLAR = [
-  { gorsel: ozetGorseli, baslik: "Özet", metin: "En yakın son tarih, ilerleme, kimde ne var." },
-  { gorsel: tutanakGorseli, baslik: "Resmî tutanak", metin: "Kararlardan tek tıkla görev." },
-  { gorsel: takvimGorseli, baslik: "Takvim", metin: "Toplantı, etkinlik ve son tarihler tek ayda." },
-  { gorsel: aramaGorseli, baslik: "Genel arama", metin: "Ctrl+K ile her kayıt bir tuş uzağında." },
+  { gorsel: ozetGorseli, baslik: t("Özet", "Overview"), metin: t("En yakın son tarih, ilerleme, kimde ne var.", "Nearest deadline, progress, who has what.") },
+  { gorsel: tutanakGorseli, baslik: t("Resmî tutanak", "Official minutes"), metin: t("Kararlardan tek tıkla görev.", "One-click tasks from decisions.") },
+  { gorsel: takvimGorseli, baslik: t("Takvim", "Calendar"), metin: t("Toplantı, etkinlik ve son tarihler tek ayda.", "Meetings, events and deadlines in one month.") },
+  { gorsel: aramaGorseli, baslik: t("Genel arama", "Global search"), metin: t("Ctrl+K ile her kayıt bir tuş uzağında.", "Every record is one Ctrl+K away.") },
 ];
 
 function useGenisEkran() {
@@ -138,7 +145,7 @@ export function Vitrin() {
   const kartlar = EKRANLAR.map((e) => (
     <figure key={e.baslik} className={(yatay ? "w-[54vw] max-w-[860px] shrink-0 " : "") + "group"}>
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[.03] p-1.5 shadow-[0_30px_100px_-30px_rgba(0,0,0,.9)]">
-        <img src={e.gorsel} alt={"Seyir: " + e.baslik + " ekranı"} loading="lazy" className="w-full rounded-xl transition duration-700 group-hover:scale-[1.015]" />
+        <img src={e.gorsel} alt={t("Seyir: " + e.baslik + " ekranı", "Seyir: " + e.baslik + " screen")} loading="lazy" className="w-full rounded-xl transition duration-700 group-hover:scale-[1.015]" />
       </div>
       <figcaption className="mt-5 flex items-baseline gap-3">
         <span className="text-lg font-semibold text-white">{e.baslik}</span>
@@ -151,14 +158,14 @@ export function Vitrin() {
     <section id="vitrin" ref={ref} className={"relative scroll-mt-16 " + (yatay ? "h-[320vh]" : "")}>
       <div className={yatay ? "sticky top-0 flex h-screen flex-col justify-center overflow-hidden pt-16" : "py-28"}>
         <div className={"mx-auto w-full max-w-6xl px-5 " + (yatay ? "mb-8" : "mb-12")}>
-          <BolumBasligi etiket="Ekranlar" baslik="Sade. Hızlı. Karanlıkta da." ortali={false}
-            aciklama={yatay ? "Aşağı kaydırdıkça ekranlar akar." : undefined} />
+          <BolumBasligi etiket={t("Ekranlar", "Screens")} baslik={t("Sade. Hızlı. Karanlıkta da.", "Simple. Fast. In the dark, too.")} ortali={false}
+            aciklama={yatay ? t("Aşağı kaydırdıkça ekranlar akar.", "Scroll down and the screens glide by. (The interface is in Turkish.)") : undefined} />
         </div>
         {yatay
           ? <motion.div style={{ x }} className="flex gap-10 pl-[max(1.25rem,calc((100vw-72rem)/2+1.25rem))]">{kartlar}</motion.div>
           : <div className="mx-auto grid max-w-6xl gap-14 px-5">{kartlar}
               <figure className="mx-auto w-full max-w-sm">
-                <div className="overflow-hidden rounded-[2rem] border border-white/10 p-1.5"><img src={mobilGorseli} alt="Seyir telefonda" loading="lazy" className="w-full rounded-[1.6rem]" /></div>
+                <div className="overflow-hidden rounded-[2rem] border border-white/10 p-1.5"><img src={mobilGorseli} alt={t("Seyir telefonda", "Seyir on a phone")} loading="lazy" className="w-full rounded-[1.6rem]" /></div>
               </figure>
             </div>}
       </div>
@@ -168,10 +175,10 @@ export function Vitrin() {
 
 /* ---------- Sayılar ---------- */
 const SAYILAR = [
-  { hedef: 234, sonek: "", metin: "otomatik test, her gönderimde" },
-  { hedef: 13, sonek: "", metin: "tablo, hepsi satır düzeyinde korumalı" },
-  { hedef: 12, sonek: "", metin: "ekran: görevden WhatsApp'a" },
-  { hedef: 0, sonek: " ₺", metin: "aylık maliyet" },
+  { hedef: 242, sonek: "", metin: t("otomatik test, her gönderimde", "automated tests on every push") },
+  { hedef: 13, sonek: "", metin: t("tablo, hepsi satır düzeyinde korumalı", "tables, all with row-level security") },
+  { hedef: 12, sonek: "", metin: t("ekran: görevden WhatsApp'a", "screens, from tasks to WhatsApp") },
+  { hedef: 0, sonek: t(" ₺", " $"), metin: t("aylık maliyet", "monthly cost") },
 ];
 
 export function Sayilar() {
@@ -191,15 +198,15 @@ export function Sayilar() {
 
 /* ---------- Üç adım ---------- */
 const ADIMLAR = [
-  { ikon: Users, baslik: "Takımını kur", metin: "Takımı oluştur, üyeleri ekle. İlk hesap yönetici olur." },
-  { ikon: UserCheck, baslik: "Ekibini davet et", metin: "Yalnızca davet ettiğin e-postalar hesap açabilir." },
-  { ikon: ClipboardList, baslik: "Toplantıdan göreve", metin: "Notları bırak, tutanağı al, kararları göreve çevir." },
+  { ikon: Users, baslik: t("Takımını kur", "Set up your team"), metin: t("Takımı oluştur, üyeleri ekle. İlk hesap yönetici olur.", "Create the team, add members. The first account becomes admin.") },
+  { ikon: UserCheck, baslik: t("Ekibini davet et", "Invite your crew"), metin: t("Yalnızca davet ettiğin e-postalar hesap açabilir.", "Only the emails you invite can sign up.") },
+  { ikon: ClipboardList, baslik: t("Toplantıdan göreve", "From meeting to task"), metin: t("Notları bırak, tutanağı al, kararları göreve çevir.", "Drop the notes, get the minutes, turn decisions into tasks.") },
 ];
 
 export function Adimlar() {
   return (
     <section className="mx-auto max-w-6xl px-5 py-28 sm:py-36">
-      <BolumBasligi etiket="Başlamak" baslik="Üç adımda hazır." />
+      <BolumBasligi etiket={t("Başlamak", "Getting started")} baslik={t("Üç adımda hazır.", "Ready in three steps.")} />
       <div className="relative mt-16 grid gap-10 md:grid-cols-3 md:gap-6">
         <div className="absolute left-[16%] right-[16%] top-7 hidden h-px bg-gradient-to-r from-transparent via-white/15 to-transparent md:block" aria-hidden="true" />
         {ADIMLAR.map((a, i) => (
@@ -219,18 +226,18 @@ export function Adimlar() {
 
 /* ---------- Güvenlik ---------- */
 const GUVENLIK = [
-  { ikon: ShieldCheck, baslik: "Herkes yalnızca kendi takımını görür", metin: "Kurallar veritabanında (satır düzeyinde güvenlik); tarayıcıdan aşılamaz.", genis: true },
-  { ikon: ListChecks, baslik: "Test edilen gizlilik", metin: "Depoda gerçek görünen bir telefon numarası olursa testler kırmızı yanar.", genis: true },
-  { ikon: KeyRound, baslik: "Yalnızca davetle", metin: "Davet listesinde olmayan e-posta hesap açamaz." },
-  { ikon: Lock, baslik: "Sıkı içerik politikası", metin: "Sayfa yalnızca kendi dosyalarını çalıştırır; HTTPS zorunlu." },
-  { ikon: GitMerge, baslik: "Aynı anda düzenleme", metin: "İki kişi aynı kaydı değiştirirse ikincisi uyarılır, kimsenin yazdığı ezilmez." },
+  { ikon: ShieldCheck, baslik: t("Herkes yalnızca kendi takımını görür", "Everyone sees only their own team"), metin: t("Kurallar veritabanında (satır düzeyinde güvenlik); tarayıcıdan aşılamaz.", "The rules live in the database (row-level security); the browser can't bypass them."), genis: true },
+  { ikon: ListChecks, baslik: t("Test edilen gizlilik", "Tested privacy"), metin: t("Depoda gerçek görünen bir telefon numarası olursa testler kırmızı yanar.", "If a real-looking phone number ever lands in the repo, the tests turn red."), genis: true },
+  { ikon: KeyRound, baslik: t("Yalnızca davetle", "Invite only"), metin: t("Davet listesinde olmayan e-posta hesap açamaz.", "An email that isn't on the invite list can't sign up.") },
+  { ikon: Lock, baslik: t("Sıkı içerik politikası", "Strict content policy"), metin: t("Sayfa yalnızca kendi dosyalarını çalıştırır; HTTPS zorunlu.", "The page only runs its own files; HTTPS is enforced.") },
+  { ikon: GitMerge, baslik: t("Aynı anda düzenleme", "Simultaneous edits"), metin: t("İki kişi aynı kaydı değiştirirse ikincisi uyarılır, kimsenin yazdığı ezilmez.", "If two people edit the same record, the second is warned; nobody's work gets overwritten.") },
 ];
 
 export function Guvenlik() {
   return (
     <section id="guvenlik" className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-28 sm:py-36">
-      <BolumBasligi etiket="Güvenlik" baslik="Takımın verisi, takımda kalır."
-        aciklama="Öğrenci kulübü uygulaması diye güvenlikten ödün yok. Kurallar sunucuda, testlerle denetleniyor." />
+      <BolumBasligi etiket={t("Güvenlik", "Security")} baslik={t("Takımın verisi, takımda kalır.", "Your team's data stays with your team.")}
+        aciklama={t("Öğrenci kulübü uygulaması diye güvenlikten ödün yok. Kurallar sunucuda, testlerle denetleniyor.", "A student club app is no excuse to cut corners on security. The rules live on the server and are checked by tests.")} />
       <div className="mt-16 grid gap-4 md:grid-cols-6">
         {GUVENLIK.map((g, i) => (
           <IsikliKart key={g.baslik} gecikme={i * 0.06} className={"p-7 " + (g.genis ? "md:col-span-3" : "md:col-span-2")}>
@@ -252,14 +259,14 @@ export function Kapanis() {
       <div className="relative mx-auto max-w-4xl overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/[.06] to-white/[.01] px-6 py-20 text-center sm:px-12">
         <div className="izgara-zemin pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
         <Belir as="h2" className="parlak-metin relative text-4xl font-semibold tracking-tight sm:text-6xl">
-          Bir sonraki toplantıya<br />hazır mısın?
+          {t("Bir sonraki toplantıya", "Ready for your")}<br />{t("hazır mısın?", "next meeting?")}
         </Belir>
         <Belir gecikme={0.1} as="p" className="relative mx-auto mt-6 max-w-xl text-slate-400">
-          Kurulum yok, kart bilgisi yok. Takımını aç, ilk tutanağını beş dakikada çıkar.
+          {t("Kurulum yok, kart bilgisi yok. Takımını aç, ilk tutanağını beş dakikada çıkar.", "No install, no credit card. Open your team and have your first minutes in five minutes.")}
         </Belir>
         <Belir gecikme={0.2} className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a href={UYGULAMA} className="parlak-dugme">Uygulamayı aç <ArrowRight size={18} /></a>
-          <a href={ORNEK} className="ikincil-dugme"><Play size={16} /> Örnek takımla dene</a>
+          <a href={UYGULAMA} className="parlak-dugme">{t("Uygulamayı aç", "Open the app")} <ArrowRight size={18} /></a>
+          <a href={ORNEK} className="ikincil-dugme"><Play size={16} /> {t("Örnek takımla dene", "Try a sample team")}</a>
         </Belir>
       </div>
     </section>
@@ -270,12 +277,12 @@ export function AltBilgi() {
   return (
     <footer className="border-t border-white/5">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-10 text-sm text-slate-500 sm:flex-row">
-        <div className="flex items-center gap-2.5 text-slate-300"><Logo boyut={22} /> Seyir <span className="text-slate-600">·</span> <span className="text-slate-500">takım asistanı</span></div>
-        <p>ROTA İSAS Teknofest takımı için yapıldı · açık kaynak</p>
+        <div className="flex items-center gap-2.5 text-slate-300"><Logo boyut={22} /> Seyir <span className="text-slate-600">·</span> <span className="text-slate-500">{t("takım asistanı", "team assistant")}</span></div>
+        <p>{t("ROTA İSAS Teknofest takımı için yapıldı · açık kaynak", "Built for the ROTA İSAS Teknofest team · open source")}</p>
         <div className="flex gap-5">
-          <a className="transition hover:text-white" href={UYGULAMA}>Uygulama</a>
+          <a className="transition hover:text-white" href={UYGULAMA}>{t("Uygulama", "App")}</a>
           <a className="transition hover:text-white" href={KAYNAK_KOD}>GitHub</a>
-          <a className="transition hover:text-white" href="#">Başa dön ↑</a>
+          <a className="transition hover:text-white" href="#">{t("Başa dön ↑", "Back to top ↑")}</a>
         </div>
       </div>
     </footer>

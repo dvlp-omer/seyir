@@ -3,9 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, useSpring, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Github, Search, CalendarPlus, WifiOff, MessageCircle, FileText,
-  SquareKanban, Sparkles, Play,
+  SquareKanban, Sparkles, Play, Languages,
 } from "lucide-react";
 import { Logo, Belir, IsikliKart, BolumBasligi, UYGULAMA, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
+import { DIL, t, OBUR_DIL_ADRESI } from "./dil.js";
 import gorevlerGorseli from "./gorseller/gorevler.png";
 import ozetGorseli from "./gorseller/ozet.png";
 import tutanakGorseli from "./gorseller/tutanak-gorev.png";
@@ -35,24 +36,30 @@ export function UstMenu() {
   return (
     <header className={"fixed inset-x-0 top-0 z-50 transition-all duration-300 " +
       (kaydi ? "border-b border-white/10 bg-obsidyen/70 backdrop-blur-xl" : "border-b border-transparent")}>
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5" aria-label="Ana menü">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5" aria-label={t("Ana menü", "Main menu")}>
         <a href="#" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <Logo boyut={30} canli /> <span className="yazi-parilti">Seyir</span>
         </a>
         <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
-          <a className="transition hover:text-white" href="#ozellikler">Özellikler</a>
-          <a className="transition hover:text-white" href="#demo">Nasıl çalışır</a>
-          <a className="transition hover:text-white" href="#vitrin">Ekranlar</a>
-          <a className="transition hover:text-white" href="#hikaye">Hikâye</a>
-          <a className="transition hover:text-white" href="#guvenlik">Güvenlik</a>
-          <a className="transition hover:text-white" href="#sss">SSS</a>
+          <a className="transition hover:text-white" href="#ozellikler">{t("Özellikler", "Features")}</a>
+          <a className="transition hover:text-white" href="#demo">{t("Nasıl çalışır", "How it works")}</a>
+          <a className="transition hover:text-white" href="#vitrin">{t("Ekranlar", "Screens")}</a>
+          <a className="transition hover:text-white" href="#hikaye">{t("Hikâye", "Story")}</a>
+          <a className="transition hover:text-white" href="#guvenlik">{t("Güvenlik", "Security")}</a>
+          <a className="transition hover:text-white" href="#sss">{t("SSS", "FAQ")}</a>
         </div>
         <div className="flex items-center gap-2">
-          <a href={KAYNAK_KOD} className="hidden rounded-full p-2 text-slate-400 transition hover:bg-white/5 hover:text-white sm:inline-flex" aria-label="Kaynak kod (GitHub)">
+          {/* Dil düğmesi: öbür dildeki sayfaya gider (Türkçe /, İngilizce /en) */}
+          <a href={OBUR_DIL_ADRESI} hrefLang={DIL === "en" ? "tr" : "en"} lang={DIL === "en" ? "tr" : "en"}
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-xs font-semibold text-slate-400 transition hover:bg-white/5 hover:text-white"
+            aria-label={DIL === "en" ? "Türkçe sayfaya geç" : "Switch to English"}>
+            <Languages size={16} aria-hidden="true" /> {DIL === "en" ? "TR" : "EN"}
+          </a>
+          <a href={KAYNAK_KOD} className="hidden rounded-full p-2 text-slate-400 transition hover:bg-white/5 hover:text-white sm:inline-flex" aria-label={t("Kaynak kod (GitHub)", "Source code (GitHub)")}>
             <Github size={18} />
           </a>
           <a href={UYGULAMA} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-obsidyen transition hover:bg-su-300">
-            Uygulamayı aç
+            {t("Uygulamayı aç", "Open the app")}
           </a>
         </div>
       </nav>
@@ -88,31 +95,32 @@ export function Hero() {
         <Belir>
           <a href="#yenilikler" className="parilti animate-parilti inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium text-slate-300 transition hover:border-white/20 sm:text-sm">
             <Sparkles size={14} className="text-su-300" />
-            Yeni: hesap açmadan örnek takımla dene
+            {t("Yeni: hesap açmadan örnek takımla dene", "New: try it with a sample team, no sign-up")}
             <ArrowRight size={14} />
           </a>
         </Belir>
 
         <Belir gecikme={0.08} as="h1" className="mx-auto mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-7xl md:text-[5.5rem]">
-          <span className="parlak-metin">Takımının</span>{" "}
-          <span className="su-metin">seyir defteri.</span>
+          <span className="parlak-metin">{t("Takımının", "Your team's")}</span>{" "}
+          <span className="su-metin">{t("seyir defteri.", "logbook.")}</span>
         </Belir>
 
         <Belir gecikme={0.16} as="p" className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
-          Görevler, son tarihler, resmî toplantı tutanakları ve ekibe giden mesajlar tek yerde.
-          Teknofest takımları için yapıldı; ücretsiz, açık kaynak ve internet yokken bile çalışır.
+          {t("Görevler, son tarihler, resmî toplantı tutanakları ve ekibe giden mesajlar tek yerde. Teknofest takımları için yapıldı; ücretsiz, açık kaynak ve internet yokken bile açılır.",
+            "Tasks, deadlines, official meeting minutes and messages to your crew, in one place. Built for student competition teams; free, open source, and it opens even without internet.")}
         </Belir>
 
         <Belir gecikme={0.24} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a href={UYGULAMA} className="parlak-dugme">
-            Uygulamayı aç <ArrowRight size={18} />
+            {t("Uygulamayı aç", "Open the app")} <ArrowRight size={18} />
           </a>
           <a href={ORNEK} className="ikincil-dugme">
-            <Play size={16} /> Örnek takımla dene
+            <Play size={16} /> {t("Örnek takımla dene", "Try a sample team")}
           </a>
         </Belir>
         <Belir gecikme={0.3} as="p" className="mt-4 text-sm text-slate-500">
-          Hesap açmadan dene: uydurma bir takım açılır, sekmeyi kapatınca silinir.
+          {t("Hesap açmadan dene: uydurma bir takım açılır, sekmeyi kapatınca silinir.",
+            "No account needed: a made-up team opens and is deleted when you close the tab. The app itself is in Turkish for now.")}
         </Belir>
       </div>
 
@@ -127,7 +135,7 @@ export function Hero() {
             <span className="h-2.5 w-2.5 rounded-full bg-white/15" /><span className="h-2.5 w-2.5 rounded-full bg-white/15" /><span className="h-2.5 w-2.5 rounded-full bg-white/15" />
             <span className="ml-3 rounded-md bg-white/5 px-3 py-0.5 font-mono text-[11px] text-slate-500">seyir-takim.vercel.app</span>
           </div>
-          <img src={ozetGorseli} alt="Seyir özet ekranı: en yakın son tarih, görev ilerlemesi, kimde ne var ve önümüzdeki 7 gün" className="w-full rounded-xl" width="1280" height="860" />
+          <img src={ozetGorseli} alt={t("Seyir özet ekranı: en yakın son tarih, görev ilerlemesi, kimde ne var ve önümüzdeki 7 gün", "Seyir overview screen: nearest deadline, task progress, who has what and the next 7 days")} className="w-full rounded-xl" width="1280" height="860" />
         </motion.div>
         {/* görüntünün altını zemine eriten geçiş */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-obsidyen to-transparent" aria-hidden="true" />
@@ -137,13 +145,16 @@ export function Hero() {
 }
 
 /* ---------- Sonsuz kayan özellik bandı ---------- */
-const BANT = ["Görev panosu", "Resmî tutanak", "PDF ve Word", "Takvime aktar (.ics)", "WhatsApp mesajları", "Yoklama",
-  "Faaliyet raporu", "Genel arama", "Çevrimdışı çalışır", "Koyu tema", "Davetle kayıt", "Satır düzeyinde güvenlik"];
+const BANT = t(
+  ["Görev panosu", "Resmî tutanak", "PDF ve Word", "Takvime aktar (.ics)", "WhatsApp mesajları", "Yoklama",
+    "Faaliyet raporu", "Genel arama", "Çevrimdışı açılır", "Koyu tema", "Davetle kayıt", "Satır düzeyinde güvenlik"],
+  ["Task board", "Official minutes", "PDF and Word", "Export to calendar (.ics)", "WhatsApp messages", "Attendance",
+    "Activity report", "Global search", "Opens offline", "Dark theme", "Invite-only sign-up", "Row-level security"]);
 
 export function KayanBant() {
   const ogeler = [...BANT, ...BANT]; // iki kopya: biri bitince diğeri devam eder
   return (
-    <div className="relative overflow-hidden border-y border-white/5 py-6 [mask-image:linear-gradient(90deg,transparent,#000_15%,#000_85%,transparent)]" aria-label="Özellikler">
+    <div className="relative overflow-hidden border-y border-white/5 py-6 [mask-image:linear-gradient(90deg,transparent,#000_15%,#000_85%,transparent)]" aria-label={t("Özellikler", "Features")}>
       <div className="animate-kayan flex w-max gap-10">
         {ogeler.map((oge, i) => (
           <span key={i} aria-hidden={i >= BANT.length} className="flex items-center gap-10 whitespace-nowrap text-sm font-medium text-slate-500">
@@ -157,17 +168,17 @@ export function KayanBant() {
 
 /* ---------- Kendi kendine yazan Ctrl+K arama demosu ---------- */
 const ARAMA_SONUCLARI = [
-  { tur: "Görev", baslik: "Raporun mekanik tasarım bölümünü yaz", ayrinti: "25 Kasım" },
-  { tur: "Son tarih", baslik: "Ön Tasarım Raporu teslimi", ayrinti: "28 Kasım" },
-  { tur: "Toplantı", baslik: "Haftalık ekip toplantısı", ayrinti: "Atölye" },
+  { tur: t("Görev", "Task"), baslik: t("Raporun mekanik tasarım bölümünü yaz", "Write the mechanical design section of the report"), ayrinti: t("25 Kasım", "Nov 25") },
+  { tur: t("Son tarih", "Deadline"), baslik: t("Ön Tasarım Raporu teslimi", "Preliminary Design Report due"), ayrinti: t("28 Kasım", "Nov 28") },
+  { tur: t("Toplantı", "Meeting"), baslik: t("Haftalık ekip toplantısı", "Weekly team meeting"), ayrinti: t("Atölye", "Workshop") },
 ];
 
 function AramaDemosu() {
   const azHareket = useReducedMotion();
-  const [yazi, setYazi] = useState(azHareket ? "rapor" : "");
+  const [yazi, setYazi] = useState(azHareket ? t("rapor", "report") : "");
   useEffect(() => {
     if (azHareket) return;
-    const kelime = "rapor";
+    const kelime = t("rapor", "report");
     let i = 0, silinecek = false;
     const zamanlayici = setInterval(() => {
       if (!silinecek) {
@@ -224,46 +235,46 @@ export function Bento() {
   return (
     <section id="ozellikler" className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-28 sm:py-36">
       <BolumBasligi
-        etiket="Özellikler"
-        baslik="Toplantıdan teslime, tek akış."
-        aciklama="Kararlar göreve, görevler takvime, takvim telefonuna. Arada kopyala-yapıştır yok."
+        etiket={t("Özellikler", "Features")}
+        baslik={t("Toplantıdan teslime, tek akış.", "From meeting to delivery, one flow.")}
+        aciklama={t("Kararlar göreve, görevler takvime, takvim telefonuna. Arada kopyala-yapıştır yok.", "Decisions become tasks, tasks land on the calendar, the calendar goes to your phone. No copy-paste in between.")}
       />
 
       <div className="mt-16 grid auto-rows-[minmax(0,auto)] grid-cols-1 gap-4 md:grid-cols-6">
         {/* Görev panosu — büyük */}
         <IsikliKart className="flex flex-col p-7 md:col-span-4 md:row-span-2">
-          <KartBasligi ikon={SquareKanban} baslik="Sürükle, bırak, bitir."
-            metin="Yapılacak, yapılıyor, bitti. Kartı sürükle; sorumlunun baş harfi, kalan gün ve gecikme bir bakışta." />
+          <KartBasligi ikon={SquareKanban} baslik={t("Sürükle, bırak, bitir.", "Drag, drop, done.")}
+            metin={t("Yapılacak, yapılıyor, bitti. Kartı sürükle; sorumlunun baş harfi, kalan gün ve gecikme bir bakışta.", "To do, doing, done. Drag a card; owner initials, days left and delays at a glance.")} />
           <div className="relative mt-7 flex-1 overflow-hidden rounded-xl border border-white/10">
-            <img src={gorevlerGorseli} alt="Görev panosu: bir kart Yapılıyor sütununa sürükleniyor" loading="lazy" className="w-full object-cover object-left-top" />
+            <img src={gorevlerGorseli} alt={t("Görev panosu: bir kart Yapılıyor sütununa sürükleniyor", "Task board: a card being dragged to the Doing column")} loading="lazy" className="w-full object-cover object-left-top" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-derin to-transparent" />
           </div>
         </IsikliKart>
 
         {/* Arama */}
         <IsikliKart className="p-7 md:col-span-2" gecikme={0.08}>
-          <KartBasligi ikon={Search} baslik="Her şeyi bul." metin="Ctrl+K: görev, tutanak, kişi. “gorev” yazsan da “görev”i bulur." />
+          <KartBasligi ikon={Search} baslik={t("Her şeyi bul.", "Find anything.")} metin={t("Ctrl+K: görev, tutanak, kişi. “gorev” yazsan da “görev”i bulur.", "Ctrl+K: tasks, minutes, people. Forgiving with Turkish letters, too.")} />
           <AramaDemosu />
         </IsikliKart>
 
         {/* Tutanak */}
         <IsikliKart className="flex flex-col p-7 md:col-span-2" gecikme={0.16}>
-          <KartBasligi ikon={FileText} baslik="İmzaya hazır tutanak." metin="A4, çerçeveli, numaralı. PDF ve Word olarak indir; kararlardan tek tıkla görev." />
+          <KartBasligi ikon={FileText} baslik={t("İmzaya hazır tutanak.", "Minutes ready to sign.")} metin={t("A4, çerçeveli, numaralı. PDF ve Word olarak indir; kararlardan tek tıkla görev.", "A4, framed, numbered. Download as PDF or Word; turn decisions into tasks in one click.")} />
           <div className="relative mt-6 h-40 overflow-hidden rounded-xl border border-white/10">
-            <img src={tutanakGorseli} alt="Resmî tutanak görünümü ve kararlardan görev oluşturma" loading="lazy" className="w-full object-cover object-top" />
+            <img src={tutanakGorseli} alt={t("Resmî tutanak görünümü ve kararlardan görev oluşturma", "Official minutes view with one-click tasks from decisions")} loading="lazy" className="w-full object-cover object-top" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-derin to-transparent" />
           </div>
         </IsikliKart>
 
         {/* Küçük kartlar */}
         <IsikliKart className="p-7 md:col-span-2" gecikme={0.05}>
-          <KartBasligi ikon={CalendarPlus} baslik="Takvimine aktar." metin="Toplantı ve son tarihleri tek .ics dosyasıyla Google Takvim'e ya da telefonuna gönder." />
+          <KartBasligi ikon={CalendarPlus} baslik={t("Takvimine aktar.", "Send it to your calendar.")} metin={t("Toplantı ve son tarihleri tek .ics dosyasıyla Google Takvim'e ya da telefonuna gönder.", "Meetings and deadlines in a single .ics file for Google Calendar or your phone.")} />
         </IsikliKart>
         <IsikliKart className="p-7 md:col-span-2" gecikme={0.12}>
-          <KartBasligi ikon={MessageCircle} baslik="WhatsApp'a hazır." metin="Şablonla kişiye özel mesaj, tek dokunuşla WhatsApp'ta açılır. Kime gönderildiği işaretli kalır." />
+          <KartBasligi ikon={MessageCircle} baslik={t("WhatsApp'a hazır.", "Ready for WhatsApp.")} metin={t("Şablonla kişiye özel mesaj, tek dokunuşla WhatsApp'ta açılır. Kime gönderildiği işaretli kalır.", "Personal messages from templates open in WhatsApp with one tap. Who got it stays checked off.")} />
         </IsikliKart>
         <IsikliKart className="p-7 md:col-span-2" gecikme={0.19}>
-          <KartBasligi ikon={WifiOff} baslik="İnternet yokken de." metin="Ana ekrana eklenir, uygulama gibi açılır. Atölyede çekmese bile son hâli elinde." />
+          <KartBasligi ikon={WifiOff} baslik={t("İnternet yokken de.", "Even offline.")} metin={t("Ana ekrana eklenir, uygulama gibi açılır. Atölyede çekmese bile uygulama elinde.", "Add it to your home screen and it opens like an app, even with no signal in the workshop.")} />
         </IsikliKart>
       </div>
     </section>

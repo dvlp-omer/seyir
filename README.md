@@ -12,7 +12,7 @@ bağımlılık yok.
 
 **[Türkçe](#türkçe)** · **[English](#english)**
 
-**Tanıtım / Landing:** <https://seyir-takim.vercel.app> · **Uygulama / App:** <https://seyir-takim.vercel.app/uygulama>
+**Tanıtım:** <https://seyir-takim.vercel.app> · **Landing (English):** <https://seyir-takim.vercel.app/en> · **Uygulama / App:** <https://seyir-takim.vercel.app/uygulama>
 
 **Canlı / Live:** uygulama Supabase kipinde çalışır;
 hesap açmak davetlidir (sign-up is invite-only).

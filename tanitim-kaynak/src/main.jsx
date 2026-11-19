@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { MotionConfig } from "framer-motion";
 import "./stil.css";
 import { uygulamayaYonlendir } from "./yonlendir.js";
+import { t } from "./dil.js";
 import { UstMenu, Hero, KayanBant, Bento, KaydirmaCizgisi } from "./ust-bolumler.jsx";
 import { NotDemosu, Vitrin, Sayilar, Adimlar, Guvenlik, Kapanis, AltBilgi } from "./alt-bolumler.jsx";
 import { Sss } from "./sss.jsx";
@@ -14,7 +15,7 @@ function Uygulama() {
   return (
     // reducedMotion="user": cihazda "hareket azaltma" açıksa Framer animasyonları kısalır
     <MotionConfig reducedMotion="user">
-      <a href="#ozellikler" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-obsidyen">İçeriğe geç</a>
+      <a href="#ozellikler" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-obsidyen">{t("İçeriğe geç", "Skip to content")}</a>
       <KaydirmaCizgisi />
       <UstMenu />
       <main>
