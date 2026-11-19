@@ -21,7 +21,7 @@ export const OZELLIKLER = {
 // Fon müziği: araclar/muzik-uret.cjs ile kodla üretildi (telif yok)
 export const TanitimVideosu: React.FC = () => (
   <>
-  <Audio src={staticFile("muzik.wav")} volume={0.8} />
+  <Audio src={staticFile("muzik.wav")} volume={0.9} />
   <TransitionSeries>
     <TransitionSeries.Sequence name="Açılış" durationInFrames={105}>
       <Acilis />
