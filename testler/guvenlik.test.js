@@ -229,3 +229,9 @@ test("lisans: PolyForm Noncommercial; sitede ve videoda 'açık kaynak' iddiası
     assert.doesNotMatch(metin, /açık kaynak|open[ -]source/i, d + " 'açık kaynak' diyor; lisans PolyForm Noncommercial");
   }
 });
+
+test("Search Console: sahiplik doğrulama etiketi tanıtım sayfasında duruyor", () => {
+  // Google uyarısı: etiket kaldırılırsa site sahipliği doğrulaması düşer.
+  const html = fs.readFileSync(path.join(KOK, "tanitim-kaynak/index.html"), "utf8");
+  assert.match(html, /<meta name="google-site-verification" content="vDP-KhF2csmsWzK9AB2Oq6zeUZBL7isGsuSyla2XOg0" \/>/);
+});
