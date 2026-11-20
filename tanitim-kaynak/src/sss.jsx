@@ -2,7 +2,7 @@
 // desteği tarayıcıdan gelir, JavaScript gerekmez. Cevaplar uygulamanın gerçek
 // davranışına göre yazıldı; uygulama değişirse burayı da (iki dilde) güncelle.
 import { Plus } from "lucide-react";
-import { Belir, BolumBasligi, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
+import { Belir, BolumBasligi, ORNEK, KAYNAK_KOD, LISANS } from "./ortak.jsx";
 import { t } from "./dil.js";
 
 const SORULAR = [
@@ -57,8 +57,8 @@ const SORULAR = [
   {
     soru: t("Kendi kulübüm için ayrı kurabilir miyim?", "Can I set up my own copy for my club?"),
     cevap: t(
-      <>Evet, ticari olmayan kullanım için. Kodu GitHub'da herkese açık (PolyForm Noncommercial lisansı): öğrenci kulüpleri, okullar ve gönüllü kuruluşlar kendi kopyasını ücretsiz kurabilir; kurulum rehberi adım adım anlatır. Ticari kullanım için izin gerekir.</>,
-      <>Yes, for noncommercial use. The source is public on GitHub under the PolyForm Noncommercial license: student clubs, schools and nonprofits can set up their own copy for free, and the setup guide walks you through it. Commercial use requires permission.</>),
+      <>Ticari olmayan kullanım için evet: öğrenci kulüpleri, okullar ve gönüllü kuruluşlar kendi kopyasını ücretsiz kurabilir (koşullar <a href={LISANS}>lisansta</a>). Ticari kullanım ya da kurumunuz için özel bir kurulum isterseniz GitHub üzerinden iletişime geçin.</>,
+      <>For noncommercial use, yes: student clubs, schools and nonprofits can run their own copy for free (terms in the <a href={LISANS}>license</a>). For commercial use or a custom setup for your organization, get in touch via GitHub.</>),
   },
 ];
 

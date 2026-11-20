@@ -5,7 +5,7 @@ import {
   ArrowRight, RotateCcw, ShieldCheck, KeyRound, Lock, GitMerge, UserCheck,
   Users, ClipboardList, ListChecks, Play,
 } from "lucide-react";
-import { Logo, Belir, IsikliKart, BolumBasligi, Sayac, UYGULAMA, ORNEK, KAYNAK_KOD } from "./ortak.jsx";
+import { Logo, Belir, IsikliKart, BolumBasligi, Sayac, UYGULAMA, ORNEK, KAYNAK_KOD, LISANS } from "./ortak.jsx";
 import { t } from "./dil.js";
 import ozetGorseli from "./gorseller/ozet.png";
 import takvimGorseli from "./gorseller/takvim.png";
@@ -278,7 +278,7 @@ export function AltBilgi() {
     <footer className="border-t border-white/5">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-10 text-sm text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2.5 text-slate-300"><Logo boyut={22} /> Seyir <span className="text-slate-600">·</span> <span className="text-slate-500">{t("takım asistanı", "team assistant")}</span></div>
-        <p>{t("ROTA İSAS Teknofest takımı için yapıldı · kodu herkese açık", "Built for the ROTA İSAS Teknofest team · source available")}</p>
+        <p>{t("ROTA İSAS Teknofest takımı için yapıldı", "Built for the ROTA İSAS Teknofest team")} · © 2026 Seyir · <a className="transition hover:text-white" href={LISANS}>{t("Lisans", "License")}</a></p>
         <div className="flex gap-5">
           <a className="transition hover:text-white" href={UYGULAMA}>{t("Uygulama", "App")}</a>
           <a className="transition hover:text-white" href={KAYNAK_KOD}>GitHub</a>

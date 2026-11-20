@@ -7,6 +7,7 @@ export const UYGULAMA = "/uygulama";
 // Örnek mod: giriş yok, uydurma takım sekmede açılır (js/kolaylik.js > ornekModuMu)
 export const ORNEK = "/uygulama?ornek=1";
 export const KAYNAK_KOD = "https://github.com/dvlp-omer/seyir";
+export const LISANS = KAYNAK_KOD + "/blob/main/LICENSE.md";
 
 // Logo: pusula yıldızı, küre ve önünden geçen yörünge şeridi (ikonlar/logo.svg ile aynı çizim).
 // canli: Ömer'in logo GIF'indeki hareketin kodla yapılmış hâli (6 sn'lik döngü, stil.css > .logo-canli):
