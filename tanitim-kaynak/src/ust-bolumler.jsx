@@ -106,8 +106,8 @@ export function Hero() {
         </Belir>
 
         <Belir gecikme={0.16} as="p" className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
-          {t("Görevler, son tarihler, resmî toplantı tutanakları ve ekibe giden mesajlar tek yerde. Teknofest takımları için yapıldı; ücretsiz, açık kaynak ve internet yokken bile açılır.",
-            "Tasks, deadlines, official meeting minutes and messages to your crew, in one place. Built for student competition teams; free, open source, and it opens even without internet.")}
+          {t("Görevler, son tarihler, resmî toplantı tutanakları ve ekibe giden mesajlar tek yerde. Teknofest takımları için yapıldı; ücretsiz, kodu herkese açık ve internet yokken bile açılır.",
+            "Tasks, deadlines, official meeting minutes and messages to your crew, in one place. Built for student competition teams; free, source available, and it opens even without internet.")}
         </Belir>
 
         <Belir gecikme={0.24} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">

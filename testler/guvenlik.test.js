@@ -213,3 +213,19 @@ test("yayın: ana sayfa tanıtım, uygulama /uygulama; eski /tanitim yönlenir; 
   assert.match(fs.readFileSync(path.join(KOK, "uygulama.html"), "utf8"), /<meta name="robots" content="noindex">/);
   assert.match(fs.readFileSync(path.join(KOK, "robots.txt"), "utf8"), /Sitemap: https:\/\/seyir-takim\.vercel\.app\/sitemap\.xml/);
 });
+
+test("lisans: PolyForm Noncommercial; sitede ve videoda 'açık kaynak' iddiası yok", () => {
+  // Kod herkese açık ama açık kaynak değil (ticari kullanım izne bağlı). Yanlış vaat geri gelmesin.
+  const lisans = fs.readFileSync(path.join(KOK, "LICENSE.md"), "utf8");
+  assert.match(lisans, /^Required Notice: Copyright \(c\) 2026 /m);
+  assert.match(lisans, /# PolyForm Noncommercial License 1\.0\.0/);
+  const dosyalar = [
+    "README.md", "tanitim-kaynak/index.html", "tanitim-kaynak/sayfalari-yaz.cjs", "tanitim-video/src/metinler.ts",
+    ...fs.readdirSync(path.join(KOK, "tanitim-kaynak/src")).filter((d) => /\.(jsx?|css)$/.test(d)).map((d) => "tanitim-kaynak/src/" + d),
+  ];
+  for (const d of dosyalar) {
+    // "açık kaynak değildir" / "not open source" gibi olumsuz cümleler doğru bilgidir, sayılmaz
+    const metin = fs.readFileSync(path.join(KOK, d), "utf8").replace(/açık kaynak\*{0,2} değil|not\*{0,2} open[ -]source|\*\*not open source/gi, "");
+    assert.doesNotMatch(metin, /açık kaynak|open[ -]source/i, d + " 'açık kaynak' diyor; lisans PolyForm Noncommercial");
+  }
+});

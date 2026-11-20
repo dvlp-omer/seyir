@@ -2,6 +2,7 @@
   "name": "seyir",
   "version": "1.0.0",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE.md",
   "description": "Seyir — Team Assistant for Student Teams / Öğrenci Takımları İçin Takım Asistanı (bağımlılık yok; bu dosya sadece 'npm test' kısayolu için)",
   "scripts": {
     "test": "node --test \"testler/*.test.js\"",

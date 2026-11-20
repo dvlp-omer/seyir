@@ -105,7 +105,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-242 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+243 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -191,6 +191,13 @@ göster düğmesi var; şifre Ayarlar'dan da değiştirilebilir.
 
 _Bu bölüm henüz doldurulmadı._
 
+### Lisans
+
+Kaynak kodu herkese açıktır ama **açık kaynak değildir**: [PolyForm Noncommercial 1.0.0](LICENSE.md).
+Kişisel, eğitim ve ticari olmayan amaçlarla kullanılabilir; öğrenci kulüpleri, okullar ve
+gönüllü kuruluşlar kendi kopyasını ücretsiz kurabilir. Ticari kullanım için yazılı izin
+gerekir (GitHub üzerinden iletişime geçin).
+
 ### Nasıl yapıldı?
 
 Bu proje bir yapay zekâ kodlama asistanıyla (Claude) birlikte geliştirildi;
@@ -256,7 +263,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-242 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+243 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF
@@ -299,6 +306,13 @@ WhatsApp messages are opened one by one and "sent" is marked on click.
 ### Used by the ROTA İSAS team
 
 _To be filled in once the team has actually used it._
+
+### License
+
+The source code is public but **not open source**: [PolyForm Noncommercial 1.0.0](LICENSE.md).
+Personal, educational and other noncommercial use is allowed; student clubs, schools and
+nonprofits may run their own copy for free. Commercial use requires written permission
+(contact via GitHub).
 
 ### How it was built
 

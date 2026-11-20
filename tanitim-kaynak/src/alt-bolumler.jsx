@@ -175,7 +175,7 @@ export function Vitrin() {
 
 /* ---------- Sayılar ---------- */
 const SAYILAR = [
-  { hedef: 242, sonek: "", metin: t("otomatik test, her gönderimde", "automated tests on every push") },
+  { hedef: 243, sonek: "", metin: t("otomatik test, her gönderimde", "automated tests on every push") },
   { hedef: 13, sonek: "", metin: t("tablo, hepsi satır düzeyinde korumalı", "tables, all with row-level security") },
   { hedef: 12, sonek: "", metin: t("ekran: görevden WhatsApp'a", "screens, from tasks to WhatsApp") },
   { hedef: 0, sonek: t(" ₺", " $"), metin: t("aylık maliyet", "monthly cost") },
@@ -278,7 +278,7 @@ export function AltBilgi() {
     <footer className="border-t border-white/5">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-10 text-sm text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2.5 text-slate-300"><Logo boyut={22} /> Seyir <span className="text-slate-600">·</span> <span className="text-slate-500">{t("takım asistanı", "team assistant")}</span></div>
-        <p>{t("ROTA İSAS Teknofest takımı için yapıldı · açık kaynak", "Built for the ROTA İSAS Teknofest team · open source")}</p>
+        <p>{t("ROTA İSAS Teknofest takımı için yapıldı · kodu herkese açık", "Built for the ROTA İSAS Teknofest team · source available")}</p>
         <div className="flex gap-5">
           <a className="transition hover:text-white" href={UYGULAMA}>{t("Uygulama", "App")}</a>
           <a className="transition hover:text-white" href={KAYNAK_KOD}>GitHub</a>

@@ -15,7 +15,7 @@ export const METIN = {
       arama: { etiket: "Genel arama", baslik: "Aradığını anında bul.", aciklama: "Görev, tutanak, toplantı ve kişi; hepsi tek arama kutusunda.", gorsel: "arama.png" },
     },
     tutanak: { etiket: "Resmî tutanak", baslik: ["Notları bırak, ", "tutanak hazır."], sol: "Dağınık notlar ya da Word dosyası", sag: "Alanlar kendiliğinden dolar" },
-    kapanis: { alt: "Ücretsiz · Açık kaynak · Teknofest takımları için", dugme: "Hesap açmadan dene →", adres: "seyir-takim.vercel.app" },
+    kapanis: { alt: "Ücretsiz · Teknofest takımları için", dugme: "Hesap açmadan dene →", adres: "seyir-takim.vercel.app" },
   },
   en: {
     slogan: ["Your team's", "logbook."],
@@ -28,6 +28,6 @@ export const METIN = {
       arama: { etiket: "Search", baslik: "Find anything, instantly.", aciklama: "Tasks, minutes, meetings and people, all in one search box.", gorsel: "arama.png" },
     },
     tutanak: { etiket: "Official minutes", baslik: ["Drop your notes, ", "get the minutes."], sol: "Messy notes or a Word file", sag: "The fields fill themselves" },
-    kapanis: { alt: "Free · Open source · Built for student teams", dugme: "Try it, no sign-up →", adres: "seyir-takim.vercel.app/en" },
+    kapanis: { alt: "Free · Built for student teams", dugme: "Try it, no sign-up →", adres: "seyir-takim.vercel.app/en" },
   },
 } as const;

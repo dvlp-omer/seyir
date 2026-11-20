@@ -34,8 +34,8 @@ const DURAKLAR = [
     etiket: t("Bugün", "Today"),
     baslik: t("Her öğrenci takımı için açık", "Open to every student team"),
     metin: t(
-      "Aynı sorunları yaşayan başka takımlar da kullanabilsin diye ücretsiz ve açık kaynak olarak yayında. Kod, testler ve kurulum rehberi GitHub'da.",
-      "It's free and open source so other teams with the same problems can use it too. The code, tests and setup guide are on GitHub."),
+      "Aynı sorunları yaşayan başka takımlar da kullanabilsin diye ücretsiz yayında; kodu, testleri ve kurulum rehberi GitHub'da herkese açık.",
+      "It's free so other teams with the same problems can use it too; the code, tests and setup guide are public on GitHub."),
   },
 ];
 

@@ -9,8 +9,8 @@ const SORULAR = [
   {
     soru: t("Seyir ücretli mi?", "Does Seyir cost anything?"),
     cevap: t(
-      <>Hayır. Tamamen ücretsiz ve açık kaynak. Ücretsiz katmanlarda çalışan servislerle yayında (Vercel ve Supabase); kart bilgisi istenmez, reklam yok.</>,
-      <>No. It's completely free and open source, hosted on the free tiers of Vercel and Supabase. No credit card, no ads.</>),
+      <>Hayır. Takımlar için tamamen ücretsiz; ücretsiz katmanlarda çalışan servislerle yayında (Vercel ve Supabase). Kart bilgisi istenmez, reklam yok.</>,
+      <>No. It's completely free for teams, hosted on the free tiers of Vercel and Supabase. No credit card, no ads.</>),
   },
   {
     soru: t("Hesap açmadan deneyebilir miyim?", "Can I try it without an account?"),
@@ -57,8 +57,8 @@ const SORULAR = [
   {
     soru: t("Kendi kulübüm için ayrı kurabilir miyim?", "Can I set up my own copy for my club?"),
     cevap: t(
-      <>Evet. Kod açık; GitHub'daki kurulum rehberi ücretsiz bir Supabase projesi ve Vercel ile kendi kopyanı nasıl yayınlayacağını adım adım anlatır.</>,
-      <>Yes. The code is open; the setup guide on GitHub walks you through publishing your own copy with a free Supabase project and Vercel.</>),
+      <>Evet, ticari olmayan kullanım için. Kodu GitHub'da herkese açık (PolyForm Noncommercial lisansı): öğrenci kulüpleri, okullar ve gönüllü kuruluşlar kendi kopyasını ücretsiz kurabilir; kurulum rehberi adım adım anlatır. Ticari kullanım için izin gerekir.</>,
+      <>Yes, for noncommercial use. The source is public on GitHub under the PolyForm Noncommercial license: student clubs, schools and nonprofits can set up their own copy for free, and the setup guide walks you through it. Commercial use requires permission.</>),
   },
 ];
 

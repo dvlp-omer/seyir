@@ -1,4 +1,4 @@
-// Son sahne: logo, adres, "Ücretsiz · Açık kaynak", deneme çağrısı.
+// Son sahne: logo, adres, kısa tanım, deneme çağrısı.
 import { interpolate, useCurrentFrame } from "remotion";
 import { belir, Logo, RENK, Zemin } from "../ortak";
 import { Dil, METIN } from "../metinler";
