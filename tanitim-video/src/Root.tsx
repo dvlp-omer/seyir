@@ -11,7 +11,8 @@ const ORTAK = { width: 1920, height: 1080, fps: 30 } as const;
 
 export const RemotionRoot: React.FC = () => (
   <>
-    <Composition id="SeyirTanitim" component={TanitimVideosu} durationInFrames={TOPLAM_KARE} {...ORTAK} />
+    <Composition id="SeyirTanitim" component={TanitimVideosu} durationInFrames={TOPLAM_KARE} defaultProps={{ dil: "tr" as const }} {...ORTAK} />
+    <Composition id="SeyirTanitimEN" component={TanitimVideosu} durationInFrames={TOPLAM_KARE} defaultProps={{ dil: "en" as const }} {...ORTAK} />
     <Folder name="Sahneler">
       <Composition id="Acilis" component={Acilis} durationInFrames={105} {...ORTAK} />
       <Composition id="Sorun" component={Sorun} durationInFrames={130} {...ORTAK} />

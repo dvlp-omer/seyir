@@ -3,6 +3,8 @@
 [Remotion](https://www.remotion.dev) ile kodla yazılmış, ~26 saniyelik tanıtım videosu
 (1920×1080, 30 kare/sn). Görseller uydurma örnek veriyle çekilmiş ekran görüntüleridir.
 
+İki sürüm: Türkçe (`SeyirTanitim`) ve İngilizce (`SeyirTanitimEN`); yazılar `src/metinler.ts` içinde.
+
 Sahneler (`src/sahneler/`): Açılış → Sorun → Özet → Görev panosu → Tutanak → Arama → Kapanış.
 Ortak renkler, yazı tipi ve kareye bağlı canlı logo `src/ortak.tsx` içinde.
 
@@ -10,7 +12,8 @@ Ortak renkler, yazı tipi ve kareye bağlı canlı logo `src/ortak.tsx` içinde.
 cd tanitim-video
 npm i
 npm run dev                                   # Studio'da önizleme
-npx remotion render SeyirTanitim out/seyir-tanitim.mp4 --codec=h264 --crf=20
+npx remotion render SeyirTanitim out/seyir-tanitim.mp4 --codec=h264 --crf=20        # Türkçe
+npx remotion render SeyirTanitimEN out/seyir-tanitim-en.mp4 --codec=h264 --crf=20  # İngilizce
 ```
 
 Render için Remotion kendi tarayıcısını indirir; bilgisayarda Chrome varsa

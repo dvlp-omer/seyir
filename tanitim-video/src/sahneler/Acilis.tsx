@@ -1,8 +1,10 @@
 // 1. sahne: logo büyüyerek gelir, "SEYİR" ve slogan belirir.
 import { Easing, interpolate, useCurrentFrame } from "remotion";
 import { belir, Logo, RENK, Zemin } from "../ortak";
+import { Dil, METIN } from "../metinler";
 
-export const Acilis: React.FC = () => {
+export const Acilis: React.FC<{ dil?: Dil }> = ({ dil = "tr" }) => {
+  const m = METIN[dil];
   const kare = useCurrentFrame();
   return (
     <Zemin>
@@ -18,7 +20,7 @@ export const Acilis: React.FC = () => {
         </div>
         <div style={{ marginTop: 40, fontSize: 170, fontWeight: 700, letterSpacing: ".06em", lineHeight: 1, ...belir(kare, 16, 20) }}>SEYİR</div>
         <div style={{ marginTop: 28, fontSize: 56, color: RENK.soluk, ...belir(kare, 30, 20) }}>
-          Takımının <span style={{ color: RENK.suAcik }}>seyir defteri.</span>
+          {m.slogan[0]} <span style={{ color: RENK.suAcik }}>{m.slogan[1]}</span>
         </div>
       </div>
     </Zemin>

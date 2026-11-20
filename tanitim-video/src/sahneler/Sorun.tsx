@@ -1,14 +1,17 @@
 // 2. sahne: sohbet balonlarında dağınık sorular; sonra dağılır ve cevap gelir.
 import { Easing, interpolate, useCurrentFrame } from "remotion";
 import { belir, RENK, Zemin } from "../ortak";
+import { Dil, METIN } from "../metinler";
 
-const BALONLAR = [
-  { metin: "Geçen toplantıda ne karar almıştık?", x: 260, y: 230, gecikme: 4 },
-  { metin: "Motor teklifleri kimdeydi?", x: 900, y: 380, gecikme: 14 },
-  { metin: "Rapor teslimi ne zamandı??", x: 380, y: 540, gecikme: 24 },
+const YERLER = [
+  { x: 260, y: 230, gecikme: 4 },
+  { x: 900, y: 380, gecikme: 14 },
+  { x: 380, y: 540, gecikme: 24 },
 ];
 
-export const Sorun: React.FC = () => {
+export const Sorun: React.FC<{ dil?: Dil }> = ({ dil = "tr" }) => {
+  const m = METIN[dil];
+  const BALONLAR = YERLER.map((y, i) => ({ ...y, metin: m.sorular[i] }));
   const kare = useCurrentFrame();
   const dagil = interpolate(kare, [62, 80], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.quad) });
   return (
@@ -29,8 +32,8 @@ export const Sorun: React.FC = () => {
         </div>
       ))}
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-        <div style={{ fontSize: 118, fontWeight: 650, letterSpacing: "-.03em", ...belir(kare, 76, 20) }}>Hepsi tek yerde.</div>
-        <div style={{ marginTop: 26, fontSize: 52, color: RENK.soluk, ...belir(kare, 88, 20) }}>Görev, son tarih, tutanak ve mesaj.</div>
+        <div style={{ fontSize: 118, fontWeight: 650, letterSpacing: "-.03em", ...belir(kare, 76, 20) }}>{m.tekYer}</div>
+        <div style={{ marginTop: 26, fontSize: 52, color: RENK.soluk, ...belir(kare, 88, 20) }}>{m.tekYerAlt}</div>
       </div>
     </Zemin>
   );
