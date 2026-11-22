@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 251 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 252 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -47,7 +47,7 @@ netlify.toml               Yayın ayarları ve güvenlik başlıkları
 tanitim-kaynak/            Tanıtım sayfası (/tanitim): React + Tailwind + Framer Motion, Vite ile
                            derlenir; çıktı tanitim/ (depoya girmez, yayında üretilir). Uygulamadan
                            bağımsızdır: uygulama yine framework'süz, derlemesiz.
-testler/                   251 test (Node'un kendi test aracı)
+testler/                   252 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar

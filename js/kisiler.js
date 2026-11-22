@@ -250,6 +250,12 @@ function waPaylasLinki(mesaj) {
   return "https://wa.me/?text=" + encodeURIComponent(mesaj);
 }
 
+// Bilgisayarda WhatsApp Web (tarayıcı). Masaüstü WhatsApp uygulaması wa.me ile gelen metindeki
+// emojileri bozabiliyor (�); WhatsApp Web doğru alır. Sohbeti kullanıcı seçer.
+function waWebLinki(mesaj) {
+  return "https://web.whatsapp.com/send?text=" + encodeURIComponent(mesaj);
+}
+
 /* ---------- Duyuruya bağlantı ve medya ----------
    wa.me bağlantısı yalnızca yazı taşır; fotoğraf ve video telefonun Paylaş
    menüsüyle (Web Share API) gider. Dosyalar hiçbir yere kaydedilmez: yalnızca
@@ -417,7 +423,7 @@ if (typeof module !== "undefined") {
     telefonNormallestir, telefonGoster, ilkAdTahmin, adSade,
     ayiriciBul, csvSatiriniBol, csvAyristir, htmlKisiDizisiOku, kisileriHazirla, kisileriCsvYap,
     SABLON_DEGISKENLERI, SABLON_TURLERI, VARSAYILAN_SABLONLAR, sablonDoldur, eksikDegiskenler,
-    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi, panoyaGorselUygunMu,
+    waLinki, waPaylasLinki, waWebLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi, panoyaGorselUygunMu,
     kampanyaHazirla, aliciMesaji, aliciIsaretle, kampanyaIlerleme,
     sonrakiToplantiCoz, tutanakKisileri, tutanaktanDegerler, etiketler, kisileriSuz,
   };

@@ -58,8 +58,9 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
     const ipucu = sec("#" + onEk + "-medya-ipucu");
     ipucu.hidden = !secili.length;
     ipucu.innerHTML = panoyaGorselKullan()
-      ? "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca görsel panoya kopyalanır ve WhatsApp metin yazılı açılır. " +
-        "Sohbeti seç, yazı kutusuna tıklayıp <b>Ctrl+V</b> yap: metin görselin açıklaması olur, sonra gönder."
+      ? "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca görsel panoya kopyalanır ve <b>WhatsApp Web</b> metin yazılı açılır. " +
+        "Sohbeti seç, yazı kutusuna tıklayıp <b>Ctrl+V</b> yap: metin görselin açıklaması olur, sonra gönder. " +
+        "(WhatsApp Web'e ilk kez giriyorsan telefonla QR kodu okutman gerekir.)"
       : "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca metin panoya kopyalanır. " +
         "WhatsApp'ta görselin altındaki <b>açıklama</b> kutusuna yapıştır (bilgisayarda Ctrl+V), sonra gönder. " +
         "Birden çok dosyada açıklama ilk görselin altına yazılır.";
@@ -94,8 +95,9 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
       if (panoyaGorselKullan()) {
         try {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": pngYap(secili[0]) })]);
-          window.open(waPaylasLinki(metin), "_blank", "noopener");
-          bildir("Görsel kopyalandı. WhatsApp'ta sohbeti seç, yazı kutusuna Ctrl+V yap: metin açıklama olur.");
+          // wa.me yerine WhatsApp Web: masaüstü uygulaması bağlantıyla gelen emojileri bozuyor (kisiler.js > waWebLinki)
+          window.open(waWebLinki(metin), "_blank", "noopener");
+          bildir("Görsel kopyalandı. WhatsApp Web'de sohbeti seç, yazı kutusuna Ctrl+V yap: metin açıklama olur.");
           return;
         } catch (hataNesnesi) {
           // Pano izin vermezse aşağıdaki Paylaş menüsü yoluna düşer
