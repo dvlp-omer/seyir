@@ -185,7 +185,7 @@ function mesajYeniCiz(kok, sablonlar, kisiler, tutanaklar) {
     tutanakSirali.map((x) => '<option value="' + htmlKacis(x.id) + '"' + (x.id === t.tutanak_id ? " selected" : "") + ">" +
       htmlKacis((x.numara || tarihYaz(x.toplanti_tarihi, false)) + (x.sonraki_toplanti ? " → " + x.sonraki_toplanti : "")) + "</option>").join("") +
     "</select><small>Sonraki toplantının tarih ve saatini alır" + (grup ? "" : "; tutanakta adı geçen kişileri seçer") + ".</small></label>" +
-    girdi("tarih", "{tarih}") + girdi("saat", "{saat}") + girdi("yer", "{yer}") + girdi("link", "{link}", "Kayıt formu, konum ya da duyuru bağlantısı") +
+    girdi("tarih", "{tarih}") + girdi("saat", "{saat}") + girdi("yer", "{yer}") + girdi("link", "{link}", grup ? "Kayıt formu, konum ya da Drive bağlantısı. Mesajda {link} yoksa sona eklenir." : "Kayıt formu, konum ya da duyuru bağlantısı") +
     "</div>" +
     '<label class="alan"><span>Mesaj metni</span><textarea id="mf-mesaj" class="uzun" maxlength="4000">' + htmlKacis(t.mesaj) + "</textarea>" +
     "<small>" + (grup ? "Gruba gittiği için {ad} kullanma." : "{ad} her kişide kendi hitap adıyla değişir.") + "</small></label>" +
@@ -194,7 +194,9 @@ function mesajYeniCiz(kok, sablonlar, kisiler, tutanaklar) {
 
     (grup
       ? '<section class="kart"><h3>2. Paylaş</h3><p class="soluk kucuk-yazi" style="margin-bottom:10px">' +
-        "Kopyalayıp gruba yapıştır ya da “WhatsApp'ta paylaş”a bas; açılan WhatsApp'ta grubu ya da sohbeti seç.</p>" +
+        "Kopyalayıp gruba yapıştır ya da “WhatsApp'ta paylaş”a bas; açılan WhatsApp'ta grubu ya da sohbeti seç. " +
+        "Fotoğraf ya da video eklersen telefonun Paylaş menüsü açılır.</p>" +
+        medyaAlaniHtml("mf") +
         '<div class="arac-cubugu" style="margin:0"><button type="button" class="dugme" data-eylem="kopyala">Mesajı kopyala</button>' +
         '<a class="dugme ana" id="mf-paylas" target="_blank" rel="noopener">WhatsApp\'ta paylaş</a></div></section>'
       : '<section class="kart"><h3>2. Kişiler <span class="soluk kucuk-yazi" id="mf-secili-sayi"></span></h3>' +
@@ -240,7 +242,10 @@ function mesajYeniCiz(kok, sablonlar, kisiler, tutanaklar) {
     mesajFormunuOku();
     const ilkSecili = kisiler.find((k) => secili.has(k.id));
     const ornekAd = grup ? "" : (ilkSecili ? ilkSecili.ilk_ad || ilkAdTahmin(ilkSecili.ad) : "Ece");
-    const metin = sablonDoldur(t.mesaj, { ...t.degerler, ad: ornekAd });
+    let metin = sablonDoldur(t.mesaj, { ...t.degerler, ad: ornekAd });
+    // Gruba duyuruda bağlantı, şablonda {link} geçmese de sona eklenir (kisiler.js > baglantiyiEkle)
+    if (grup) metin = baglantiyiEkle(metin, t.degerler.link);
+    sonMetin = metin;
     sec("#mf-onizleme").textContent = metin || "—";
     const eksik = eksikDegiskenler(metin);
     const eksikKutu = sec("#mf-eksik");
@@ -250,8 +255,10 @@ function mesajYeniCiz(kok, sablonlar, kisiler, tutanaklar) {
     if (paylas) paylas.href = waPaylasLinki(metin);
   }
 
+  let sonMetin = "";
   listeyiCiz();
   onizlemeyiGuncelle();
+  if (grup) medyaAlaniBagla("mf", () => sonMetin, sec("#mf-paylas"));
   form.oninput = (olay) => {
     if (olay.target.id === "mf-ara") { t.arama = olay.target.value; return listeyiCiz(); }
     onizlemeyiGuncelle();

@@ -12,7 +12,7 @@ const DUYURU_TURLERI = [
 ];
 
 // Ekrandaki seçimler. Başka ekranlar duyuruyaGit() ile önceden doldurabilir.
-const duyuruSecimi = { tur: "davet", kaynak_id: "", not: "" };
+const duyuruSecimi = { tur: "davet", kaynak_id: "", not: "", link: "" };
 
 // Başka bir ekrandan (tutanak, son tarihler) hazır seçimle bu ekrana gelir.
 function duyuruyaGit(tur, kaynakId) {
@@ -70,6 +70,8 @@ async function duyuruEkraniCiz(kok) {
     }
     return duyuruHatirlatma({ ...ortak, bugun: bugun() });
   }
+  // Bağlantı alanı doluysa ve metinde yoksa sona eklenir (kisiler.js > baglantiyiEkle).
+  const tamMetin = () => baglantiyiEkle(metniUret(), duyuruSecimi.link);
 
   const kaynakSecenekleri = kaynaklar.map((k) => ({
     deger: k.id, etiket: k.baslik + " — " + tarihYaz(k.tarih, false),
@@ -83,7 +85,9 @@ async function duyuruEkraniCiz(kok) {
       ? '<label class="alan"><span>' + (hatirlatma ? "Son tarih" : "Toplantı") + '</span><select id="duyuru-kaynak">' +
         secenekHtml(kaynakSecenekleri, duyuruSecimi.kaynak_id) + "</select></label>" +
         '<label class="alan"><span>Ek not</span><textarea id="duyuru-not" maxlength="500" placeholder="İsteğe bağlı; metnin sonuna eklenir.">' +
-        htmlKacis(duyuruSecimi.not) + "</textarea></label>"
+        htmlKacis(duyuruSecimi.not) + "</textarea></label>" +
+        '<label class="alan"><span>Bağlantı</span><input type="text" id="duyuru-link" autocomplete="off" spellcheck="false" maxlength="500" inputmode="url" placeholder="ör. kayıt formu, konum ya da Drive klasörü" value="' +
+        htmlKacis(duyuruSecimi.link) + '"><small>İsteğe bağlı; metnin sonuna tıklanabilir olarak eklenir.</small></label>'
       : '<div class="bos">' + (hatirlatma
           ? "Bekleyen son tarih yok. Önce <b>Tarihler</b> ekranından bir tarih ekle."
           : "Kayıtlı toplantı yok. Önce <b>Toplantı</b> ekranından bir toplantı ekle.") + "</div>") +
@@ -92,14 +96,23 @@ async function duyuruEkraniCiz(kok) {
     '<section class="kart"><h3>WhatsApp metni</h3>' +
     '<label class="gizli" for="duyuru-metin">Duyuru metni</label>' +
     '<textarea id="duyuru-metin" class="duyuru-metin" spellcheck="false"></textarea>' +
+    (kaynaklar.length ? '<h3 class="medya-baslik">Fotoğraf / video</h3>' + medyaAlaniHtml("duyuru") : "") +
     '<div class="arac-cubugu" style="margin:12px 0 0">' +
     '<button class="dugme ana" data-eylem="kopyala"' + (kaynaklar.length ? "" : " disabled") + ">Kopyala</button>" +
+    (kaynaklar.length ? '<a class="dugme" id="duyuru-paylas" target="_blank" rel="noopener">WhatsApp&#39;ta paylaş</a>' : "") +
     '<span class="soluk kucuk-yazi">*Yıldız* arasındaki yazı WhatsApp\'ta kalın görünür. Kopyalamadan önce metni burada düzeltebilirsin.</span>' +
     "</div></section>" +
     "</div>";
 
   const metinKutusu = sec("#duyuru-metin");
-  metinKutusu.value = metniUret();
+  const paylasDugmesi = sec("#duyuru-paylas");
+  // Metin kutusu elle düzeltilebilir; paylaş bağlantısı her zaman kutudaki son metni taşır.
+  function metniYaz(metin) {
+    metinKutusu.value = metin;
+    if (paylasDugmesi) paylasDugmesi.href = waPaylasLinki(metin);
+  }
+  metniYaz(tamMetin());
+  metinKutusu.oninput = () => { if (paylasDugmesi) paylasDugmesi.href = waPaylasLinki(metinKutusu.value); };
 
   // Tür değişince kaynak listesi de değişir -> ekranı baştan çiz.
   sec("#duyuru-tur").onchange = (olay) => {
@@ -111,12 +124,17 @@ async function duyuruEkraniCiz(kok) {
   if (kaynaklar.length) {
     sec("#duyuru-kaynak").onchange = (olay) => {
       duyuruSecimi.kaynak_id = olay.target.value;
-      metinKutusu.value = metniUret();
+      metniYaz(tamMetin());
     };
     sec("#duyuru-not").oninput = (olay) => {
       duyuruSecimi.not = olay.target.value.trim();
-      metinKutusu.value = metniUret();
+      metniYaz(tamMetin());
     };
+    sec("#duyuru-link").oninput = (olay) => {
+      duyuruSecimi.link = olay.target.value.trim();
+      metniYaz(tamMetin());
+    };
+    medyaAlaniBagla("duyuru", () => metinKutusu.value, paylasDugmesi);
   }
 
   eylemleriBagla(kok, {

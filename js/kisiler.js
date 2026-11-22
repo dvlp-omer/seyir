@@ -250,6 +250,65 @@ function waPaylasLinki(mesaj) {
   return "https://wa.me/?text=" + encodeURIComponent(mesaj);
 }
 
+/* ---------- Duyuruya bağlantı ve medya ----------
+   wa.me bağlantısı yalnızca yazı taşır; fotoğraf ve video telefonun Paylaş
+   menüsüyle (Web Share API) gider. Dosyalar hiçbir yere kaydedilmez: yalnızca
+   paylaşım anında, cihazın belleğinde kullanılır. */
+const MEDYA_EN_FAZLA = 10;
+const MEDYA_EN_BUYUK_MB = 100;
+
+// Kullanıcının yazdığı bağlantıyı tıklanabilir hâle getirir: "ornek.test/form"
+// -> "https://ornek.test/form". http(s) dışındaki şemalar ve adres olmayan yazılar boş döner.
+function baglantiDuzelt(link) {
+  const yazi = String(link || "").trim();
+  if (!yazi || /\s/.test(yazi)) return "";
+  if (/^https?:\/\/[^\s/]+/i.test(yazi)) return yazi;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(yazi)) return "";
+  return /^[^\s/:?#]+\.[^\s/:?#]+([/?#]\S*)?$/.test(yazi) ? "https://" + yazi : "";
+}
+
+// Bağlantı metinde geçmiyorsa metnin sonuna, boş bir satırdan sonra ekler.
+function baglantiyiEkle(metin, link) {
+  const temiz = baglantiDuzelt(link);
+  const yazi = String(metin || "");
+  if (!temiz) return yazi;
+  const ham = String(link).trim();
+  if (yazi.includes(temiz) || yazi.includes(ham)) return yazi;
+  const govde = yazi.trimEnd();
+  return govde ? govde + "\n\n" + temiz : temiz;
+}
+
+// Seçilen dosyalardan paylaşılabilecekleri ayırır. "onceki": zaten seçili olanlar (adet sınırı için).
+function medyaSuz(dosyalar, onceki = []) {
+  const uygun = [];
+  const reddedilen = [];
+  for (const dosya of dosyalar || []) {
+    const tur = String(dosya.type || "");
+    if (!/^(image|video)\//.test(tur)) {
+      reddedilen.push({ ad: dosya.name, neden: "yalnızca fotoğraf ya da video eklenebilir" });
+    } else if (dosya.size > MEDYA_EN_BUYUK_MB * 1024 * 1024) {
+      reddedilen.push({ ad: dosya.name, neden: "dosya " + MEDYA_EN_BUYUK_MB + " MB'tan büyük" });
+    } else if (onceki.length + uygun.length >= MEDYA_EN_FAZLA) {
+      reddedilen.push({ ad: dosya.name, neden: "en fazla " + MEDYA_EN_FAZLA + " dosya eklenebilir" });
+    } else {
+      uygun.push(dosya);
+    }
+  }
+  return { uygun, reddedilen };
+}
+
+// Hangi yolla paylaşılacak?
+//   "baglanti": medya yok, wa.me bağlantısı yeter
+//   "dosyali" : tarayıcı dosyayı Paylaş menüsüne verebiliyor (Android Chrome, iPhone Safari)
+//   "dosyasiz": medya var ama tarayıcı dosya paylaşamıyor; metin kopyalanır, dosyayı kullanıcı ekler
+function paylasimYolu(nav, dosyalar) {
+  if (!dosyalar || !dosyalar.length) return "baglanti";
+  if (nav && typeof nav.share === "function" && typeof nav.canShare === "function" && nav.canShare({ files: dosyalar })) {
+    return "dosyali";
+  }
+  return "dosyasiz";
+}
+
 /* ---------- Gönderim listesi (kampanya) ----------
    Her gönderim ayrı kayıttır. Alıcılar o anki hâlleriyle kopyalanır:
    kişi sonradan silinse ya da numarası değişse de liste bozulmaz. */
@@ -333,7 +392,8 @@ if (typeof module !== "undefined") {
     telefonNormallestir, telefonGoster, ilkAdTahmin, adSade,
     ayiriciBul, csvSatiriniBol, csvAyristir, htmlKisiDizisiOku, kisileriHazirla, kisileriCsvYap,
     SABLON_DEGISKENLERI, SABLON_TURLERI, VARSAYILAN_SABLONLAR, sablonDoldur, eksikDegiskenler,
-    waLinki, waPaylasLinki, kampanyaHazirla, aliciMesaji, aliciIsaretle, kampanyaIlerleme,
+    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu,
+    kampanyaHazirla, aliciMesaji, aliciIsaretle, kampanyaIlerleme,
     sonrakiToplantiCoz, tutanakKisileri, tutanaktanDegerler, etiketler, kisileriSuz,
   };
 }

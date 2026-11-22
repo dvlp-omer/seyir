@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 244 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 248 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -31,6 +31,7 @@ js/
   tema.js                  Açık / koyu tema
   kolaylik.js              Saf yardımcılar: taslak, sorumlu tahmini, .ics, arama, kısayollar
   arayuz.js                Ortak arayüz: form penceresi, arama, kısayollar, bildirim, tıklama eylemleri
+  paylasim.js              Duyuruya fotoğraf / video ekleme ve Paylaş menüsü (kuralları: js/kisiler.js)
   ornek-veri.js            "Örnek veriyle dene" için hayali takım
   uygulama.js              Başlatma, ekran geçişi, odak yönetimi
   ekranlar/                Her ekran bir dosya
@@ -46,7 +47,7 @@ netlify.toml               Yayın ayarları ve güvenlik başlıkları
 tanitim-kaynak/            Tanıtım sayfası (/tanitim): React + Tailwind + Framer Motion, Vite ile
                            derlenir; çıktı tanitim/ (depoya girmez, yayında üretilir). Uygulamadan
                            bağımsızdır: uygulama yine framework'süz, derlemesiz.
-testler/                   244 test (Node'un kendi test aracı)
+testler/                   248 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar

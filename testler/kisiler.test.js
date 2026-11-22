@@ -195,3 +195,54 @@ test("etiketler ve kisileriSuz", () => {
   assert.deepEqual(k.kisileriSuz(kisiler, { arama: "0000002" }).map((x) => x.ad), ["Can Öz"]);
   assert.equal(k.kisileriSuz(kisiler).length, 3);
 });
+
+/* ---------- Duyuruya bağlantı ve medya ---------- */
+
+test("baglantiDuzelt: boşlukları alır, şemasız adrese https:// ekler, tehlikeli şemayı reddeder", () => {
+  assert.equal(k.baglantiDuzelt("  "), "");
+  assert.equal(k.baglantiDuzelt(" https://ornek.test/form "), "https://ornek.test/form");
+  assert.equal(k.baglantiDuzelt("http://ornek.test"), "http://ornek.test");
+  assert.equal(k.baglantiDuzelt("ornek.test/kayit?x=1"), "https://ornek.test/kayit?x=1");
+  assert.equal(k.baglantiDuzelt("javascript:alert(1)"), "");
+  assert.equal(k.baglantiDuzelt("rastgele yazı"), "");
+});
+
+test("baglantiyiEkle: bağlantı metinde yoksa sona ekler, varsa tekrar eklemez", () => {
+  assert.equal(k.baglantiyiEkle("Toplantı yarın.", ""), "Toplantı yarın.");
+  assert.equal(k.baglantiyiEkle("Toplantı yarın.\n", "ornek.test/form"), "Toplantı yarın.\n\nhttps://ornek.test/form");
+  assert.equal(k.baglantiyiEkle("Form: https://ornek.test/form", "https://ornek.test/form"), "Form: https://ornek.test/form");
+  assert.equal(k.baglantiyiEkle("Form: ornek.test/form", "ornek.test/form"), "Form: ornek.test/form");
+  assert.equal(k.baglantiyiEkle("", "ornek.test"), "https://ornek.test");
+});
+
+test("medyaSuz: yalnızca fotoğraf ve video, boyut ve adet sınırıyla", () => {
+  const mb = 1024 * 1024;
+  const dosya = (name, type, size = mb) => ({ name, type, size });
+  const { uygun, reddedilen } = k.medyaSuz([
+    dosya("afis.jpg", "image/jpeg"),
+    dosya("tanitim.mp4", "video/mp4", 50 * mb),
+    dosya("rapor.pdf", "application/pdf"),
+    dosya("dev.mov", "video/quicktime", 101 * mb),
+  ]);
+  assert.deepEqual(uygun.map((d) => d.name), ["afis.jpg", "tanitim.mp4"]);
+  assert.deepEqual(reddedilen.map((r) => r.ad), ["rapor.pdf", "dev.mov"]);
+  assert.match(reddedilen[0].neden, /fotoğraf ya da video/);
+  assert.match(reddedilen[1].neden, /100 MB/);
+
+  // Önceden seçilenlerle birlikte en fazla MEDYA_EN_FAZLA dosya
+  const onceki = Array.from({ length: k.MEDYA_EN_FAZLA - 1 }, (_, i) => dosya("f" + i + ".png", "image/png"));
+  const sonuc = k.medyaSuz([dosya("a.png", "image/png"), dosya("b.png", "image/png")], onceki);
+  assert.deepEqual(sonuc.uygun.map((d) => d.name), ["a.png"]);
+  assert.match(sonuc.reddedilen[0].neden, /en fazla/);
+});
+
+test("paylasimYolu: dosya paylaşımı desteklenmiyorsa dürüstçe metne düşer", () => {
+  const dosyalar = [{ name: "afis.jpg", type: "image/jpeg", size: 10 }];
+  const tam = { share() {}, canShare: (v) => Boolean(v.files) };
+  assert.equal(k.paylasimYolu(tam, dosyalar), "dosyali");
+  assert.equal(k.paylasimYolu(tam, []), "baglanti");
+  assert.equal(k.paylasimYolu({ share() {}, canShare: () => false }, dosyalar), "dosyasiz");
+  assert.equal(k.paylasimYolu({ share() {} }, dosyalar), "dosyasiz");
+  assert.equal(k.paylasimYolu({}, dosyalar), "dosyasiz");
+  assert.equal(k.paylasimYolu(undefined, dosyalar), "dosyasiz");
+});
