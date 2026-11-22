@@ -238,20 +238,23 @@ function eksikDegiskenler(metin, haric = []) {
 }
 
 /* ---------- WhatsApp bağlantıları ----------
-   wa.me, WhatsApp'ın resmî "tıkla ve sohbet et" bağlantısıdır: mesajı hazır
-   hâlde açar, GÖNDER'e kullanıcı basar. Toplu ve otomatik gönderim resmî
-   olarak desteklenmez; bu uygulama da yapmaz. */
+   WhatsApp'ın resmî "tıkla ve sohbet et" bağlantısı: mesajı hazır hâlde açar,
+   GÖNDER'e kullanıcı basar. Toplu ve otomatik gönderim resmî olarak
+   desteklenmez; bu uygulama da yapmaz.
+   NEDEN wa.me DEĞİL? wa.me, api.whatsapp.com/send adresine yönlendirirken metni
+   yeniden kodluyor ve 4 baytlık UTF-8 karakterleri (bütün emojiler) "�" yapıyor.
+   api.whatsapp.com/send doğrudan kullanılınca emojiler sağlam kalır. */
 function waLinki(telefon, mesaj) {
-  return "https://wa.me/" + encodeURIComponent(telefon) + "?text=" + encodeURIComponent(mesaj);
+  return "https://api.whatsapp.com/send?phone=" + encodeURIComponent(telefon) + "&text=" + encodeURIComponent(mesaj);
 }
 
 // Kişi belirtmeden: WhatsApp açılır, mesajın gideceği sohbeti/grubu kullanıcı seçer.
 function waPaylasLinki(mesaj) {
-  return "https://wa.me/?text=" + encodeURIComponent(mesaj);
+  return "https://api.whatsapp.com/send?text=" + encodeURIComponent(mesaj);
 }
 
 /* ---------- Duyuruya bağlantı ve medya ----------
-   wa.me bağlantısı yalnızca yazı taşır; fotoğraf ve video telefonun Paylaş
+   WhatsApp bağlantısı yalnızca yazı taşır; fotoğraf ve video telefonun Paylaş
    menüsüyle (Web Share API) gider. Dosyalar hiçbir yere kaydedilmez: yalnızca
    paylaşım anında, cihazın belleğinde kullanılır. */
 const MEDYA_EN_FAZLA = 10;
@@ -298,7 +301,7 @@ function medyaSuz(dosyalar, onceki = []) {
 }
 
 // Hangi yolla paylaşılacak?
-//   "baglanti": medya yok, wa.me bağlantısı yeter
+//   "baglanti": medya yok, WhatsApp bağlantısı yeter
 //   "dosyali" : tarayıcı dosyayı Paylaş menüsüne verebiliyor (Android Chrome, iPhone Safari)
 //   "dosyasiz": medya var ama tarayıcı dosya paylaşamıyor; metin kopyalanır, dosyayı kullanıcı ekler
 function paylasimYolu(nav, dosyalar) {
@@ -326,10 +329,10 @@ function paylasimIcerigi(metin, dosyalar, mobil) {
   return mobil ? { text: metin, files: dosyalar.slice() } : { files: dosyalar.slice() };
 }
 
-// Bilgisayarda tek görsel varsa iki yapıştırmalı yol: önce görsel panoya kopyalanır ve
-// WhatsApp'ta yapıştırılır (önizleme açılır), sonra metin kopyalanıp açıklama kutusuna
-// yapıştırılır: açıklamalı tek mesaj. Metin bağlantıyla (wa.me, WhatsApp Web) gönderilmez,
-// çünkü WhatsApp o yolla gelen emojileri bozuyor. Panoya yalnızca tek görsel sığar; video kopyalanamaz.
+// Bilgisayarda tek görsel varsa tek tıklık yol: görsel panoya kopyalanır ve WhatsApp metin
+// yazılı açılır (waPaylasLinki). Kullanıcı sohbeti seçip Ctrl+V yapınca WhatsApp yazı
+// kutusundaki metni görselin açıklamasına taşır: açıklamalı tek mesaj (denendi, 22 Kasım 2026).
+// Panoya yalnızca tek görsel sığar; video kopyalanamaz.
 function panoyaGorselUygunMu(dosyalar, mobil, panoDestegi) {
   return !mobil && Boolean(panoDestegi) && dosyalar.length === 1 && /^image\//.test(String(dosyalar[0].type || ""));
 }

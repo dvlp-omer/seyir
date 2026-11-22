@@ -105,11 +105,11 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-251 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+252 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
-aktarma, şablon, wa.me bağlantısı), veritabanı şemasının güvenliği (her
+aktarma, şablon, WhatsApp bağlantısı), veritabanı şemasının güvenliği (her
 tabloda RLS ve ziyaretçi yasağı), depoda kişisel veri olmaması, renk
 kontrastı ve PWA dosya listesi denetlenir.
 
@@ -225,7 +225,7 @@ Plain HTML, CSS and JavaScript — no framework, no build step, no dependencies.
 - **Attendance** — who attended each meeting or event; attendance rate per member.
 - **Events & activity report** — event log and a printable draft report for a chosen date range.
 - **Contacts** — name, salutation, phone, tag, note. Import from CSV, pasted spreadsheet rows, or the "acceptance messages" HTML page (the array is parsed as data, never executed). Phone numbers are normalised to `90XXXXXXXXXX`; invalid and duplicate rows are listed before anything is saved.
-- **WhatsApp messages** — saved templates with `{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`; filter and pick contacts, then a per-person **Open in WhatsApp** (`wa.me`) button with a sent marker and a 12/72 progress counter; every send list is stored. Group announcements via copy or `wa.me/?text=`. One-click meeting reminder from an official minutes record. No automated bulk sending (WhatsApp does not officially support it).
+- **WhatsApp messages** — saved templates with `{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`; filter and pick contacts, then a per-person **Open in WhatsApp** (`api.whatsapp.com/send`) button with a sent marker and a 12/72 progress counter; every send list is stored. Group announcements via copy or `api.whatsapp.com/send?text=` (not `wa.me`, whose redirect turns emoji into �), with optional link, photos and videos. One-click meeting reminder from an official minutes record. No automated bulk sending (WhatsApp does not officially support it).
 - **Announcement templates** — ready-to-paste WhatsApp text (plain templates, no AI).
 - **Search & shortcuts** — Ctrl+K or / searches every record (Turkish-letter-insensitive); Ctrl+S saves the open form; ? lists shortcuts.
 - **Drafts** — unsaved forms are kept in the browser and restored after a reload.
@@ -263,7 +263,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-251 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+252 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF
@@ -280,7 +280,7 @@ characters and the serif font.
 - `js/ekranlar/*.js` — one file per screen; each registers itself and the menu is built from that registry.
 - `js/oturum.js` — Supabase Auth over REST (sign in, token refresh, "remember me", password reset and change), used only in Supabase mode.
 - `supabase/schema.sql` — tables and row-level security: a user sees only the teams they belong to; triggers on `auth.users` make sign-up invite-only.
-- `js/kisiler.js` — pure logic for contacts and WhatsApp (phone normalisation, CSV/HTML import, templates, `wa.me` links, send-list progress).
+- `js/kisiler.js` — pure logic for contacts and WhatsApp (phone normalisation, CSV/HTML import, templates, WhatsApp links, send-list progress).
 - After every change the current screen re-reads its data and re-renders.
 
 Details (in Turkish): [ARCHITECTURE.md](ARCHITECTURE.md). A self-audit of v1 with

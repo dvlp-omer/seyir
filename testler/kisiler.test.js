@@ -133,9 +133,21 @@ test("hazır şablonlar: dört tür, yalnızca bilinen değişkenler", () => {
 
 test("waLinki ve waPaylasLinki: Türkçe, satır sonu ve & işareti doğru kodlanır", () => {
   const link = k.waLinki("905000000001", "Merhaba Çağla,\nyarın 17:30 & atölye?");
-  assert.equal(link, "https://wa.me/905000000001?text=Merhaba%20%C3%87a%C4%9Fla%2C%0Ayar%C4%B1n%2017%3A30%20%26%20at%C3%B6lye%3F");
+  assert.equal(link, "https://api.whatsapp.com/send?phone=905000000001&text=Merhaba%20%C3%87a%C4%9Fla%2C%0Ayar%C4%B1n%2017%3A30%20%26%20at%C3%B6lye%3F");
   assert.equal(decodeURIComponent(link.split("text=")[1]), "Merhaba Çağla,\nyarın 17:30 & atölye?");
-  assert.equal(k.waPaylasLinki("a b"), "https://wa.me/?text=a%20b");
+  assert.equal(k.waPaylasLinki("a b"), "https://api.whatsapp.com/send?text=a%20b");
+});
+
+test("WhatsApp bağlantıları wa.me kullanmaz: wa.me yönlendirmesi emojileri � yapıyor", () => {
+  // wa.me, api.whatsapp.com/send adresine yönlendirirken 4 baytlık UTF-8 karakterleri (bütün emojiler)
+  // U+FFFD (�) ile değiştiriyor. api.whatsapp.com/send doğrudan kullanılınca emojiler sağlam kalır.
+  const metin = "Selam 🌊 ders yarın 🚀\n📅 Pazartesi";
+  for (const link of [k.waPaylasLinki(metin), k.waLinki("905000000001", metin)]) {
+    assert.match(link, /^https:\/\/api\.whatsapp\.com\/send\?/);
+    assert.doesNotMatch(link, /wa\.me/);
+    assert.equal(new URL(link).searchParams.get("text"), metin);
+    assert.ok(link.includes("%F0%9F%8C%8A"), "🌊 UTF-8 olarak kodlanmalı");
+  }
 });
 
 /* ---------- Kampanya ---------- */

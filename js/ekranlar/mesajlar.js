@@ -8,7 +8,7 @@
 
    NEDEN TEK TEK? WhatsApp otomatik toplu gönderimi resmî olarak desteklemez;
    resmî olmayan otomasyon araçları hesabın kapatılmasına yol açabilir. Bu
-   ekran wa.me bağlantısıyla mesajı HAZIR açar, "Gönder"e kullanıcı basar.
+   ekran WhatsApp bağlantısıyla (kisiler.js > waLinki) mesajı HAZIR açar, "Gönder"e kullanıcı basar.
    Hesaplar js/kisiler.js içinde ve testli.
    ========================================================================== */
 
