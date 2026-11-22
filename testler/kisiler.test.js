@@ -274,9 +274,3 @@ test("panoyaGorselUygunMu: bilgisayarda tek görsel panoya kopyalanır (WhatsApp
   assert.equal(k.panoyaGorselUygunMu([video], false, true), false, "video panoya kopyalanamaz");
   assert.equal(k.panoyaGorselUygunMu([], false, true), false);
 });
-
-test("waWebLinki: emojiler ve Türkçe harfler UTF-8 olarak kodlanır (WhatsApp Web)", () => {
-  const link = k.waWebLinki("Selam 🌊 Çağrı\n🚀");
-  assert.equal(link, "https://web.whatsapp.com/send?text=Selam%20%F0%9F%8C%8A%20%C3%87a%C4%9Fr%C4%B1%0A%F0%9F%9A%80");
-  assert.equal(decodeURIComponent(link.split("text=")[1]), "Selam 🌊 Çağrı\n🚀");
-});

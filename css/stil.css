@@ -632,6 +632,8 @@ details[open] > .sablon-onizleme { display: block; }
 .medya-rozet { position: absolute; top: 12px; left: 12px; padding: 1px 6px; border-radius: 6px; font-size: .7rem; background: var(--rozet-z); color: var(--rozet-y); }
 .medya-alani .form-hata { margin: 8px 0 0; }
 .medya-ipucu { margin: 10px 0 0; padding: 10px 12px; border-radius: var(--kose); background: var(--rozet-z); color: var(--rozet-y); font-size: .9rem; }
+.medya-adimlar { margin: 8px 0 0; padding-left: 0; list-style: none; display: grid; gap: 8px; }
+.medya-adimlar .dugme { margin-right: 6px; }
 .kisi-secim { max-height: 50vh; overflow-y: auto; border: 1px solid var(--cizgi); border-radius: 8px; }
 .kisi-secim label { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--cizgi); cursor: pointer; }
 .kisi-secim label:first-child { border-top: 0; }

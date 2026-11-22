@@ -250,12 +250,6 @@ function waPaylasLinki(mesaj) {
   return "https://wa.me/?text=" + encodeURIComponent(mesaj);
 }
 
-// Bilgisayarda WhatsApp Web (tarayıcı). Masaüstü WhatsApp uygulaması wa.me ile gelen metindeki
-// emojileri bozabiliyor (�); WhatsApp Web doğru alır. Sohbeti kullanıcı seçer.
-function waWebLinki(mesaj) {
-  return "https://web.whatsapp.com/send?text=" + encodeURIComponent(mesaj);
-}
-
 /* ---------- Duyuruya bağlantı ve medya ----------
    wa.me bağlantısı yalnızca yazı taşır; fotoğraf ve video telefonun Paylaş
    menüsüyle (Web Share API) gider. Dosyalar hiçbir yere kaydedilmez: yalnızca
@@ -332,10 +326,10 @@ function paylasimIcerigi(metin, dosyalar, mobil) {
   return mobil ? { text: metin, files: dosyalar.slice() } : { files: dosyalar.slice() };
 }
 
-// Bilgisayarda tek görsel varsa daha kısa yol: görsel panoya kopyalanır, WhatsApp metin
-// yazılı hâlde açılır (wa.me). Kullanıcı sohbeti seçip Ctrl+V yapınca WhatsApp yazı
-// kutusundaki metni görselin açıklamasına taşır: açıklamalı tek mesaj. Panoya yalnızca
-// tek bir görsel sığar; video kopyalanamaz.
+// Bilgisayarda tek görsel varsa iki yapıştırmalı yol: önce görsel panoya kopyalanır ve
+// WhatsApp'ta yapıştırılır (önizleme açılır), sonra metin kopyalanıp açıklama kutusuna
+// yapıştırılır: açıklamalı tek mesaj. Metin bağlantıyla (wa.me, WhatsApp Web) gönderilmez,
+// çünkü WhatsApp o yolla gelen emojileri bozuyor. Panoya yalnızca tek görsel sığar; video kopyalanamaz.
 function panoyaGorselUygunMu(dosyalar, mobil, panoDestegi) {
   return !mobil && Boolean(panoDestegi) && dosyalar.length === 1 && /^image\//.test(String(dosyalar[0].type || ""));
 }
@@ -423,7 +417,7 @@ if (typeof module !== "undefined") {
     telefonNormallestir, telefonGoster, ilkAdTahmin, adSade,
     ayiriciBul, csvSatiriniBol, csvAyristir, htmlKisiDizisiOku, kisileriHazirla, kisileriCsvYap,
     SABLON_DEGISKENLERI, SABLON_TURLERI, VARSAYILAN_SABLONLAR, sablonDoldur, eksikDegiskenler,
-    waLinki, waPaylasLinki, waWebLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi, panoyaGorselUygunMu,
+    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi, panoyaGorselUygunMu,
     kampanyaHazirla, aliciMesaji, aliciIsaretle, kampanyaIlerleme,
     sonrakiToplantiCoz, tutanakKisileri, tutanaktanDegerler, etiketler, kisileriSuz,
   };

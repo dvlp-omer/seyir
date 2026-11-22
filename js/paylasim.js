@@ -57,15 +57,40 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
     }).join("");
     const ipucu = sec("#" + onEk + "-medya-ipucu");
     ipucu.hidden = !secili.length;
+    // Bilgisayarda tek görsel: iki yapıştırma. Metin bağlantıyla (wa.me / WhatsApp Web) gönderilince
+    // WhatsApp emojileri bozuyor (�); panodan yapıştırılan metinde emojiler sağlam kalıyor.
     ipucu.innerHTML = panoyaGorselKullan()
-      ? "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca görsel panoya kopyalanır ve <b>WhatsApp Web</b> metin yazılı açılır. " +
-        "Sohbeti seç, yazı kutusuna tıklayıp <b>Ctrl+V</b> yap: metin görselin açıklaması olur, sonra gönder. " +
-        "(WhatsApp Web'e ilk kez giriyorsan telefonla QR kodu okutman gerekir.)"
-      : "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca metin panoya kopyalanır. " +
+      ? "<b>Görsel ve metin tek mesaj olsun (emojiler bozulmadan):</b><ol class=\"medya-adimlar\">" +
+        '<li><button type="button" class="dugme kucuk ana" data-medya-adim="gorsel">1. Görseli kopyala</button> ' +
+        "WhatsApp'ta sohbeti aç, yazı kutusuna tıklayıp <b>Ctrl+V</b> yap. Görselin önizlemesi açılır.</li>" +
+        '<li><button type="button" class="dugme kucuk ana" data-medya-adim="metin">2. Metni kopyala</button> ' +
+        "Önizlemedeki <b>açıklama</b> kutusuna <b>Ctrl+V</b> yap, sonra gönder.</li></ol>"
+      :"<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca metin panoya kopyalanır. " +
         "WhatsApp'ta görselin altındaki <b>açıklama</b> kutusuna yapıştır (bilgisayarda Ctrl+V), sonra gönder. " +
         "Birden çok dosyada açıklama ilk görselin altına yazılır.";
-    if (paylasDugmesi) paylasDugmesi.textContent = secili.length ? "Paylaş (" + secili.length + " dosya ile)" : "WhatsApp'ta paylaş";
+    if (paylasDugmesi) {
+      paylasDugmesi.textContent = !secili.length ? "WhatsApp'ta paylaş"
+        : panoyaGorselKullan() ? "1. Görseli kopyala" : "Paylaş (" + secili.length + " dosya ile)";
+    }
   }
+
+  // 1. adım: görsel panoya (PNG). 2. adım: metin panoya. Sonuç: açıklamalı tek mesaj.
+  async function gorseliKopyala() {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": pngYap(secili[0]) })]);
+      bildir("Görsel kopyalandı. WhatsApp'ta sohbeti aç, yazı kutusuna Ctrl+V yap; sonra buraya dönüp “2. Metni kopyala”ya bas.");
+    } catch (hataNesnesi) {
+      bildir("Görsel panoya kopyalanamadı. Görseli WhatsApp'a sürükleyip bırak, sonra “2. Metni kopyala”ya bas.");
+    }
+  }
+  const ipucuKutusu = sec("#" + onEk + "-medya-ipucu");
+  ipucuKutusu.onclick = async (olay) => {
+    const adim = olay.target.closest("[data-medya-adim]");
+    if (!adim) return;
+    if (adim.dataset.medyaAdim === "gorsel") return gorseliKopyala();
+    await metniKopyala(metniAl());
+    bildir("Metin kopyalandı. Görselin altındaki açıklama kutusuna Ctrl+V yap, sonra gönder.");
+  };
 
   sec("#" + onEk + "-medya-ekle").onclick = () => girdi.click();
   girdi.onchange = () => {
@@ -90,19 +115,8 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
       if (yol === "baglanti") return; // bağlantı wa.me'yi kendisi açar
       olay.preventDefault();
       const metin = metniAl();
-      // Bilgisayarda tek görsel: görsel panoya, WhatsApp metin yazılı açılır; Ctrl+V ile açıklamalı tek mesaj.
-      // Önce pano: yeni sekme açılınca sayfa odağı kaybeder ve tarayıcı panoya yazdırmaz.
-      if (panoyaGorselKullan()) {
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ "image/png": pngYap(secili[0]) })]);
-          // wa.me yerine WhatsApp Web: masaüstü uygulaması bağlantıyla gelen emojileri bozuyor (kisiler.js > waWebLinki)
-          window.open(waWebLinki(metin), "_blank", "noopener");
-          bildir("Görsel kopyalandı. WhatsApp Web'de sohbeti seç, yazı kutusuna Ctrl+V yap: metin açıklama olur.");
-          return;
-        } catch (hataNesnesi) {
-          // Pano izin vermezse aşağıdaki Paylaş menüsü yoluna düşer
-        }
-      }
+      // Bilgisayarda tek görsel: düğme 1. adımı (görseli kopyala) yapar; 2. adım ipucu kutusunda.
+      if (panoyaGorselKullan()) return gorseliKopyala();
       if (yol === "dosyasiz") {
         await metniKopyala(metin);
         bildir("Metni kopyaladım. WhatsApp'ta fotoğraf / videoyu ekle, altındaki açıklama kutusuna yapıştır: tek mesaj olur.");
