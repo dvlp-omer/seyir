@@ -26,6 +26,9 @@ function medyaAlaniHtml(onEk) {
     '<span class="soluk kucuk-yazi">İsteğe bağlı. En fazla ' + MEDYA_EN_FAZLA + " dosya, her biri " + MEDYA_EN_BUYUK_MB +
     " MB'a kadar. Dosyalar kaydedilmez, yalnızca paylaşırken kullanılır.</span></div>" +
     '<ul class="medya-liste" id="' + onEk + '-medya-liste" aria-label="Eklenen dosyalar"></ul>' +
+    '<p class="medya-ipucu" id="' + onEk + '-medya-ipucu" hidden><b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca metin panoya kopyalanır. ' +
+    "WhatsApp'ta görselin altındaki <b>açıklama</b> kutusuna yapıştır (bilgisayarda Ctrl+V), sonra gönder. " +
+    "Birden çok dosyada açıklama ilk görselin altına yazılır.</p>" +
     '<p class="form-hata" id="' + onEk + '-medya-hata" role="alert" hidden></p>' +
     "</div>"
   );
@@ -52,6 +55,7 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
         '<span class="medya-ad" title="' + htmlKacis(dosya.name) + '">' + htmlKacis(dosya.name) + "</span>" +
         '<button type="button" class="dugme kucuk" data-sil="' + i + '" aria-label="' + htmlKacis(dosya.name) + ' dosyasını kaldır">Kaldır</button></li>';
     }).join("");
+    sec("#" + onEk + "-medya-ipucu").hidden = !secili.length;
     if (paylasDugmesi) paylasDugmesi.textContent = secili.length ? "Paylaş (" + secili.length + " dosya ile)" : "WhatsApp'ta paylaş";
   }
 
@@ -80,18 +84,23 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
       const metin = metniAl();
       if (yol === "dosyasiz") {
         await metniKopyala(metin);
-        bildir("Bu tarayıcı dosya paylaşamıyor. Metni kopyaladım: WhatsApp'ta yapıştır, fotoğraf / videoyu kendin ekle.");
+        bildir("Metni kopyaladım. WhatsApp'ta fotoğraf / videoyu ekle, altındaki açıklama kutusuna yapıştır: tek mesaj olur.");
         return;
       }
-      // Bazı WhatsApp sürümleri dosyayla gelen metni almaz; yapıştırabilsin diye metin panoya da kopyalanır.
-      // Kopyalamayı beklemiyoruz: Paylaş menüsü, tıklamadan hemen sonra açılmalı (tarayıcı kuralı).
-      metniKopyala(metin);
+      // Metin her durumda panoya kopyalanır: görselin açıklama kutusuna yapıştırılınca tek mesaj olur.
+      // Bilgisayarda metin Paylaş menüsüne verilmez; WhatsApp masaüstü onu ayrı mesaj yapıyor (kisiler.js > paylasimIcerigi).
+      const mobil = mobilCihazMi(navigator);
+      if (mobil) {
+        metniKopyala(metin); // beklenmez: Paylaş menüsü tıklamadan hemen sonra açılmalı (tarayıcı kuralı)
+      } else {
+        await metniKopyala(metin);
+        bildir("Metin kopyalandı. WhatsApp'ta görselin altındaki açıklama kutusuna Ctrl+V ile yapıştır, sonra gönder.");
+      }
       try {
-        await navigator.share({ text: metin, files: secili.slice() });
-        bildir("Paylaşıldı. Metin gelmediyse WhatsApp'ta yapıştır; panoya kopyalandı.");
+        await navigator.share(paylasimIcerigi(metin, secili, mobil));
       } catch (hataNesnesi) {
         if (hataNesnesi && hataNesnesi.name === "AbortError") return; // kullanıcı vazgeçti
-        bildir("Paylaşım açılamadı. Metni kopyaladım; dosyaları WhatsApp'a kendin ekle.");
+        bildir("Paylaşım açılamadı. Metni kopyaladım; dosyaları WhatsApp'a kendin ekleyip açıklamaya yapıştır.");
       }
     });
   }

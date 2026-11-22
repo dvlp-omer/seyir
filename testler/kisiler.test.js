@@ -246,3 +246,20 @@ test("paylasimYolu: dosya paylaşımı desteklenmiyorsa dürüstçe metne düşe
   assert.equal(k.paylasimYolu({}, dosyalar), "dosyasiz");
   assert.equal(k.paylasimYolu(undefined, dosyalar), "dosyasiz");
 });
+
+test("paylasimIcerigi: bilgisayarda yalnızca dosya gider (metin açıklamaya yapıştırılır), telefonda metin de", () => {
+  const dosyalar = [{ name: "afis.jpg", type: "image/jpeg", size: 10 }];
+  // WhatsApp masaüstü, dosyayla gelen metni ayrı mesaj yapıyor; metin panodan açıklama kutusuna yapıştırılınca tek mesaj olur
+  assert.deepEqual(k.paylasimIcerigi("Duyuru", dosyalar, false), { files: dosyalar });
+  assert.deepEqual(k.paylasimIcerigi("Duyuru", dosyalar, true), { text: "Duyuru", files: dosyalar });
+  assert.notEqual(k.paylasimIcerigi("Duyuru", dosyalar, false).files, dosyalar, "dizi kopyalanmalı");
+});
+
+test("mobilCihazMi: telefon ve tabletleri tanır, bilgisayarı tanımaz", () => {
+  assert.equal(k.mobilCihazMi({ userAgentData: { mobile: true } }), true);
+  assert.equal(k.mobilCihazMi({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/131 Mobile" }), true);
+  assert.equal(k.mobilCihazMi({ userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)" }), true);
+  assert.equal(k.mobilCihazMi({ userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131" }), false);
+  assert.equal(k.mobilCihazMi({ userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", maxTouchPoints: 5 }), true, "iPad kendini Mac gibi tanıtır");
+  assert.equal(k.mobilCihazMi(undefined), false);
+});

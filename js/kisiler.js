@@ -309,6 +309,23 @@ function paylasimYolu(nav, dosyalar) {
   return "dosyasiz";
 }
 
+// Telefon ya da tablet mi? (iPad kendini Mac gibi tanıtır; dokunmatik ekranından anlaşılır)
+function mobilCihazMi(nav) {
+  if (!nav) return false;
+  if (nav.userAgentData && typeof nav.userAgentData.mobile === "boolean" && nav.userAgentData.mobile) return true;
+  const ua = String(nav.userAgent || "");
+  if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return true;
+  return /Macintosh/.test(ua) && Number(nav.maxTouchPoints) > 1;
+}
+
+// Paylaş menüsüne ne verilecek? WhatsApp masaüstü (Windows / Mac), dosyayla gelen metni
+// ayrı bir mesaj olarak gönderiyor. Bu yüzden bilgisayarda yalnızca dosya verilir; metin
+// panoya kopyalanır ve WhatsApp'taki "Açıklama ekle" kutusuna yapıştırılınca görselle tek mesaj olur.
+// Telefonda WhatsApp metni görselin açıklaması yapar; orada ikisi birlikte verilir.
+function paylasimIcerigi(metin, dosyalar, mobil) {
+  return mobil ? { text: metin, files: dosyalar.slice() } : { files: dosyalar.slice() };
+}
+
 /* ---------- Gönderim listesi (kampanya) ----------
    Her gönderim ayrı kayıttır. Alıcılar o anki hâlleriyle kopyalanır:
    kişi sonradan silinse ya da numarası değişse de liste bozulmaz. */
@@ -392,7 +409,7 @@ if (typeof module !== "undefined") {
     telefonNormallestir, telefonGoster, ilkAdTahmin, adSade,
     ayiriciBul, csvSatiriniBol, csvAyristir, htmlKisiDizisiOku, kisileriHazirla, kisileriCsvYap,
     SABLON_DEGISKENLERI, SABLON_TURLERI, VARSAYILAN_SABLONLAR, sablonDoldur, eksikDegiskenler,
-    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu,
+    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi,
     kampanyaHazirla, aliciMesaji, aliciIsaretle, kampanyaIlerleme,
     sonrakiToplantiCoz, tutanakKisileri, tutanaktanDegerler, etiketler, kisileriSuz,
   };
