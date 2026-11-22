@@ -263,3 +263,14 @@ test("mobilCihazMi: telefon ve tabletleri tanır, bilgisayarı tanımaz", () => 
   assert.equal(k.mobilCihazMi({ userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", maxTouchPoints: 5 }), true, "iPad kendini Mac gibi tanıtır");
   assert.equal(k.mobilCihazMi(undefined), false);
 });
+
+test("panoyaGorselUygunMu: bilgisayarda tek görsel panoya kopyalanır (WhatsApp'ta Ctrl+V ile açıklamalı tek mesaj)", () => {
+  const gorsel = { name: "afis.jpg", type: "image/jpeg", size: 10 };
+  const video = { name: "tanitim.mp4", type: "video/mp4", size: 10 };
+  assert.equal(k.panoyaGorselUygunMu([gorsel], false, true), true);
+  assert.equal(k.panoyaGorselUygunMu([gorsel], true, true), false, "telefonda Paylaş menüsü metni açıklama yapar");
+  assert.equal(k.panoyaGorselUygunMu([gorsel], false, false), false, "tarayıcı panoya görsel yazamıyor");
+  assert.equal(k.panoyaGorselUygunMu([gorsel, gorsel], false, true), false, "panoya tek görsel sığar");
+  assert.equal(k.panoyaGorselUygunMu([video], false, true), false, "video panoya kopyalanamaz");
+  assert.equal(k.panoyaGorselUygunMu([], false, true), false);
+});

@@ -15,7 +15,7 @@
 
 // Dosya listesi değişince bu adı da değiştir; eski önbellek silinir.
 // (v7: uygulama /uygulama adresine taşındı, ana sayfa tanıtım oldu)
-const ONBELLEK = "seyir-v12";
+const ONBELLEK = "seyir-v13";
 
 // Uygulamanın açılması için gereken dosyalar ("kabuk").
 // uygulama.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).

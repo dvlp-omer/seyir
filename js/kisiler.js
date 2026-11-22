@@ -326,6 +326,14 @@ function paylasimIcerigi(metin, dosyalar, mobil) {
   return mobil ? { text: metin, files: dosyalar.slice() } : { files: dosyalar.slice() };
 }
 
+// Bilgisayarda tek görsel varsa daha kısa yol: görsel panoya kopyalanır, WhatsApp metin
+// yazılı hâlde açılır (wa.me). Kullanıcı sohbeti seçip Ctrl+V yapınca WhatsApp yazı
+// kutusundaki metni görselin açıklamasına taşır: açıklamalı tek mesaj. Panoya yalnızca
+// tek bir görsel sığar; video kopyalanamaz.
+function panoyaGorselUygunMu(dosyalar, mobil, panoDestegi) {
+  return !mobil && Boolean(panoDestegi) && dosyalar.length === 1 && /^image\//.test(String(dosyalar[0].type || ""));
+}
+
 /* ---------- Gönderim listesi (kampanya) ----------
    Her gönderim ayrı kayıttır. Alıcılar o anki hâlleriyle kopyalanır:
    kişi sonradan silinse ya da numarası değişse de liste bozulmaz. */
@@ -409,7 +417,7 @@ if (typeof module !== "undefined") {
     telefonNormallestir, telefonGoster, ilkAdTahmin, adSade,
     ayiriciBul, csvSatiriniBol, csvAyristir, htmlKisiDizisiOku, kisileriHazirla, kisileriCsvYap,
     SABLON_DEGISKENLERI, SABLON_TURLERI, VARSAYILAN_SABLONLAR, sablonDoldur, eksikDegiskenler,
-    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi,
+    waLinki, waPaylasLinki, MEDYA_EN_FAZLA, MEDYA_EN_BUYUK_MB, baglantiDuzelt, baglantiyiEkle, medyaSuz, paylasimYolu, mobilCihazMi, paylasimIcerigi, panoyaGorselUygunMu,
     kampanyaHazirla, aliciMesaji, aliciIsaretle, kampanyaIlerleme,
     sonrakiToplantiCoz, tutanakKisileri, tutanaktanDegerler, etiketler, kisileriSuz,
   };

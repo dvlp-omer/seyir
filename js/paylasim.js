@@ -26,9 +26,7 @@ function medyaAlaniHtml(onEk) {
     '<span class="soluk kucuk-yazi">İsteğe bağlı. En fazla ' + MEDYA_EN_FAZLA + " dosya, her biri " + MEDYA_EN_BUYUK_MB +
     " MB'a kadar. Dosyalar kaydedilmez, yalnızca paylaşırken kullanılır.</span></div>" +
     '<ul class="medya-liste" id="' + onEk + '-medya-liste" aria-label="Eklenen dosyalar"></ul>' +
-    '<p class="medya-ipucu" id="' + onEk + '-medya-ipucu" hidden><b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca metin panoya kopyalanır. ' +
-    "WhatsApp'ta görselin altındaki <b>açıklama</b> kutusuna yapıştır (bilgisayarda Ctrl+V), sonra gönder. " +
-    "Birden çok dosyada açıklama ilk görselin altına yazılır.</p>" +
+    '<p class="medya-ipucu" id="' + onEk + '-medya-ipucu" hidden></p>' +
     '<p class="form-hata" id="' + onEk + '-medya-hata" role="alert" hidden></p>' +
     "</div>"
   );
@@ -41,6 +39,8 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
   const girdi = sec("#" + onEk + "-medya-dosya");
   const liste = sec("#" + onEk + "-medya-liste");
   const hata = sec("#" + onEk + "-medya-hata");
+  const panoyaGorselKullan = () => panoyaGorselUygunMu(secili, mobilCihazMi(navigator),
+    typeof ClipboardItem === "function" && navigator.clipboard && typeof navigator.clipboard.write === "function");
 
   function ciz() {
     // Önizleme adresleri ekran başına tutulur; eskileri bırakılır ki bellek dolmasın.
@@ -55,7 +55,14 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
         '<span class="medya-ad" title="' + htmlKacis(dosya.name) + '">' + htmlKacis(dosya.name) + "</span>" +
         '<button type="button" class="dugme kucuk" data-sil="' + i + '" aria-label="' + htmlKacis(dosya.name) + ' dosyasını kaldır">Kaldır</button></li>';
     }).join("");
-    sec("#" + onEk + "-medya-ipucu").hidden = !secili.length;
+    const ipucu = sec("#" + onEk + "-medya-ipucu");
+    ipucu.hidden = !secili.length;
+    ipucu.innerHTML = panoyaGorselKullan()
+      ? "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca görsel panoya kopyalanır ve WhatsApp metin yazılı açılır. " +
+        "Sohbeti seç, yazı kutusuna tıklayıp <b>Ctrl+V</b> yap: metin görselin açıklaması olur, sonra gönder."
+      : "<b>Metin ve görsel tek mesaj olsun:</b> Paylaş&#39;a basınca metin panoya kopyalanır. " +
+        "WhatsApp'ta görselin altındaki <b>açıklama</b> kutusuna yapıştır (bilgisayarda Ctrl+V), sonra gönder. " +
+        "Birden çok dosyada açıklama ilk görselin altına yazılır.";
     if (paylasDugmesi) paylasDugmesi.textContent = secili.length ? "Paylaş (" + secili.length + " dosya ile)" : "WhatsApp'ta paylaş";
   }
 
@@ -82,6 +89,18 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
       if (yol === "baglanti") return; // bağlantı wa.me'yi kendisi açar
       olay.preventDefault();
       const metin = metniAl();
+      // Bilgisayarda tek görsel: görsel panoya, WhatsApp metin yazılı açılır; Ctrl+V ile açıklamalı tek mesaj.
+      // Önce pano: yeni sekme açılınca sayfa odağı kaybeder ve tarayıcı panoya yazdırmaz.
+      if (panoyaGorselKullan()) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": pngYap(secili[0]) })]);
+          window.open(waPaylasLinki(metin), "_blank", "noopener");
+          bildir("Görsel kopyalandı. WhatsApp'ta sohbeti seç, yazı kutusuna Ctrl+V yap: metin açıklama olur.");
+          return;
+        } catch (hataNesnesi) {
+          // Pano izin vermezse aşağıdaki Paylaş menüsü yoluna düşer
+        }
+      }
       if (yol === "dosyasiz") {
         await metniKopyala(metin);
         bildir("Metni kopyaladım. WhatsApp'ta fotoğraf / videoyu ekle, altındaki açıklama kutusuna yapıştır: tek mesaj olur.");
@@ -106,6 +125,18 @@ function medyaAlaniBagla(onEk, metniAl, paylasDugmesi) {
   }
 
   ciz();
+}
+
+// Görseli PNG'ye çevirir: tarayıcılar panoya yalnızca PNG görsel yazabiliyor (JPEG, WebP olmaz).
+async function pngYap(dosya) {
+  if (dosya.type === "image/png") return dosya;
+  const resim = await createImageBitmap(dosya);
+  const tuval = document.createElement("canvas");
+  tuval.width = resim.width;
+  tuval.height = resim.height;
+  tuval.getContext("2d").drawImage(resim, 0, 0);
+  resim.close();
+  return new Promise((coz, reddet) => tuval.toBlob((blob) => (blob ? coz(blob) : reddet(new Error("PNG yapılamadı"))), "image/png"));
 }
 
 // Metni panoya kopyalar (duyuru.js > panoyaKopyala bir metin kutusu bekler).
