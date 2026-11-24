@@ -26,7 +26,10 @@ test("şema: uygulamanın her koleksiyonu için tablo var ve sütunlar yedek şe
     const tablo = tablolar.find((t) => t.ad === koleksiyon);
     assert.ok(tablo, koleksiyon + " tablosu yok");
     for (const alan of Object.keys(YEDEK_SEMASI[koleksiyon])) {
-      assert.match(tablo.govde, new RegExp("^\\s*" + alan + "\\s", "m"), koleksiyon + "." + alan + " sütunu yok");
+      // Sütun ya tablonun tanımında ya da sonradan "alter table ... add column" ile eklenmiş olmalı
+      const tanimda = new RegExp("^\\s*" + alan + "\\s", "m").test(tablo.govde);
+      const sonradan = new RegExp("alter table " + koleksiyon + " add column if not exists " + alan + "\\s").test(sema);
+      assert.ok(tanimda || sonradan, koleksiyon + "." + alan + " sütunu yok");
     }
   }
 });
@@ -292,5 +295,12 @@ test("veritabanı: bütçe bloğu schema.sql ile guncelleme-butce.sql'de aynı",
   const sema = fs.readFileSync(path.join(KOK, "supabase/schema.sql"), "utf8");
   const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-butce.sql"), "utf8");
   const blok = sema.slice(sema.indexOf("-- BUTCE-BLOGU-BASI") + "-- BUTCE-BLOGU-BASI".length, sema.indexOf("-- BUTCE-BLOGU-SONU")).trim();
+  assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablo ----")).trim());
+});
+
+test("veritabanı: malzeme bloğu schema.sql ile guncelleme-malzeme.sql'de aynı", () => {
+  const sema = fs.readFileSync(path.join(KOK, "supabase/schema.sql"), "utf8");
+  const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-malzeme.sql"), "utf8");
+  const blok = sema.slice(sema.indexOf("-- MALZEME-BLOGU-BASI") + "-- MALZEME-BLOGU-BASI".length, sema.indexOf("-- MALZEME-BLOGU-SONU")).trim();
   assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablo ----")).trim());
 });

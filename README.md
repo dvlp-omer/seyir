@@ -50,6 +50,7 @@ yıldızı yönü, küre ve yörünge şeridi de takımın etrafında döndüğ�
 | **WhatsApp mesajları** | Kaydedilebilir şablonlar (`{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`); kişileri süzüp seç, her biri için mesajı hazır açan **WhatsApp'ta aç** düğmesi, gönderildi işareti ve sayaç (12/72); her gönderim ayrı kayıt. Gruba duyuru: kopyala ya da WhatsApp'ta paylaş; bağlantı ve fotoğraf / video eklenebilir (telefonun Paylaş menüsüyle gider, dosyalar kaydedilmez). Resmî tutanaktan tek tıkla toplantı hatırlatması. Otomatik toplu gönderim **yok** (WhatsApp resmî olarak desteklemez). |
 | **Sponsorlar / Müşteriler** | Kurumlarla ilişkiyi aşama aşama takip (Aday → İletişimde → Görüşme → Anlaşıldı / Olmadı), tutar, sonraki adım ve tarihi; geciken adımlar işaretli. Şirket paketinde “Müşteriler” adıyla görünür. |
 | **Bütçe** | Gelir ve gider kalemleri, kalan bütçe, giderlerin kategoriye göre dağılımı, “ödeyen / fiş kimde” notu. Anlaşılan sponsor tek tıkla bütçeye gelir olarak eklenir. |
+| **Malzeme / Envanter** | Parçanın yolculuğu (İhtiyaç → Sipariş → Yolda → Geldi → Kullanımda / Arızalı), adet ve fiyat, tedarikçi, kimde ve nerede olduğu, geciken teslimler; tek tıkla sonraki duruma geçir, alınanı bütçeye gider olarak ekle. Şirket paketinde “Envanter” adıyla görünür. |
 | **Duyuru şablonu** | Toplantı daveti, özeti ya da hatırlatma için WhatsApp'a yapıştırılmaya hazır metin (yapay zekâ yok, düz şablon). Bağlantı ve fotoğraf / video eklenebilir. |
 | **Arama ve kısayollar** | **Ctrl+K** ya da **/** ile bütün kayıtlarda ara (Türkçe harf farkı önemsenmez); **Ctrl+S** kaydeder, **?** kısayol listesini açar. |
 | **Yarım kalan form kaybolmaz** | Form yazılırken taslak tarayıcıya saklanır; sayfa yenilense de geri gelir. |
@@ -107,7 +108,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-290 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+296 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -265,7 +266,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-290 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+296 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF

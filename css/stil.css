@@ -294,6 +294,11 @@ a { color: var(--su); }
 /* Bütçe (js/ekranlar/butce.js) */
 .butce-satir { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--cizgi); border-radius: var(--kose); background: var(--kagit); }
 .paydas-tutar.gelir { color: var(--rahat-y); }
+/* Malzeme / Envanter (js/ekranlar/malzemeler.js) */
+.rozet.malzeme-siparis { background: var(--yaklasiyor-z); color: var(--yaklasiyor-y); }
+.rozet.malzeme-yolda { background: var(--yakin-z); color: var(--yakin-y); }
+.rozet.malzeme-geldi, .rozet.malzeme-kullanimda { background: var(--rahat-z); color: var(--rahat-y); }
+.rozet.malzeme-arizali { background: var(--gecikti-z); color: var(--gecikti-y); }
 .dagilim-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .dagilim-liste li { display: grid; grid-template-columns: minmax(110px, 1fr) 2fr; gap: 10px; align-items: center; }
 .kurum-gorunum { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 12px 0; }

@@ -79,6 +79,7 @@ Rehberde telefon numaraları olduğu için üç kat koruma var:
 >   ayarlarını artık yalnızca takım yöneticisi (takımı kuran, kurulum yöneticisi ya da yönetici yapılan) değiştirir.
 > - [supabase/guncelleme-paydaslar.sql](supabase/guncelleme-paydaslar.sql): Sponsorlar / Müşteriler sekmesi (rollerden sonra çalıştır).
 > - [supabase/guncelleme-butce.sql](supabase/guncelleme-butce.sql): Bütçe sekmesi (rollerden sonra çalıştır).
+> - [supabase/guncelleme-malzeme.sql](supabase/guncelleme-malzeme.sql): Malzeme / Envanter sekmesi (bütçeden sonra çalıştır).
 
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 

@@ -118,7 +118,7 @@ const MENU_GRUPLARI = [
   { baslik: "Planlama", ekranlar: ["gorevler", "tarihler", "takvim"] },
   { baslik: "Toplantı ve etkinlik", ekranlar: ["toplantilar", "tutanaklar", "etkinlikler"] },
   { baslik: "İletişim", ekranlar: ["kisiler", "mesajlar", "duyuru"] },
-  { baslik: "Kaynaklar", ekranlar: ["paydaslar", "butce"] },
+  { baslik: "Kaynaklar", ekranlar: ["paydaslar", "butce", "malzemeler"] },
   { baslik: "Takım", sozAnahtari: "takim", ekranlar: ["takim", "ayarlar"] },
 ];
 const ALT_CUBUK = ["ozet", "gorevler", "takvim", "tutanaklar"];

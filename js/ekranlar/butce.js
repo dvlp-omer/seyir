@@ -25,7 +25,7 @@ function butceFormu(kalem, varsayilan) {
     degerler: kalem || { tur, kategori: tur === "gelir" ? kategoriListesi[0] : "Diğer", tarih: bugun(), ...(varsayilan || {}) },
     kaydet: async (degerler) => {
       if (kalem) await durum.depo.guncelle("butce_kalemleri", kalem.id, degerler);
-      else await durum.depo.ekle("butce_kalemleri", { paydas_id: "", ...(varsayilan || {}), ...degerler, takim_id: durum.takim.id });
+      else await durum.depo.ekle("butce_kalemleri", { paydas_id: "", malzeme_id: "", ...(varsayilan || {}), ...degerler, takim_id: durum.takim.id });
     },
   });
 }

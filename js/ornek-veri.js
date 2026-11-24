@@ -129,7 +129,21 @@ async function ornekVeriYukle(depo, bugunTarihi) {
   for (const [tur, baslik, tutar, kategori, gun, paydasId] of kalemler) {
     await depo.ekle("butce_kalemleri", {
       ...ortak, tur: tur, baslik: baslik, tutar: tutar, kategori: kategori, tarih: gunEkle(bugunTarihi, gun),
-      odeyen: tur === "gider" ? "Mert Şahin" : "", aciklama: "", paydas_id: paydasId,
+      odeyen: tur === "gider" ? "Mert Şahin" : "", aciklama: "", paydas_id: paydasId, malzeme_id: "",
+    });
+  }
+  // Malzeme: parçalar uydurma; tedarikçi adları uydurma
+  const parcalar = [
+    ["İtici motor", 2, 4800, "geldi", "Örnek Robotik", mert, "Atölye, 2. raf", -8, 0],
+    ["Basınç sensörü", 1, 2750, "yolda", "Deniz Elektronik", "", "", -5, -1],
+    ["Su geçirmez konnektör", 6, 180, "siparis", "Örnek Robotik", "", "", -1, 6],
+    ["Lityum pil paketi", 2, 0, "lazim", "", "", "", 0, 0],
+  ];
+  for (const [ad, adet, fiyat, durumu, tedarikci, sorumlu, konum, siparisGun, beklenenGun] of parcalar) {
+    await depo.ekle("malzemeler", {
+      ...ortak, ad: ad, adet: adet, birim_fiyat: fiyat, durum: durumu, tedarikci: tedarikci, sorumlu_id: sorumlu, konum: konum,
+      siparis_tarihi: durumu === "lazim" ? "" : gunEkle(bugunTarihi, siparisGun),
+      beklenen_tarih: ["siparis", "yolda"].includes(durumu) ? gunEkle(bugunTarihi, beklenenGun) : "", aciklama: "",
     });
   }
   for (const sablon of VARSAYILAN_SABLONLAR) {

@@ -79,7 +79,13 @@ const YEDEK_SEMASI = {
   // Bütçe (js/butce.js)
   butce_kalemleri: {
     takim_id: "metin!", tur: ["gider", "gelir"], baslik: "metin!", tutar: "sayi", kategori: "metin",
-    tarih: "tarih", odeyen: "metin", aciklama: "metin", paydas_id: "metin",
+    tarih: "tarih", odeyen: "metin", aciklama: "metin", paydas_id: "metin", malzeme_id: "metin",
+  },
+  // Malzeme / Envanter (js/malzeme.js)
+  malzemeler: {
+    takim_id: "metin!", ad: "metin!", adet: "sayi", birim_fiyat: "sayi",
+    durum: ["lazim", "siparis", "yolda", "geldi", "kullanimda", "arizali"], tedarikci: "metin", sorumlu_id: "metin",
+    konum: "metin", siparis_tarihi: "tarih", beklenen_tarih: "tarih", aciklama: "metin",
   },
 };
 
