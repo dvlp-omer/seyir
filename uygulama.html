@@ -67,7 +67,9 @@
             <path class="logo-isik" d="M-28.5 -.6A29 9.4 0 0 1 28.5 -.6" pathLength="100" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
           </g></g>
         </svg>
-        <div><span class="yazi-parilti">Seyir</span><small>takım asistanı</small></div>
+        <!-- Kurumun kendi logosu varsa Seyir logosunun yerine bu görünür (js/uygulama.js > kurumuUygula) -->
+        <img id="kurum-logo" class="kurum-logo" alt="" hidden>
+        <div><span class="yazi-parilti" id="marka-ad">Seyir</span><small id="marka-alt">takım asistanı</small></div>
       </div>
       <nav id="menu" class="menu" aria-label="Ekranlar"></nav>
       <div class="yan-alt"><span id="depo-rozet" class="depo-rozet"></span>

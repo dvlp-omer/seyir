@@ -109,3 +109,29 @@ test("tutanakVarsayilani: kodda kuruma özel sabit kalmadı (ROTA / Sabahattin Z
   const metin = JSON.stringify(k.tutanakVarsayilani(k.kurumAyarlari({}), "Takım"));
   assert.doesNotMatch(metin, /ROTA|İSAS|Sabahattin|Zaim/i);
 });
+
+/* ---------- Ayar formu ---------- */
+
+test("kurumAyarlariniBirlestir: yalnızca değişen alanlar güncellenir, tutanak alanları tek tek birleşir", () => {
+  const eski = k.kurumAyarlari({ ayarlar: { tur: "takim", renk: "#1f4e79", tutanak: { kurum: "ESKİ", numara_kalibi: "E-{yil}/01" }, kapali_sekmeler: ["duyuru"] } });
+  const yeni = k.kurumAyarlariniBirlestir(eski, { renk: "#43a047", tutanak: { kurum: "YENİ" } });
+  assert.equal(yeni.renk, "#43a047");
+  assert.equal(yeni.tutanak.kurum, "YENİ");
+  assert.equal(yeni.tutanak.numara_kalibi, "E-{yil}/01");
+  assert.deepEqual(yeni.kapali_sekmeler, ["duyuru"]);
+  assert.equal(yeni.tur, "takim");
+});
+
+test("kurumAyarlariniBirlestir: tür değişince sekmeler yeni paketin varsayılanına döner", () => {
+  const eski = k.kurumAyarlari({ ayarlar: { tur: "takim", kapali_sekmeler: ["duyuru"] } });
+  assert.deepEqual(k.kurumAyarlariniBirlestir(eski, { tur: "sirket" }).kapali_sekmeler, ["etkinlikler"]);
+  assert.deepEqual(k.kurumAyarlariniBirlestir(eski, { tur: "takim" }).kapali_sekmeler, ["duyuru"], "tür aynıysa dokunma");
+  assert.deepEqual(k.kurumAyarlariniBirlestir(eski, { tur: "sirket", kapali_sekmeler: [] }).kapali_sekmeler, [], "açıkça verildiyse o geçerli");
+});
+
+test("logoOlcusu: en boy oranı korunur, sınırın içine sığar, küçük resim büyütülmez", () => {
+  assert.deepEqual(k.logoOlcusu(1000, 500, 160), { en: 160, boy: 80 });
+  assert.deepEqual(k.logoOlcusu(300, 900, 160), { en: 53, boy: 160 });
+  assert.deepEqual(k.logoOlcusu(64, 64, 160), { en: 64, boy: 64 });
+  assert.deepEqual(k.logoOlcusu(0, 0, 160), { en: 1, boy: 1 });
+});

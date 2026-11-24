@@ -165,6 +165,7 @@ a { color: var(--su); }
 .marka { display: flex; align-items: center; gap: 10px; padding: 0 8px; font-weight: 700; letter-spacing: -.01em; }
 .marka svg { width: 34px; height: 34px; flex: none; }
 .marka small { display: block; font-weight: 400; font-size: 12px; color: var(--gece-soluk); letter-spacing: .02em; }
+.kurum-logo { width: 34px; height: 34px; flex: none; object-fit: contain; border-radius: 8px; }
 
 /* Canlı logo (yan menü): logo GIF'indeki hareket, 6 sn'lik tek döngü. Tanıtım sayfasındaki
    tanitim-kaynak/src/stil.css ile aynı; birini değiştirirsen ötekini de değiştir.
@@ -265,6 +266,16 @@ a { color: var(--su); }
 .kart > h3 { font-size: 17px; margin-bottom: 12px; }
 .kart > p + p { margin-top: 8px; }
 .kartlar { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+/* Ayarlar > Kurum (js/ekranlar/ayarlar.js) */
+.kurum-karti { grid-column: 1 / -1; }
+.kurum-gorunum { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 12px 0; }
+.kurum-logo-satir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.kurum-logo-onizleme { display: inline-grid; place-items: center; width: 56px; height: 56px; border: 1px dashed var(--cizgi); border-radius: var(--kose); background: var(--sutun); }
+.kurum-logo-onizleme img { max-width: 48px; max-height: 48px; object-fit: contain; }
+#kurum-renk { width: 56px; height: 40px; padding: 2px; border-radius: var(--kose); }
+.kurum-tutanak { margin: 8px 0 12px; }
+.kurum-tutanak summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+@media (max-width: 700px) { .kurum-gorunum { grid-template-columns: minmax(0, 1fr); } }
 
 .arac-cubugu { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
 .arac-cubugu .bosluk { flex: 1; }

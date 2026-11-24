@@ -89,6 +89,25 @@ function paketVarsayilani(tur) {
   return kurumAyarlari({ ayarlar: { tur, kapali_sekmeler: PAKET_KAPALI_SEKMELER[tur] || [] } });
 }
 
+// Ayar formundan gelen değişikliği eski ayarlarla birleştirir ve temizler.
+// Tür (paket) değişince kapalı sekmeler yeni paketin varsayılanına döner (açıkça verilmediyse).
+function kurumAyarlariniBirlestir(eski, degisiklik) {
+  const once = kurumAyarlari({ ayarlar: eski });
+  const d = degisiklik || {};
+  const birlesik = { ...once, ...d, tutanak: { ...once.tutanak, ...(d.tutanak || {}) } };
+  if (d.tur && d.tur !== once.tur && !("kapali_sekmeler" in d)) {
+    birlesik.kapali_sekmeler = PAKET_KAPALI_SEKMELER[d.tur] || [];
+  }
+  return kurumAyarlari({ ayarlar: birlesik });
+}
+
+// Yüklenen logonun küçültülmüş ölçüsü: oran korunur, "sinir"a sığar, küçük resim büyütülmez.
+function logoOlcusu(en, boy, sinir) {
+  if (!(en > 0 && boy > 0)) return { en: 1, boy: 1 };
+  const oran = Math.min(1, sinir / Math.max(en, boy));
+  return { en: Math.max(1, Math.round(en * oran)), boy: Math.max(1, Math.round(boy * oran)) };
+}
+
 // Pakete göre sözcük: soz(ayarlar, "uye") -> "Üye" ya da "Çalışan". Bilinmeyen anahtar aynen döner.
 function soz(ayarlar, anahtar) {
   const sozluk = SOZLUKLER[(ayarlar && ayarlar.tur) || "takim"] || SOZLUKLER.takim;
@@ -161,7 +180,7 @@ function tutanakVarsayilani(ayarlar, takimAdi) {
 if (typeof module !== "undefined") {
   module.exports = {
     KURUM_TURLERI, VARSAYILAN_RENK, LOGO_EN_BUYUK, BILINEN_SEKMELER, KAPATILAMAZ, SOZLUKLER,
-    kurumAyarlari, paketVarsayilani, soz, sekmeAcikMi, acikSekmeler,
+    kurumAyarlari, kurumAyarlariniBirlestir, logoOlcusu, paketVarsayilani, soz, sekmeAcikMi, acikSekmeler,
     kontrastOrani, vurguRenkleri, tutanakVarsayilani,
   };
 }

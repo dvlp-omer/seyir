@@ -45,6 +45,31 @@ async function takimlariYukle() {
   // Son seçilen takım duruyorsa onu, yoksa ilk takımı seç.
   durum.takim = durum.takimlar.find((t) => t.id === kayitliId) || durum.takimlar[0] || null;
   takimSeciciCiz();
+  kurumuUygula();
+}
+
+/* Etkin takımın kurum ayarlarını ekrana uygular (js/kurum.js):
+   - ana renk: --vurgu değişkenleri (beyaz yazı okunur kalacak şekilde, vurguRenkleri)
+   - logo: yan menüde Seyir logosunun yerine kurumun logosu ve adı
+   Takım değişince ya da ayar kaydedilince yeniden çağrılır. */
+const VURGU_DEGISKENLERI = { vurgu: "--vurgu", vurgu_koyu: "--vurgu-koyu", vurgu_yazi: "--vurgu-yazi" };
+function kurumuUygula() {
+  const ayar = kurumAyarlari(durum.takim);
+  const stil = document.documentElement.style;
+  const renkler = durum.takim && ayar.renk !== VARSAYILAN_RENK ? vurguRenkleri(ayar.renk) : null;
+  for (const [anahtar, degisken] of Object.entries(VURGU_DEGISKENLERI)) {
+    if (renkler) stil.setProperty(degisken, renkler[anahtar]);
+    else stil.removeProperty(degisken);
+  }
+  const logo = sec("#kurum-logo");
+  const seyirLogosu = sec(".marka svg");
+  const kurumLogosu = Boolean(durum.takim && ayar.logo);
+  logo.hidden = !kurumLogosu;
+  if (kurumLogosu) logo.src = ayar.logo; else logo.removeAttribute("src");
+  seyirLogosu.style.display = kurumLogosu ? "none" : "";
+  sec("#marka-ad").textContent = kurumLogosu ? durum.takim.ad : "Seyir";
+  sec("#marka-ad").classList.toggle("yazi-parilti", !kurumLogosu);
+  sec("#marka-alt").textContent = kurumLogosu ? "Seyir ile" : soz(ayar, "takim").toLocaleLowerCase("tr") + " asistanı";
 }
 
 async function takimSec(id) {

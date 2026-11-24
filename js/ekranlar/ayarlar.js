@@ -121,6 +121,124 @@ async function erisimKartiniDoldur(kart) {
   };
 }
 
+/* ---------- Kurum (js/kurum.js) ----------
+   Kurum türü (paket), logo, ana renk ve ilk tutanağın bilgileri. Ayarlar takım
+   kaydının "ayarlar" alanına yazılır; kaydedilince uygulamaya hemen uygulanır
+   (js/uygulama.js > kurumuUygula). Şimdilik takımdaki herkes değiştirebilir;
+   "yalnızca yönetici" kuralı roller ve yetkiler projesinde gelir (tasarım belgesi). */
+const LOGO_PIKSEL = 160;
+
+// Seçilen resmi küçültüp PNG (çok büyükse WebP) data URL'ye çevirir. SVG kabul edilmez.
+async function logoHazirla(dosya) {
+  if (!/^image\/(png|jpeg|webp)$/.test(dosya.type)) throw new Error("Logo PNG, JPEG ya da WebP olmalı.");
+  const resim = await createImageBitmap(dosya);
+  const { en, boy } = logoOlcusu(resim.width, resim.height, LOGO_PIKSEL);
+  const tuval = document.createElement("canvas");
+  tuval.width = en;
+  tuval.height = boy;
+  tuval.getContext("2d").drawImage(resim, 0, 0, en, boy);
+  resim.close();
+  for (const [tur, kalite] of [["image/png"], ["image/webp", 0.9], ["image/jpeg", 0.85]]) {
+    const adres = tuval.toDataURL(tur, kalite);
+    if (adres.startsWith("data:" + tur) && adres.length <= LOGO_EN_BUYUK) return adres;
+  }
+  throw new Error("Logo küçültüldüğü hâlde çok büyük kaldı; daha sade bir resim dene.");
+}
+
+function kurumKartiHtml() {
+  const ayar = kurumAyarlari(durum.takim);
+  const oneri = tutanakVarsayilani(kurumAyarlari({}), durum.takim.ad); // boş bırakılırsa kullanılacak değerler
+  const tutanakAlani = (ad, etiket, ipucu) =>
+    '<label class="alan"><span>' + etiket + '</span><input type="text" data-tutanak="' + ad + '" maxlength="300" value="' +
+    htmlKacis(ayar.tutanak[ad]) + '" placeholder="' + htmlKacis(oneri[ad] || "") + '">' + (ipucu ? "<small>" + ipucu + "</small>" : "") + "</label>";
+  return '<section class="kart kurum-karti" id="kurum-karti"><h3>Kurum</h3>' +
+    '<p class="soluk kucuk-yazi">“' + htmlKacis(durum.takim.ad) + "” için görünüm ve resmî bilgiler. Takımdaki herkes aynı ayarları görür.</p>" +
+    '<form id="kurum-formu" novalidate>' +
+    '<fieldset class="alan"><legend>Kurum türü</legend><div class="secenekler">' +
+    KURUM_TURLERI.map((t) => '<label><input type="radio" name="kurum-tur" value="' + t.deger + '"' + (t.deger === ayar.tur ? " checked" : "") + "> " + t.etiket + "</label>").join("") +
+    "</div><small>Sözcükleri (Takım / Ekip, Üye / Çalışan) ve başlangıçta açık sekmeleri belirler.</small></fieldset>" +
+
+    '<div class="kurum-gorunum">' +
+    '<div class="alan"><span>Logo</span><div class="kurum-logo-satir">' +
+    '<span class="kurum-logo-onizleme" id="kurum-logo-onizleme">' + (ayar.logo ? '<img src="' + ayar.logo + '" alt="Kurum logosu">' : '<span class="soluk kucuk-yazi">Logo yok</span>') + "</span>" +
+    '<button type="button" class="dugme" data-kurum="logo-sec">Logo yükle…</button>' +
+    '<button type="button" class="dugme" data-kurum="logo-kaldir"' + (ayar.logo ? "" : " hidden") + ">Kaldır</button>" +
+    '<input type="file" id="kurum-logo-dosya" accept="image/png,image/jpeg,image/webp" hidden></div>' +
+    "<small>PNG, JPEG ya da WebP. Kare ya da yatay logo en iyi görünür; " + LOGO_PIKSEL + " piksele küçültülür.</small></div>" +
+    '<div class="alan"><label for="kurum-renk">Ana renk</label><div class="kurum-logo-satir">' +
+    '<input type="color" id="kurum-renk" value="' + ayar.renk + '">' +
+    '<button type="button" class="dugme" data-kurum="renk-sifirla">Varsayılan renk</button></div>' +
+    "<small>Düğmeler ve vurgular bu renkte olur. Yazı okunmazsa renk biraz koyulaştırılır.</small></div>" +
+    "</div>" +
+
+    '<details class="kurum-tutanak"><summary>Tutanak bilgileri (ilk tutanakta kullanılır)</summary>' +
+    '<p class="soluk kucuk-yazi">Boş bırakılan alan için soluk yazılan öneri kullanılır. Sonraki tutanaklar bir öncekinden devam eder.</p>' +
+    '<div class="alan-izgara">' +
+    tutanakAlani("kurum", "Üst başlık (kurum adı)") +
+    tutanakAlani("alt_baslik", "Alt başlık") +
+    tutanakAlani("numara_kalibi", "Numara kalıbı", "{yil} yerine yıl yazılır; sondaki sayı her tutanakta bir artar.") +
+    tutanakAlani("ek_etiket", "Ek bilgi etiketi", "İsteğe bağlı, ör. “Seminer/Buluşma”.") +
+    tutanakAlani("alt_bilgi", "Alt bilgi") +
+    tutanakAlani("sayfa_altligi", "Sayfa altlığı") +
+    "</div></details>" +
+    '<p class="form-hata" id="kurum-hata" role="alert" hidden></p>' +
+    '<p><button type="submit" class="dugme ana">Kurum ayarlarını kaydet</button></p>' +
+    "</form></section>";
+}
+
+function kurumKartiniBagla() {
+  const form = sec("#kurum-formu");
+  if (!form) return;
+  let logo = kurumAyarlari(durum.takim).logo;
+  const hata = sec("#kurum-hata");
+  const hataGosterKurum = (mesaj) => { hata.textContent = mesaj; hata.hidden = !mesaj; };
+  const logoCiz = () => {
+    sec("#kurum-logo-onizleme").innerHTML = logo ? '<img src="' + logo + '" alt="Kurum logosu">' : '<span class="soluk kucuk-yazi">Logo yok</span>';
+    form.querySelector('[data-kurum="logo-kaldir"]').hidden = !logo;
+  };
+  const dosya = sec("#kurum-logo-dosya");
+  dosya.onchange = async () => {
+    const secilen = dosya.files[0];
+    dosya.value = "";
+    if (!secilen) return;
+    try {
+      logo = await logoHazirla(secilen);
+      hataGosterKurum("");
+      logoCiz();
+    } catch (e) {
+      hataGosterKurum(e.message);
+    }
+  };
+  form.onclick = (olay) => {
+    const dugme = olay.target.closest("[data-kurum]");
+    if (!dugme) return;
+    const is = dugme.dataset.kurum;
+    if (is === "logo-sec") dosya.click();
+    if (is === "logo-kaldir") { logo = ""; logoCiz(); }
+    if (is === "renk-sifirla") sec("#kurum-renk").value = VARSAYILAN_RENK;
+  };
+  form.onsubmit = async (olay) => {
+    olay.preventDefault();
+    const tutanak = {};
+    for (const kutu of form.querySelectorAll("[data-tutanak]")) tutanak[kutu.dataset.tutanak] = kutu.value;
+    const secilenTur = form.querySelector('[name="kurum-tur"]:checked');
+    const ayarlar = kurumAyarlariniBirlestir(durum.takim.ayarlar, {
+      tur: secilenTur ? secilenTur.value : undefined, logo, renk: sec("#kurum-renk").value, tutanak,
+    });
+    try {
+      await durum.depo.guncelle("takimlar", durum.takim.id, { ayarlar });
+      await takimlariYukle(); // kurumuUygula() burada çalışır
+      bildir("Kurum ayarları kaydedildi");
+      await yenile();
+    } catch (e) {
+      console.error(e);
+      hataGosterKurum(/ayarlar/.test(e.message)
+        ? "Kaydedilemedi: veritabanında kurum ayarları alanı yok. Supabase'de supabase/guncelleme-kurum.sql dosyasını bir kez çalıştır."
+        : "Kaydedilemedi: " + e.message);
+    }
+  };
+}
+
 async function ayarlarEkraniCiz(kok) {
   const supabase = durum.depo.tur === "supabase";
   const kullanici = durum.oturum ? durum.oturum.kullanici() : null;
@@ -131,6 +249,8 @@ async function ayarlarEkraniCiz(kok) {
 
   kok.innerHTML =
     '<div class="kartlar">' +
+
+    (durum.takim ? kurumKartiHtml() : "") +
 
     '<section class="kart"><h3>Görünüm</h3>' +
     '<fieldset class="alan"><legend>Tema</legend><div class="secenekler" id="tema-secenekleri">' + temaSecenekleri + "</div></fieldset>" +
@@ -173,6 +293,7 @@ async function ayarlarEkraniCiz(kok) {
     "</div>";
 
   if (sec("#erisim-karti")) erisimKartiniDoldur(sec("#erisim-karti"));
+  kurumKartiniBagla();
 
   sec("#tema-secenekleri").onchange = (olay) => {
     temaSec(olay.target.value);
