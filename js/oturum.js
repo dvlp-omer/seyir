@@ -294,6 +294,29 @@ function oturumOlustur(url, anahtar, depolama, istek = (...args) => fetch(...arg
     async davetSil(eposta) {
       await gonder("/rest/v1/izinli_epostalar?eposta=eq." + encodeURIComponent(eposta), null, await this.jeton(), "DELETE");
     },
+
+    /* ---- Roller ve yetkiler (schema.sql > 8. bölüm) ----
+       Asıl denetim veritabanındadır: yönetici olmayan biri çağırırsa YETKI_YOK hatası döner. */
+
+    // { yonetici, rol_idleri } — ekranın ne göstereceği js/yetki.js > yetkilerimiHesapla ile hesaplanır
+    async yetkilerim(takimId) {
+      return gonder("/rest/v1/rpc/yetkilerim", { hedef_takim: takimId }, await this.jeton());
+    },
+
+    // Yalnızca yönetici: takımdaki hesaplar [{ kullanici_id, eposta, yonetici, kurucu, rol_idleri }]
+    async takimHesaplari(takimId) {
+      return (await gonder("/rest/v1/rpc/takim_hesaplari", { hedef_takim: takimId }, await this.jeton())) || [];
+    },
+
+    async uyelikGuncelle(takimId, kullaniciId, yonetici, rolIdleri) {
+      await gonder("/rest/v1/rpc/uyelik_guncelle",
+        { hedef_takim: takimId, hedef_kullanici: kullaniciId, yeni_yonetici: Boolean(yonetici), yeni_roller: rolIdleri || [] },
+        await this.jeton());
+    },
+
+    async uyeligiKaldir(takimId, kullaniciId) {
+      await gonder("/rest/v1/rpc/uyeligi_kaldir", { hedef_takim: takimId, hedef_kullanici: kullaniciId }, await this.jeton());
+    },
   };
 }
 

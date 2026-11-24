@@ -31,6 +31,7 @@ const YEDEK_METIN_SINIRI = 5000;
      "mantik"    : true / false               "sayi"    : 0 ya da pozitif tam sayı
      "liste"     : yazı dizisi                "kararlar": [{ metin, gorev_id }]
      "atifli"    : [{ metin, atif }]  (resmî tutanağın devreden kararları)
+     "yetkiler"  : rolün sekme yetkileri (js/yetki.js > yetkileriTemizle ile temizlenir)
      "kurum"     : kurum ayarları (js/kurum.js > kurumAyarlari ile temizlenir); yedekte yoksa alan hiç yazılmaz
      [a, b, c]   : bu değerlerden biri; yoksa ilki */
 const YEDEK_SEMASI = {
@@ -67,6 +68,8 @@ const YEDEK_SEMASI = {
   kisiler: { takim_id: "metin!", ad: "metin!", ilk_ad: "metin", telefon: "telefon", etiket: "metin", aciklama: "metin" },
   sablonlar: { takim_id: "metin!", ad: "metin!", tur: ["duyuru", "kabul", "davet", "hatirlatma"], metin: "metin!" },
   kampanyalar: { takim_id: "metin!", ad: "metin!", sablon_id: "metin", mesaj: "metin!", alicilar: "alicilar" },
+  // Roller ve yetkiler (js/yetki.js). Hesaplara atanmış roller veritabanındadır, yedeğe girmez.
+  takim_rolleri: { takim_id: "metin!", ad: "metin!", temel: "mantik", yetkiler: "yetkiler" },
 };
 
 const metinMi = (deger) => typeof deger === "string" && deger.length <= YEDEK_METIN_SINIRI;
@@ -83,6 +86,8 @@ function alanTemizle(kural, deger) {
       return metinMi(deger) ? { deger: deger } : { hata: "yazı olmalı (en çok " + YEDEK_METIN_SINIRI + " karakter)" };
     case "metin!":
       return metinMi(deger) && deger.trim() !== "" ? { deger: deger } : { hata: "boş olamaz" };
+    case "yetkiler":
+      return { deger: yetkileriTemizle(deger) };
     case "kurum":
       // Eski yedeklerde yok: alanı hiç yazma (veritabanında sütun yoksa da kayıt eklenebilsin)
       if (deger === undefined || deger === null) return { atla: true };

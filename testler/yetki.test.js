@@ -69,3 +69,31 @@ test("yetki sekmeleri kurum sekmeleriyle uyumlu; tablo eşlemesi veritabanıyla 
     assert.ok(sql.includes("('" + tablo + "', '" + sekme + "')"), "SQL eşlemesinde yok: " + tablo + " -> " + sekme);
   }
 });
+
+test("menuyuYetkiyleSuz: gizli sekmeler menüden düşer, boşalan grup gizlenir; Özet ve Ayarlar kalır", () => {
+  const gruplar = [
+    { baslik: "", ekranlar: ["ozet"] },
+    { baslik: "İletişim", ekranlar: ["kisiler", "mesajlar"] },
+    { baslik: "Planlama", ekranlar: ["gorevler", "takvim"] },
+    { baslik: "Takım", ekranlar: ["takim", "ayarlar"] },
+  ];
+  const yetki = y.yetkilerimiHesapla({ yonetici: false, rolIdleri: [] },
+    [{ id: "r0", temel: true, yetkiler: { gorevler: "gorur", takvim: "gorur", takim: "gizli" } }]);
+  assert.deepEqual(y.menuyuYetkiyleSuz(gruplar, yetki), [
+    { baslik: "", ekranlar: ["ozet"] },
+    { baslik: "Planlama", ekranlar: ["gorevler", "takvim"] },
+    { baslik: "Takım", ekranlar: ["ayarlar"] },
+  ]);
+  assert.equal(y.sekmeGorunurMu(yetki, "kisiler"), false);
+  assert.equal(y.sekmeGorunurMu(yetki, "ozet"), true);
+  assert.equal(y.sekmeGorunurMu(yetki, "bilinmeyen-sekme"), true, "yetkiye bağlı olmayan ekran görünür");
+  assert.equal(y.sekmeGorunurMu(null, "kisiler"), true, "yetki bilgisi yoksa (yerel kullanım) her şey görünür");
+});
+
+test("yetkiHatasiMi: veritabanının 'yetki yok' cevaplarını tanır", () => {
+  assert.equal(y.yetkiHatasiMi('Supabase hatası (403): {"code":"42501","message":"new row violates row-level security policy for table \\"gorevler\\""}'), true);
+  assert.equal(y.yetkiHatasiMi("permission denied for table takimlar"), true);
+  assert.equal(y.yetkiHatasiMi("YETKI_YOK"), true);
+  assert.equal(y.yetkiHatasiMi("Failed to fetch"), false);
+  assert.equal(y.yetkiHatasiMi(undefined), false);
+});

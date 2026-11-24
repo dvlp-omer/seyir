@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 
 // yedek.js ve ornek-veri.js tarayıcıda diğer dosyaların fonksiyonlarını
 // globalden bulur; Node'da aynı ortamı biz kuruyoruz.
-Object.assign(global, require("../js/mantik.js"), require("../js/veri.js"), require("../js/kisiler.js"), require("../js/kurum.js"));
+Object.assign(global, require("../js/mantik.js"), require("../js/veri.js"), require("../js/kisiler.js"), require("../js/kurum.js"), require("../js/yetki.js"));
 const { yedekCoz, yedekOlustur, yedekYukle, kayitTemizle, YEDEK_SEMASI } = require("../js/yedek.js");
 const { ornekVeriYukle } = require("../js/ornek-veri.js");
 

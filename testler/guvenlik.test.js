@@ -110,7 +110,9 @@ test("şema: her koleksiyonda 'surum' sütunu ve onu artıran tetikleyici var (�
   const liste = /foreach tablo in array array\[([^\]]+)\]/.exec(sema);
   assert.ok(liste, "tablo listesi bulunamadı");
   const tablolar = liste[1].match(/'([a-z_]+)'/g).map((t) => t.slice(1, -1)).sort();
-  assert.deepEqual(tablolar, [...KOLEKSIYONLAR].sort());
+  // takim_rolleri sonradan geldi: sürüm sütunu ve tetikleyicisi kendi bloğunda (8. bölüm)
+  assert.deepEqual(tablolar, KOLEKSIYONLAR.filter((k) => k !== "takim_rolleri").sort());
+  assert.match(sema, /surum\s+integer not null default 1\s*\)[\s\S]*?create trigger surum_artir before update on takim_rolleri/);
   // Ayrı güncelleme dosyası da aynı komutları içersin
   const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-surum.sql"), "utf8");
   // (sema'dan yorumlar atılmıştır; dosyayı da aynı biçimde karşılaştır)

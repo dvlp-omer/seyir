@@ -60,6 +60,24 @@ function yetkilerimiHesapla(uyelik, roller) {
   return { yonetici: Boolean(uyelik && uyelik.yonetici), rollerKurulu, sekmeler };
 }
 
+// Sekme bu hesaba görünür mü? Yetki bilgisi yoksa (yerel kullanım) ya da sekme yetkiye bağlı değilse: evet.
+function sekmeGorunurMu(yetki, sekme) {
+  if (!yetki || !yetki.sekmeler || HEP_ACIK.includes(sekme) || !YETKI_SEKMELERI.includes(sekme)) return true;
+  return yetki.sekmeler[sekme] !== "gizli";
+}
+
+// Menü gruplarından gizli sekmeleri çıkarır; boşalan grup gizlenir (kurumun kapattıkları js/kurum.js > menuyuSuz).
+function menuyuYetkiyleSuz(gruplar, yetki) {
+  return gruplar
+    .map((g) => ({ ...g, ekranlar: g.ekranlar.filter((ad) => sekmeGorunurMu(yetki, ad)) }))
+    .filter((g) => g.ekranlar.length);
+}
+
+// Veritabanı "yetkin yok" dedi mi? (satır kuralı, sütun izni ya da yönetim fonksiyonları)
+function yetkiHatasiMi(mesaj) {
+  return /row-level security|42501|permission denied|YETKI_YOK/i.test(String(mesaj || ""));
+}
+
 // Bütün sekmelere aynı seviye
 function hepsi(seviye, istisnalar = {}) {
   const yetkiler = {};
@@ -85,6 +103,6 @@ function hazirRoller(tur) {
 if (typeof module !== "undefined") {
   module.exports = {
     YETKI_DUZEYLERI, YETKI_ETIKETLERI, YETKI_SEKMELERI, HEP_ACIK, TABLO_SEKMESI,
-    yetkileriTemizle, enGenisSeviye, yetkilerimiHesapla, hazirRoller,
+    yetkileriTemizle, enGenisSeviye, yetkilerimiHesapla, hazirRoller, sekmeGorunurMu, menuyuYetkiyleSuz, yetkiHatasiMi,
   };
 }

@@ -265,7 +265,9 @@ async function ayarlarEkraniCiz(kok) {
   kok.innerHTML =
     '<div class="kartlar">' +
 
-    (durum.takim ? kurumKartiHtml() : "") +
+    // Kurum ayarlarını ve rolleri yalnızca takım yöneticisi görür (yerel kullanımda tek kullanıcı yöneticidir)
+    (durum.takim && (!durum.yetki || durum.yetki.yonetici) ? kurumKartiHtml() : "") +
+    (yonetimGosterilsinMi() ? yonetimKartiHtml() : "") +
 
     '<section class="kart"><h3>Görünüm</h3>' +
     '<fieldset class="alan"><legend>Tema</legend><div class="secenekler" id="tema-secenekleri">' + temaSecenekleri + "</div></fieldset>" +
@@ -309,6 +311,7 @@ async function ayarlarEkraniCiz(kok) {
 
   if (sec("#erisim-karti")) erisimKartiniDoldur(sec("#erisim-karti"));
   kurumKartiniBagla();
+  if (sec("#yonetim-karti")) yonetimKartiniDoldur(sec("#yonetim-karti"));
 
   sec("#tema-secenekleri").onchange = (olay) => {
     temaSec(olay.target.value);

@@ -56,6 +56,13 @@ function eylemleriBagla(kok, eylemler) {
 
 function hataGoster(hata) {
   console.error(hata);
+  // Veritabanı "yetkin yok" dedi; ya da yalnızca görme yetkisiyle kaydedilmeye çalışıldı
+  // (kural satırı gizlediği için veritabanı bunu "kimse değiştirmedi" diye döner: çakışma gibi görünür)
+  const salt = durum.yetki && durum.ekran && durum.yetki.sekmeler[durum.ekran] === "gorur";
+  if (hata && (yetkiHatasiMi(hata.message) || (salt && hata.name === "CakismaHatasi"))) {
+    bildir("Bu işlem için yetkin yok. Bu sekmede yalnızca görme yetkin olabilir; takım yöneticine yaz.");
+    return yenile();
+  }
   // Başkası bu kaydı değiştirdi: uyar ve ekranı güncel veriyle yeniden çiz
   if (hata && hata.name === "CakismaHatasi") {
     bildir("Bu kayıt başka biri tarafından değiştirilmiş; ekran yenilendi. İşlemi yeniden dene.");
@@ -310,7 +317,7 @@ async function aramaPenceresiAc() {
   const ciz = () => {
     // Kurumun kapattığı sekmelerin kayıtları aramada çıkmaz
     const ayar = kurumAyarlari(durum.takim);
-    sonuclar = aramaYap(dizin, kutu.value).filter((s) => sekmeAcikMi(ayar, s.ekran));
+    sonuclar = aramaYap(dizin, kutu.value).filter((s) => sekmeAcikMi(ayar, s.ekran) && sekmeGorunurMu(durum.yetki, s.ekran));
     liste.innerHTML = sonuclar.map((s, sira) =>
       '<li><button type="button" class="arama-oge" data-sira="' + sira + '">' +
       '<span class="arama-tur">' + htmlKacis(s.turAdi) + "</span>" +

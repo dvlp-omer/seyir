@@ -15,7 +15,7 @@
 
 // Dosya listesi değişince bu adı da değiştir; eski önbellek silinir.
 // (v7: uygulama /uygulama adresine taşındı, ana sayfa tanıtım oldu)
-const ONBELLEK = "seyir-v19";
+const ONBELLEK = "seyir-v20";
 
 // Uygulamanın açılması için gereken dosyalar ("kabuk").
 // uygulama.html'e yeni bir betik eklersen buraya da ekle (testler/pwa.test.js denetler).
@@ -32,6 +32,7 @@ const KABUK = [
   "js/oturum.js",
   "js/mantik.js",
   "js/kurum.js",
+  "js/yetki.js",
   "js/yedek.js",
   "js/tutanak.js",
   "js/docx.js",
@@ -51,6 +52,7 @@ const KABUK = [
   "js/ekranlar/kisiler.js",
   "js/ekranlar/mesajlar.js",
   "js/ekranlar/takim.js",
+  "js/ekranlar/yonetim.js",
   "js/ekranlar/ayarlar.js",
   "js/ekranlar/giris.js",
   "js/uygulama.js",

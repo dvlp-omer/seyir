@@ -267,7 +267,15 @@ a { color: var(--su); }
 .kart > p + p { margin-top: 8px; }
 .kartlar { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 /* Ayarlar > Kurum (js/ekranlar/ayarlar.js) */
-.kurum-karti { grid-column: 1 / -1; }
+.kurum-karti, .yonetim-karti { grid-column: 1 / -1; }
+/* Ayarlar > Roller ve yetkiler (js/ekranlar/yonetim.js) */
+.yetki-tablosu th, .yetki-tablosu td { white-space: nowrap; }
+.yetki-tablosu select { min-width: 96px; padding: 4px 6px; }
+.yetki-tablosu [data-rol-ad] { min-width: 140px; }
+.yetki-tablosu th small { display: block; }
+.satir-secim { display: inline-flex; align-items: center; gap: 6px; margin: 2px 12px 2px 0; white-space: nowrap; }
+.yonetim-dugmeler { display: flex; gap: 6px; flex-wrap: wrap; }
+.salt-okunur-not { margin-bottom: 14px; }
 .kurum-gorunum { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 12px 0; }
 .kurum-logo-satir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .kurum-logo-onizleme { display: inline-grid; place-items: center; width: 56px; height: 56px; border: 1px dashed var(--cizgi); border-radius: var(--kose); background: var(--sutun); }

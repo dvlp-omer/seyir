@@ -34,12 +34,12 @@ const SOZLUKLER = {
   takim: {
     takim: "Takım", takimi: "takımı", takimlar: "Takımlar", uye: "Üye", uyeler: "Üyeler",
     kaptan: "Kaptan", kurum: "Takım / kulüp",
-    takim_kucuk: "takım", takima: "takıma", uye_kucuk: "üye", uyeler_kucuk: "üyeler", takim_ve_uyeler: "Takım ve üyeler",
+    takim_kucuk: "takım", takima: "takıma", takimdaki: "takımdaki", uye_kucuk: "üye", uyeler_kucuk: "üyeler", takim_ve_uyeler: "Takım ve üyeler",
   },
   sirket: {
     takim: "Ekip", takimi: "ekibi", takimlar: "Ekipler", uye: "Çalışan", uyeler: "Çalışanlar",
     kaptan: "Yönetici", kurum: "Şirket / ekip",
-    takim_kucuk: "ekip", takima: "ekibe", uye_kucuk: "çalışan", uyeler_kucuk: "çalışanlar", takim_ve_uyeler: "Ekip ve çalışanlar",
+    takim_kucuk: "ekip", takima: "ekibe", takimdaki: "ekipteki", uye_kucuk: "çalışan", uyeler_kucuk: "çalışanlar", takim_ve_uyeler: "Ekip ve çalışanlar",
   },
 };
 

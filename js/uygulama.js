@@ -17,6 +17,7 @@ const durum = {
   demo: false,     // örnek mod (?ornek): giriş yok, veri sekmenin geçici deposunda
   oturum: null,     // giriş yönetimi (js/oturum.js); localStorage kullanılırken null
   takimlar: [],     // bütün takımlar
+  yetki: null,      // etkin takımdaki yetkilerim (js/yetki.js > yetkilerimiHesapla); null: her şey açık
   takim: null,      // seçili takım
   ekran: null,      // açık ekranın adı (ilk çizimden önce null)
   sifreYenileme: false, // e-postadaki sıfırlama bağlantısıyla gelindi: önce yeni şifre sorulur
@@ -45,7 +46,26 @@ async function takimlariYukle() {
   // Son seçilen takım duruyorsa onu, yoksa ilk takımı seç.
   durum.takim = durum.takimlar.find((t) => t.id === kayitliId) || durum.takimlar[0] || null;
   takimSeciciCiz();
+  await yetkileriYukle();
   kurumuUygula();
+}
+
+/* Etkin takımdaki yetkilerim (js/yetki.js). Yerel kullanımda ve roller kurulmamış
+   takımda her şey düzenlenebilir. Supabase güncellemesi (guncelleme-roller.sql)
+   çalıştırılmamışsa istek hata verir: o zaman da eskisi gibi her şey açık kalır.
+   Bu yalnızca EKRANI belirler; asıl denetim veritabanındadır. */
+async function yetkileriYukle() {
+  durum.yetki = yetkilerimiHesapla({ yonetici: true, rolIdleri: [] }, []);
+  if (!durum.takim || durum.depo.tur !== "supabase" || !durum.oturum) return;
+  try {
+    const [benim, roller] = await Promise.all([
+      durum.oturum.yetkilerim(durum.takim.id),
+      durum.depo.listele("takim_rolleri", { takim_id: durum.takim.id }),
+    ]);
+    durum.yetki = yetkilerimiHesapla({ yonetici: benim && benim.yonetici, rolIdleri: (benim && benim.rol_idleri) || [] }, roller);
+  } catch (hata) {
+    console.warn("Yetkiler okunamadı (supabase/guncelleme-roller.sql çalıştırıldı mı?):", hata);
+  }
 }
 
 /* Etkin takımın kurum ayarlarını ekrana uygular (js/kurum.js):
@@ -106,10 +126,11 @@ const DAHA_FAZLA_SIMGE = "M5 12h.01M12 12h.01M19 12h.01";
 // Kurumun kapattığı sekmeler menüde ve "Daha fazla"da görünmez (js/kurum.js > menuyuSuz).
 function menuGruplari() {
   const grupta = new Set(MENU_GRUPLARI.flatMap((g) => g.ekranlar));
-  return menuyuSuz([
+  // Kurumun kapattığı sekmeler (kurum.js) ve bu hesaba gizli olanlar (yetki.js) menüde görünmez
+  return menuyuYetkiyleSuz(menuyuSuz([
     ...MENU_GRUPLARI.map((g) => ({ ...g, ekranlar: g.ekranlar.filter((ad) => EKRANLAR[ad]) })),
     { baslik: "", ekranlar: EKRAN_SIRASI.filter((ad) => !grupta.has(ad)) },
-  ], kurumAyarlari(durum.takim));
+  ], kurumAyarlari(durum.takim)), durum.yetki);
 }
 
 // Ekranın başlığı ya da menü adı. Kurum türüne göre değişenler fonksiyon olarak kaydedilir (ör. takim.js).
@@ -243,7 +264,7 @@ async function ekraniCiz() {
   // (Ayarlar hariç: yedekten geri yükleme takım yokken de gerekebilir.)
   if (!durum.takim && ad !== "ayarlar") ad = "takim";
   // Kurumun kapattığı sekmeye (eski bağlantı, yer imi) gelindiyse Özet açılır.
-  if (durum.takim && !sekmeAcikMi(kurumAyarlari(durum.takim), ad)) ad = "ozet";
+  if (durum.takim && (!sekmeAcikMi(kurumAyarlari(durum.takim), ad) || !sekmeGorunurMu(durum.yetki, ad))) ad = "ozet";
 
   const ilkCizim = durum.ekran === null;
   const ekranDegisti = durum.ekran !== ad;
@@ -258,6 +279,11 @@ async function ekraniCiz() {
 
   try {
     await EKRANLAR[ad].ciz(kok);
+    // Bu sekmede yalnızca görme yetkisi varsa üstte not (kaydetmeyi veritabanı zaten reddeder)
+    if (durum.yetki && durum.yetki.sekmeler[ad] === "gorur" && YETKI_SEKMELERI.includes(ad)) {
+      kok.insertAdjacentHTML("afterbegin", '<p class="bilgi-kutusu salt-okunur-not" role="note"><b>Yalnızca görme yetkin var.</b> ' +
+        "Bu sekmedeki kayıtları görebilirsin ama değişiklikler kaydedilmez. Yetki için takım yöneticine yaz.</p>");
+    }
   } catch (hata) {
     console.error(hata);
     // Oturum bu sırada bittiyse (jeton yenilenemedi) giriş ekranına dön.
