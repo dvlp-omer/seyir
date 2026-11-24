@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 296 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 302 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -44,6 +44,7 @@ js/
     paydaslar.js           Sponsorlar (takım) / Müşteriler (şirket): aşama, tutar, sonraki adım (mantığı: js/paydas.js)
     butce.js               Bütçe: gelir / gider, kalan, kategoriye göre dağılım (mantığı: js/butce.js)
     malzemeler.js          Malzeme (takım) / Envanter (şirket): sipariş → yolda → geldi, kimde, nerede (mantığı: js/malzeme.js)
+    projeler.js            Projeler: durum, müşteri, teslim; ilerleme bağlı görevlerden (mantığı: js/proje.js)
     etkinlikler.js  duyuru.js  takim.js  ayarlar.js  giris.js
 
 supabase/schema.sql        Tablolar ve satır düzeyinde güvenlik kuralları
@@ -53,7 +54,7 @@ netlify.toml               Yayın ayarları ve güvenlik başlıkları
 tanitim-kaynak/            Tanıtım sayfası (/tanitim): React + Tailwind + Framer Motion, Vite ile
                            derlenir; çıktı tanitim/ (depoya girmez, yayında üretilir). Uygulamadan
                            bağımsızdır: uygulama yine framework'süz, derlemesiz.
-testler/                   296 test (Node'un kendi test aracı)
+testler/                   302 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar

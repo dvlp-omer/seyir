@@ -304,3 +304,10 @@ test("veritabanı: malzeme bloğu schema.sql ile guncelleme-malzeme.sql'de aynı
   const blok = sema.slice(sema.indexOf("-- MALZEME-BLOGU-BASI") + "-- MALZEME-BLOGU-BASI".length, sema.indexOf("-- MALZEME-BLOGU-SONU")).trim();
   assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablo ----")).trim());
 });
+
+test("veritabanı: projeler bloğu schema.sql ile guncelleme-projeler.sql'de aynı", () => {
+  const sema = fs.readFileSync(path.join(KOK, "supabase/schema.sql"), "utf8");
+  const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-projeler.sql"), "utf8");
+  const blok = sema.slice(sema.indexOf("-- PROJELER-BLOGU-BASI") + "-- PROJELER-BLOGU-BASI".length, sema.indexOf("-- PROJELER-BLOGU-SONU")).trim();
+  assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablo ----")).trim());
+});

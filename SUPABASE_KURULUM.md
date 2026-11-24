@@ -80,6 +80,7 @@ Rehberde telefon numaraları olduğu için üç kat koruma var:
 > - [supabase/guncelleme-paydaslar.sql](supabase/guncelleme-paydaslar.sql): Sponsorlar / Müşteriler sekmesi (rollerden sonra çalıştır).
 > - [supabase/guncelleme-butce.sql](supabase/guncelleme-butce.sql): Bütçe sekmesi (rollerden sonra çalıştır).
 > - [supabase/guncelleme-malzeme.sql](supabase/guncelleme-malzeme.sql): Malzeme / Envanter sekmesi (bütçeden sonra çalıştır).
+> - [supabase/guncelleme-projeler.sql](supabase/guncelleme-projeler.sql): Projeler sekmesi ve görevlerde proje bağlantısı.
 
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 

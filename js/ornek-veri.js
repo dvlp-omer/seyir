@@ -66,6 +66,19 @@ async function ornekVeriYukle(depo, bugunTarihi) {
     });
   }
 
+  // Projeler: biri görevlerle bağlı (ilerleme görevlerden hesaplanır)
+  const aracProjesi = await depo.ekle("projeler", {
+    ...ortak, ad: "Su altı aracı v2", paydas_id: "", durum: "devam",
+    baslangic: gunEkle(bugunTarihi, -30), bitis: gunEkle(bugunTarihi, 40), aciklama: "Yarışma aracının ikinci sürümü.",
+  });
+  await depo.ekle("projeler", {
+    ...ortak, ad: "Tanıtım sitesi", paydas_id: "", durum: "planlama",
+    baslangic: "", bitis: gunEkle(bugunTarihi, 25), aciklama: "",
+  });
+  for (const g of await depo.listele("gorevler", { takim_id: takim.id })) {
+    if (/motor|sızdırmazlık|Kamera|mekanik/i.test(g.baslik)) await depo.guncelle("gorevler", g.id, { proje_id: aracProjesi.id });
+  }
+
   // Toplantı kararlarını yaz; ilk karar yukarıdaki göreve bağlı.
   await depo.guncelle("toplantilar", toplanti.id, {
     kararlar: [

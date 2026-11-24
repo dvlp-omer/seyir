@@ -115,7 +115,7 @@ function takimSeciciCiz() {
    menünün sonuna düşer (unutulup kaybolmaz). */
 const MENU_GRUPLARI = [
   { baslik: "", ekranlar: ["ozet"] },
-  { baslik: "Planlama", ekranlar: ["gorevler", "tarihler", "takvim"] },
+  { baslik: "Planlama", ekranlar: ["gorevler", "projeler", "tarihler", "takvim"] },
   { baslik: "Toplantı ve etkinlik", ekranlar: ["toplantilar", "tutanaklar", "etkinlikler"] },
   { baslik: "İletişim", ekranlar: ["kisiler", "mesajlar", "duyuru"] },
   { baslik: "Kaynaklar", ekranlar: ["paydaslar", "butce", "malzemeler"] },

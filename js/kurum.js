@@ -24,7 +24,7 @@ const VARSAYILAN_RENK = "#b8451a";
 const LOGO_EN_BUYUK = 80 * 1024;
 
 // Uygulamadaki sekmeler (ekranlar). Kapatılabilecekler bu listeden seçilir.
-const BILINEN_SEKMELER = ["ozet", "gorevler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
+const BILINEN_SEKMELER = ["ozet", "gorevler", "projeler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
   "kisiler", "paydaslar", "butce", "malzemeler", "mesajlar", "duyuru", "takim", "ayarlar"];
 // Kapatılırsa uygulama kullanılamaz hâle gelir: bunlar hep açık.
 const KAPATILAMAZ = ["ozet", "takim", "ayarlar"];

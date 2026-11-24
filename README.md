@@ -48,6 +48,7 @@ yıldızı yönü, küre ve yörünge şeridi de takımın etrafında döndüğ�
 | **Etkinlik ve faaliyet raporu** | Etkinlik kaydı; seçilen tarih aralığı için yazdırılabilir rapor taslağı. |
 | **Kişiler** | Rehber: ad, hitap adı, telefon, etiket (başvuran, kabul edildi, üye…), not. CSV dosyası, Excel'den yapıştırma ya da "kabul mesajları" HTML dosyasından önizlemeli içe aktarma. Numaralar tek biçime çevrilir (`0532…`, `+90…`, `0090…` → `90…`); geçersiz ve yinelenenler gösterilir. |
 | **WhatsApp mesajları** | Kaydedilebilir şablonlar (`{ad}`, `{tarih}`, `{saat}`, `{yer}`, `{link}`); kişileri süzüp seç, her biri için mesajı hazır açan **WhatsApp'ta aç** düğmesi, gönderildi işareti ve sayaç (12/72); her gönderim ayrı kayıt. Gruba duyuru: kopyala ya da WhatsApp'ta paylaş; bağlantı ve fotoğraf / video eklenebilir (telefonun Paylaş menüsüyle gider, dosyalar kaydedilmez). Resmî tutanaktan tek tıkla toplantı hatırlatması. Otomatik toplu gönderim **yok** (WhatsApp resmî olarak desteklemez). |
+| **Projeler** | Proje kartları: durum, müşteri / sponsor, teslim tarihi ve geri sayım; ilerleme projeye bağlı görevlerden kendiliğinden hesaplanır. Görev panosu projeye göre süzülür. |
 | **Sponsorlar / Müşteriler** | Kurumlarla ilişkiyi aşama aşama takip (Aday → İletişimde → Görüşme → Anlaşıldı / Olmadı), tutar, sonraki adım ve tarihi; geciken adımlar işaretli. Şirket paketinde “Müşteriler” adıyla görünür. |
 | **Bütçe** | Gelir ve gider kalemleri, kalan bütçe, giderlerin kategoriye göre dağılımı, “ödeyen / fiş kimde” notu. Anlaşılan sponsor tek tıkla bütçeye gelir olarak eklenir. |
 | **Malzeme / Envanter** | Parçanın yolculuğu (İhtiyaç → Sipariş → Yolda → Geldi → Kullanımda / Arızalı), adet ve fiyat, tedarikçi, kimde ve nerede olduğu, geciken teslimler; tek tıkla sonraki duruma geçir, alınanı bütçeye gider olarak ekle. Şirket paketinde “Envanter” adıyla görünür. |
@@ -108,7 +109,7 @@ o tarayıcıda görünür. Arada bir **Ayarlar → Yedeği indir** ile yedek al.
 npm test
 ```
 
-296 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
+302 test; Node 22+ yeterli, paket kurmak gerekmez. Her gönderimde GitHub Actions da çalıştırır. Tarih hesabı, takvim,
 yoklama, rapor, duyuru şablonları, iki veri deposu (aynı sözleşme testleri),
 giriş ve davetli kayıt, yedekleme, resmî tutanak (numara, atıf, not
 ayrıştırma, Word okuma/yazma), kişiler (telefon biçimi, CSV, HTML içe
@@ -266,7 +267,7 @@ the URL to load a fictional demo team automatically.
 npm test
 ```
 
-296 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
+302 tests with Node's built-in test runner (Node 22+, nothing to install; run on every push by GitHub Actions),
 including a static check of `schema.sql` (RLS enabled, a policy and no
 anonymous access on every table) and a scan for personal data in the repo.
 `npm run test:pdf` renders a fictional sample of the official minutes to PDF

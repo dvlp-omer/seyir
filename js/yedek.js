@@ -32,6 +32,7 @@ const YEDEK_METIN_SINIRI = 5000;
      "liste"     : yazı dizisi                "kararlar": [{ metin, gorev_id }]
      "atifli"    : [{ metin, atif }]  (resmî tutanağın devreden kararları)
      "yetkiler"  : rolün sekme yetkileri (js/yetki.js > yetkileriTemizle ile temizlenir)
+     "metin?"    : isteğe bağlı yazı; kayıtta yoksa alan hiç yazılmaz
      "kurum"     : kurum ayarları (js/kurum.js > kurumAyarlari ile temizlenir); yedekte yoksa alan hiç yazılmaz
      [a, b, c]   : bu değerlerden biri; yoksa ilki */
 const YEDEK_SEMASI = {
@@ -40,7 +41,7 @@ const YEDEK_SEMASI = {
   gorevler: {
     takim_id: "metin!", baslik: "metin!", aciklama: "metin",
     durum: ["yapilacak", "yapiliyor", "bitti"],
-    sorumlu_id: "metin", bitis_tarihi: "tarih", toplanti_id: "metin",
+    sorumlu_id: "metin", bitis_tarihi: "tarih", toplanti_id: "metin", proje_id: "metin?",
   },
   son_tarihler: {
     takim_id: "metin!", baslik: "metin!", tur: ["diger", "rapor", "izin", "etkinlik"],
@@ -79,7 +80,12 @@ const YEDEK_SEMASI = {
   // Bütçe (js/butce.js)
   butce_kalemleri: {
     takim_id: "metin!", tur: ["gider", "gelir"], baslik: "metin!", tutar: "sayi", kategori: "metin",
-    tarih: "tarih", odeyen: "metin", aciklama: "metin", paydas_id: "metin", malzeme_id: "metin",
+    tarih: "tarih", odeyen: "metin", aciklama: "metin", paydas_id: "metin", malzeme_id: "metin?",
+  },
+  // Projeler (js/proje.js)
+  projeler: {
+    takim_id: "metin!", ad: "metin!", paydas_id: "metin",
+    durum: ["planlama", "devam", "beklemede", "tamamlandi", "iptal"], baslangic: "tarih", bitis: "tarih", aciklama: "metin",
   },
   // Malzeme / Envanter (js/malzeme.js)
   malzemeler: {
@@ -100,6 +106,11 @@ function alanTemizle(kural, deger) {
   switch (kural) {
     case "metin":
       if (deger === undefined || deger === null) return { deger: "" };
+      return metinMi(deger) ? { deger: deger } : { hata: "yazı olmalı (en çok " + YEDEK_METIN_SINIRI + " karakter)" };
+    case "metin?":
+      // Sonradan eklenen bağlantı alanları (proje_id, malzeme_id): kayıtta yoksa yedeğe de yazılmaz;
+      // böylece eski kayıtlar aynen geri gelir ve sütunu henüz olmayan veritabanına da yüklenebilir.
+      if (deger === undefined || deger === null) return { atla: true };
       return metinMi(deger) ? { deger: deger } : { hata: "yazı olmalı (en çok " + YEDEK_METIN_SINIRI + " karakter)" };
     case "metin!":
       return metinMi(deger) && deger.trim() !== "" ? { deger: deger } : { hata: "boş olamaz" };

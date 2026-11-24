@@ -6,6 +6,8 @@
 
 // Panodaki "sorumluya göre süz" seçimi. "" = herkes.
 let gorevSorumluFiltresi = "";
+// "Projeye göre süz" seçimi (Projeler ekranındaki "Görevleri gör" de bunu ayarlar). "" = hepsi.
+let gorevProjeFiltresi = "";
 // Az önce sütun değiştiren görev (bir sonraki çizimde vurgulanır, sonra unutulur)
 let sonTasinanGorev = null;
 
@@ -19,8 +21,10 @@ function gorevDurumEtiketi(deger) {
    için bunu kullanır; o yüzden ayrı bir fonksiyon.
      gorev      : düzenlenecek görev (yeni görev için null)
      varsayilan : yeni görevde önceden dolu gelecek alanlar
-     kaydedince : kayıttan sonra çağrılacak isteğe bağlı fonksiyon */
-function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null }) {
+     kaydedince : kayıttan sonra çağrılacak isteğe bağlı fonksiyon
+     projeler   : verilirse "Proje" alanı çıkar (Projeler sekmesi açık ve görünürse). Verilmezse
+                  görevin projesine dokunulmaz (veritabanında sütun yoksa da görev kaydedilebilsin). */
+function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null, projeler = null }) {
   formAc({
     baslik: gorev ? "Görevi düzenle" : "Yeni görev",
     alanlar: [
@@ -33,6 +37,9 @@ function gorevFormu({ gorev = null, varsayilan = {}, uyeler, kaydedince = null }
       },
       { ad: "bitis_tarihi", etiket: "Bitiş tarihi", tur: "tarih" },
       { ad: "durum", etiket: "Durum", tur: "secim", secenekler: GOREV_DURUMLARI },
+      ...(projeler && projeler.length
+        ? [{ ad: "proje_id", etiket: "Proje", tur: "secim", secenekler: [{ deger: "", etiket: "— Projesiz —" }, ...projeler.map((p) => ({ deger: p.id, etiket: p.ad }))] }]
+        : []),
     ],
     degerler: gorev || { durum: "yapilacak", ...varsayilan },
     // Düzenlemede "Sil" düğmesi formun içinde (kartta değil)
@@ -127,7 +134,8 @@ function panoSurukleBirakBagla(pano) {
 
 /* ---------- Çizim ---------- */
 
-function gorevKartiHtml(gorev, uyeler) {
+function gorevKartiHtml(gorev, uyeler, projeler) {
+  const proje = projeler && gorev.proje_id && projeler.find((p) => p.id === gorev.proje_id);
   const id = htmlKacis(gorev.id);
   const baslik = htmlKacis(gorev.baslik);
   const sira = GOREV_DURUMLARI.findIndex((d) => d.deger === gorev.durum);
@@ -166,6 +174,7 @@ function gorevKartiHtml(gorev, uyeler) {
   return '<article class="gorev-kart ' + vurgu + '" draggable="true" data-eylem="duzenle" data-id="' + id + '">' +
     '<h4><button type="button" class="kart-baslik" data-eylem="duzenle" data-id="' + id + '" aria-label="Düzenle: ' + baslik + '">' + baslik + "</button></h4>" +
     (gorev.aciklama ? '<p class="aciklama">' + htmlKacis(gorev.aciklama) + "</p>" : "") +
+    (proje ? '<p class="proje-etiket">' + htmlKacis(proje.ad) + "</p>" : "") +
     '<div class="gorev-alt">' + kisi + tarih +
     '<span class="gorev-dugmeler">' + tasiDugmesi("geri", "◀", sira - 1) + tasiDugmesi("ileri", "▶", sira + 1) + "</span>" +
     "</div></article>";
@@ -173,33 +182,44 @@ function gorevKartiHtml(gorev, uyeler) {
 
 async function gorevlerEkraniCiz(kok) {
   // İki listeyi aynı anda iste (Supabase'de iki ayrı ağ isteği; beklemeyi kısaltır)
-  const [gorevler, uyeler] = await Promise.all([takimKayitlari("gorevler"), takimKayitlari("uyeler")]);
+  // Projeler sekmesi açık ve bu hesaba görünürse projeler de okunur (süzgeç, form alanı, kart etiketi)
+  const projeVar = sekmeAcikMi(kurumAyarlari(durum.takim), "projeler") && sekmeGorunurMu(durum.yetki, "projeler");
+  const [gorevler, uyeler, projeler] = await Promise.all([
+    takimKayitlari("gorevler"), takimKayitlari("uyeler"), projeVar ? takimKayitlari("projeler") : null,
+  ]);
 
-  // Süzgeçteki üye silinmişse süzgeci sıfırla
+  // Süzgeçteki üye ya da proje silinmişse süzgeci sıfırla
   if (gorevSorumluFiltresi && !uyeler.some((u) => u.id === gorevSorumluFiltresi)) gorevSorumluFiltresi = "";
-  const gorunen = gorevSorumluFiltresi
-    ? gorevler.filter((g) => g.sorumlu_id === gorevSorumluFiltresi)
-    : gorevler;
+  if (gorevProjeFiltresi && !(projeler || []).some((p) => p.id === gorevProjeFiltresi)) gorevProjeFiltresi = "";
+  const gorunen = gorevler.filter((g) =>
+    (!gorevSorumluFiltresi || g.sorumlu_id === gorevSorumluFiltresi) && (!gorevProjeFiltresi || g.proje_id === gorevProjeFiltresi));
 
   const sutunlar = GOREV_DURUMLARI.map((sutun) => {
     const kartlar = tariheGoreSirala(gorunen.filter((g) => g.durum === sutun.deger), "bitis_tarihi");
     return '<section class="sutun" data-durum="' + sutun.deger + '" aria-label="' + sutun.etiket + '">' +
       '<h3 class="sutun-baslik">' + sutun.etiket + ' <span class="sayi" aria-label="' + kartlar.length + ' görev">' + kartlar.length + "</span></h3>" +
       (kartlar.length
-        ? kartlar.map((g) => gorevKartiHtml(g, uyeler)).join("")
+        ? kartlar.map((g) => gorevKartiHtml(g, uyeler, projeler)).join("")
         : '<p class="sutun-bos">Burada görev yok</p>') +
       "</section>";
   }).join("");
 
   // Süzgeç etkinken bunu açıkça söyle; yoksa pano "boş" sanılabilir (RAPOR.md > B3).
-  const suzgecNotu = gorevSorumluFiltresi
-    ? '<p class="bilgi-kutusu">Yalnızca <b>' + htmlKacis(uyeAdi(uyeler, gorevSorumluFiltresi)) + "</b> üzerindeki görevler gösteriliyor (" +
+  const suzgecler = [
+    gorevSorumluFiltresi ? "<b>" + htmlKacis(uyeAdi(uyeler, gorevSorumluFiltresi)) + "</b> üzerindeki" : "",
+    gorevProjeFiltresi ? "<b>" + htmlKacis((projeler.find((p) => p.id === gorevProjeFiltresi) || {}).ad || "") + "</b> projesindeki" : "",
+  ].filter(Boolean);
+  const suzgecNotu = suzgecler.length
+    ? '<p class="bilgi-kutusu">Yalnızca ' + suzgecler.join(", ") + " görevler gösteriliyor (" +
       gorunen.length + " / " + gorevler.length + '). <button class="dugme kucuk" data-eylem="suzgec-kaldir">Hepsini göster</button></p>'
     : "";
 
   kok.innerHTML =
     '<div class="arac-cubugu">' +
     '<label>Sorumlu <select id="gorev-filtre">' + secenekHtml(uyeSecenekleri(uyeler, "Herkes"), gorevSorumluFiltresi) + "</select></label>" +
+    (projeler && projeler.length
+      ? '<label>Proje <select id="gorev-proje-filtre">' + secenekHtml([{ deger: "", etiket: "Hepsi" }, ...projeler.map((p) => ({ deger: p.id, etiket: p.ad }))], gorevProjeFiltresi) + "</select></label>"
+      : "") +
     '<span class="bosluk"></span>' +
     '<button class="dugme ana" data-eylem="ekle">+ Yeni görev</button>' +
     "</div>" + suzgecNotu +
@@ -215,17 +235,24 @@ async function gorevlerEkraniCiz(kok) {
     gorevSorumluFiltresi = olay.target.value;
     yenile();
   };
+  if (sec("#gorev-proje-filtre")) {
+    sec("#gorev-proje-filtre").onchange = (olay) => {
+      gorevProjeFiltresi = olay.target.value;
+      yenile();
+    };
+  }
 
   eylemleriBagla(kok, {
-    ekle: () => gorevFormu({ uyeler: uyeler, varsayilan: { sorumlu_id: gorevSorumluFiltresi } }),
+    ekle: () => gorevFormu({ uyeler: uyeler, projeler: projeler,
+      varsayilan: { sorumlu_id: gorevSorumluFiltresi, ...(gorevProjeFiltresi ? { proje_id: gorevProjeFiltresi } : {}) } }),
     duzenle: async (id) => {
       const gorev = await durum.depo.oku("gorevler", id);
       if (!gorev) return yenile();
-      gorevFormu({ gorev: gorev, uyeler: uyeler });
+      gorevFormu({ gorev: gorev, uyeler: uyeler, projeler: projeler });
     },
     ileri: (id) => gorevTasi(id, +1),
     geri: (id) => gorevTasi(id, -1),
-    "suzgec-kaldir": () => { gorevSorumluFiltresi = ""; return yenile(); },
+    "suzgec-kaldir": () => { gorevSorumluFiltresi = ""; gorevProjeFiltresi = ""; return yenile(); },
   });
 }
 

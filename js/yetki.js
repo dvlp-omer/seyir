@@ -19,7 +19,7 @@ const YETKI_DUZEYLERI = ["gizli", "gorur", "duzenler"];
 const YETKI_ETIKETLERI = { gizli: "Gizli", gorur: "Görür", duzenler: "Düzenler" };
 
 // Yetkiye bağlı sekmeler (Özet ve Ayarlar hep açık: herkes görür, kendi içinde ayrıca denetlenir)
-const YETKI_SEKMELERI = ["gorevler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
+const YETKI_SEKMELERI = ["gorevler", "projeler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
   "kisiler", "paydaslar", "butce", "malzemeler", "mesajlar", "duyuru", "takim"];
 const HEP_ACIK = ["ozet", "ayarlar"];
 
@@ -28,7 +28,7 @@ const HEP_ACIK = ["ozet", "ayarlar"];
 const TABLO_SEKMESI = {
   uyeler: "takim", gorevler: "gorevler", son_tarihler: "tarihler", toplantilar: "toplantilar",
   etkinlikler: "etkinlikler", tutanaklar: "tutanaklar", kisiler: "kisiler", sablonlar: "mesajlar", kampanyalar: "mesajlar",
-  paydaslar: "paydaslar", butce_kalemleri: "butce", malzemeler: "malzemeler",
+  paydaslar: "paydaslar", butce_kalemleri: "butce", malzemeler: "malzemeler", projeler: "projeler",
 };
 
 function yetkileriTemizle(yetkiler) {
@@ -94,7 +94,7 @@ function hazirRoller(tur) {
     // Bütçe: öğrenci takımında herkes görür (şeffaflık), şirkette gizli
     { ad: sirket ? "Çalışan" : "Üye", temel: true, yetkiler: hepsi("gorur", { kisiler: "gizli", mesajlar: "gizli", butce: sirket ? "gizli" : "gorur" }) },
     { ad: sirket ? "Proje sorumlusu" : "Görev sorumlusu", temel: false,
-      yetkiler: { gorevler: "duzenler", tarihler: "duzenler", takvim: "gorur", malzemeler: "duzenler" } },
+      yetkiler: { gorevler: "duzenler", projeler: "duzenler", tarihler: "duzenler", takvim: "gorur", malzemeler: "duzenler" } },
     { ad: sirket ? "Toplantı sorumlusu" : "Tutanak sorumlusu", temel: false,
       yetkiler: { toplantilar: "duzenler", tutanaklar: "duzenler", etkinlikler: "duzenler" } },
     { ad: sirket ? "İletişim sorumlusu" : "İletişim sorumlusu", temel: false,
