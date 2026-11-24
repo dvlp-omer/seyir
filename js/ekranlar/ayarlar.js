@@ -171,6 +171,13 @@ function kurumKartiHtml() {
     "<small>Düğmeler ve vurgular bu renkte olur. Yazı okunmazsa renk biraz koyulaştırılır.</small></div>" +
     "</div>" +
 
+    '<fieldset class="alan kurum-sekmeler"><legend>Sekmeler</legend><div class="secenekler">' +
+    BILINEN_SEKMELER.filter((ad) => EKRANLAR[ad] && !KAPATILAMAZ.includes(ad)).map((ad) =>
+      '<label><input type="checkbox" data-sekme="' + ad + '"' + (sekmeAcikMi(ayar, ad) ? " checked" : "") + "> " +
+      htmlKacis(ekranMetni(ad, "kisaAd")) + "</label>").join("") +
+    "</div><small>İşareti kaldırılan sekme menüden ve aramadan kalkar; kayıtları silinmez, yeniden açınca geri gelir. " +
+    "Özet, " + htmlKacis(soz(ayar, "takim")) + " ve Ayarlar hep açıktır.</small></fieldset>" +
+
     '<details class="kurum-tutanak"><summary>Tutanak bilgileri (ilk tutanakta kullanılır)</summary>' +
     '<p class="soluk kucuk-yazi">Boş bırakılan alan için soluk yazılan öneri kullanılır. Sonraki tutanaklar bir öncekinden devam eder.</p>' +
     '<div class="alan-izgara">' +
@@ -196,6 +203,13 @@ function kurumKartiniBagla() {
     sec("#kurum-logo-onizleme").innerHTML = logo ? '<img src="' + logo + '" alt="Kurum logosu">' : '<span class="soluk kucuk-yazi">Logo yok</span>';
     form.querySelector('[data-kurum="logo-kaldir"]').hidden = !logo;
   };
+  // Tür (paket) değişince sekme işaretleri o paketin başlangıç hâline gelir; kullanıcı yine değiştirebilir.
+  for (const radyo of form.querySelectorAll('[name="kurum-tur"]')) {
+    radyo.onchange = () => {
+      const kapali = paketVarsayilani(radyo.value).kapali_sekmeler;
+      for (const kutu of form.querySelectorAll("[data-sekme]")) kutu.checked = !kapali.includes(kutu.dataset.sekme);
+    };
+  }
   const dosya = sec("#kurum-logo-dosya");
   dosya.onchange = async () => {
     const secilen = dosya.files[0];
@@ -224,6 +238,7 @@ function kurumKartiniBagla() {
     const secilenTur = form.querySelector('[name="kurum-tur"]:checked');
     const ayarlar = kurumAyarlariniBirlestir(durum.takim.ayarlar, {
       tur: secilenTur ? secilenTur.value : undefined, logo, renk: sec("#kurum-renk").value, tutanak,
+      kapali_sekmeler: [...form.querySelectorAll("[data-sekme]")].filter((k) => !k.checked).map((k) => k.dataset.sekme),
     });
     try {
       await durum.depo.guncelle("takimlar", durum.takim.id, { ayarlar });

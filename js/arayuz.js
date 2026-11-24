@@ -308,7 +308,9 @@ async function aramaPenceresiAc() {
   let sonuclar = [];
 
   const ciz = () => {
-    sonuclar = aramaYap(dizin, kutu.value);
+    // Kurumun kapattığı sekmelerin kayıtları aramada çıkmaz
+    const ayar = kurumAyarlari(durum.takim);
+    sonuclar = aramaYap(dizin, kutu.value).filter((s) => sekmeAcikMi(ayar, s.ekran));
     liste.innerHTML = sonuclar.map((s, sira) =>
       '<li><button type="button" class="arama-oge" data-sira="' + sira + '">' +
       '<span class="arama-tur">' + htmlKacis(s.turAdi) + "</span>" +

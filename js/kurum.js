@@ -34,10 +34,12 @@ const SOZLUKLER = {
   takim: {
     takim: "Takım", takimi: "takımı", takimlar: "Takımlar", uye: "Üye", uyeler: "Üyeler",
     kaptan: "Kaptan", kurum: "Takım / kulüp",
+    takim_kucuk: "takım", takima: "takıma", uye_kucuk: "üye", uyeler_kucuk: "üyeler", takim_ve_uyeler: "Takım ve üyeler",
   },
   sirket: {
     takim: "Ekip", takimi: "ekibi", takimlar: "Ekipler", uye: "Çalışan", uyeler: "Çalışanlar",
     kaptan: "Yönetici", kurum: "Şirket / ekip",
+    takim_kucuk: "ekip", takima: "ekibe", uye_kucuk: "çalışan", uyeler_kucuk: "çalışanlar", takim_ve_uyeler: "Ekip ve çalışanlar",
   },
 };
 
@@ -122,6 +124,14 @@ function acikSekmeler(ayarlar, adlar) {
   return adlar.filter((ad) => sekmeAcikMi(ayarlar, ad));
 }
 
+// Menü grupları: kapalı sekmeler düşer, boşalan grup gizlenir; "sozAnahtari" olan
+// grubun başlığı paket sözcüğüyle yazılır (ör. "Takım" grubu şirkette "Ekip").
+function menuyuSuz(gruplar, ayarlar) {
+  return gruplar
+    .map((g) => ({ baslik: g.sozAnahtari ? soz(ayarlar, g.sozAnahtari) : g.baslik, ekranlar: acikSekmeler(ayarlar, g.ekranlar) }))
+    .filter((g) => g.ekranlar.length);
+}
+
 /* ---------- Renk ----------
    Kurum kendi ana rengini seçer. Düğme yazısı beyazdır; seçilen renk beyaz yazı
    okunur kalana kadar (WCAG 2, en az 4,5) koyulaştırılır. Gri gibi orta tonlarda
@@ -180,7 +190,7 @@ function tutanakVarsayilani(ayarlar, takimAdi) {
 if (typeof module !== "undefined") {
   module.exports = {
     KURUM_TURLERI, VARSAYILAN_RENK, LOGO_EN_BUYUK, BILINEN_SEKMELER, KAPATILAMAZ, SOZLUKLER,
-    kurumAyarlari, kurumAyarlariniBirlestir, logoOlcusu, paketVarsayilani, soz, sekmeAcikMi, acikSekmeler,
+    kurumAyarlari, kurumAyarlariniBirlestir, logoOlcusu, paketVarsayilani, soz, sekmeAcikMi, acikSekmeler, menuyuSuz,
     kontrastOrani, vurguRenkleri, tutanakVarsayilani,
   };
 }

@@ -135,3 +135,46 @@ test("logoOlcusu: en boy oranı korunur, sınırın içine sığar, küçük res
   assert.deepEqual(k.logoOlcusu(64, 64, 160), { en: 64, boy: 64 });
   assert.deepEqual(k.logoOlcusu(0, 0, 160), { en: 1, boy: 1 });
 });
+
+/* ---------- Menü ve ekran sözcükleri ---------- */
+
+test("menuyuSuz: kapalı sekmeler gruplardan düşer, boşalan grup gizlenir, grup başlığı pakete göre", () => {
+  const gruplar = [
+    { baslik: "", ekranlar: ["ozet"] },
+    { baslik: "Toplantı ve etkinlik", ekranlar: ["toplantilar", "etkinlikler"] },
+    { baslik: "Yalnız", ekranlar: ["duyuru"] },
+    { sozAnahtari: "takim", baslik: "Takım", ekranlar: ["takim", "ayarlar"] },
+  ];
+  const sirket = k.kurumAyarlari({ ayarlar: { tur: "sirket", kapali_sekmeler: ["etkinlikler", "duyuru"] } });
+  const sonuc = k.menuyuSuz(gruplar, sirket);
+  assert.deepEqual(sonuc.map((g) => g.baslik), ["", "Toplantı ve etkinlik", "Ekip"]);
+  assert.deepEqual(sonuc[1].ekranlar, ["toplantilar"]);
+  assert.deepEqual(k.menuyuSuz(gruplar, k.kurumAyarlari({})).map((g) => g.baslik), ["", "Toplantı ve etkinlik", "Yalnız", "Takım"]);
+});
+
+test("soz: takım ekranının sözcükleri iki pakette de var", () => {
+  const sirket = k.kurumAyarlari({ ayarlar: { tur: "sirket" } });
+  const takim = k.kurumAyarlari({});
+  assert.equal(k.soz(takim, "takim_ve_uyeler"), "Takım ve üyeler");
+  assert.equal(k.soz(sirket, "takim_ve_uyeler"), "Ekip ve çalışanlar");
+  assert.equal(k.soz(sirket, "uye_kucuk"), "çalışan");
+  assert.equal(k.soz(sirket, "takim_kucuk"), "ekip");
+  assert.equal(k.soz(takim, "uyeler_kucuk"), "üyeler");
+});
+
+test("takım ekranında paket sözcüğü yerine sabit yazılmış 'Üye ekle', 'Kaptan' gibi metin kalmadı", () => {
+  const kod = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "js", "ekranlar", "takim.js"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, ""); // yorumlar sayılmaz
+  for (const sabit of ['"Üye ekle"', "+ Üye ekle", '"Kaptan"', '"Takım adı"', "Bu takımı sil", '"Takım ve üyeler"']) {
+    assert.ok(!kod.includes(sabit), "takim.js içinde sabit metin: " + sabit);
+  }
+});
+
+test("soz: Türkçe çekimli sözcükler sözlükte hazır (ekle çekim yapılmaz: 'takımi', 'ekipi' gibi hata olmasın)", () => {
+  const sirket = k.kurumAyarlari({ ayarlar: { tur: "sirket" } });
+  assert.equal(k.soz(sirket, "takimi"), "ekibi");
+  assert.equal(k.soz(sirket, "takima"), "ekibe");
+  assert.equal(k.soz(k.kurumAyarlari({}), "takima"), "takıma");
+  const kod = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "js", "ekranlar", "takim.js"), "utf8");
+  assert.doesNotMatch(kod, /S\("(takim|uye)_kucuk"\) \+ "[ıiuüae]/, "sözcüğe ek yapıştırılmış");
+});

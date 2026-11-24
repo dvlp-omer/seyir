@@ -5,9 +5,11 @@
    Kişisel veri olarak sadece AD ve ROL tutulur.
    ========================================================================== */
 
-const ROLLER = [
-  { deger: "uye", etiket: "Üye" },
-  { deger: "kaptan", etiket: "Kaptan" },
+// Sözcükler kurum türüne göre değişir (js/kurum.js > SOZLUKLER): Takım ↔ Ekip, Üye ↔ Çalışan, Kaptan ↔ Yönetici
+const S = (anahtar) => soz(kurumAyarlari(durum.takim), anahtar);
+const roller = () => [
+  { deger: "uye", etiket: S("uye") },
+  { deger: "kaptan", etiket: S("kaptan") },
 ];
 
 // "Ayşe Yılmaz" -> "AY" (avatar dairesi için)
@@ -23,10 +25,10 @@ async function takimOlustur(ad) {
 
 function uyeFormu(uye) {
   formAc({
-    baslik: uye ? "Üyeyi düzenle" : "Üye ekle",
+    baslik: uye ? S("uye") + " bilgisini düzenle" : S("uye") + " ekle",
     alanlar: [
       { ad: "ad", etiket: "Ad Soyad", tur: "metin", zorunlu: true },
-      { ad: "rol", etiket: "Rol", tur: "secim", secenekler: ROLLER },
+      { ad: "rol", etiket: "Rol", tur: "secim", secenekler: roller() },
     ],
     degerler: uye || { rol: "uye" },
     kaydet: async (degerler) => {
@@ -42,21 +44,21 @@ function uyeFormu(uye) {
 // Üye silinirken ona atanmış görevler sahipsiz kalır (silinmez).
 async function uyeSil(id) {
   const uye = await durum.depo.oku("uyeler", id);
-  if (!uye || !confirm('"' + uye.ad + '" takımdan çıkarılsın mı?\nÜzerindeki görevler silinmez, sorumlusuz kalır.')) return;
+  if (!uye || !confirm('"' + uye.ad + '" ' + S("takim_kucuk") + " listesinden çıkarılsın mı?\nÜzerindeki görevler silinmez, sorumlusuz kalır.")) return;
 
   const gorevler = await durum.depo.listele("gorevler", { sorumlu_id: id });
   for (const gorev of gorevler) {
     await durum.depo.guncelle("gorevler", gorev.id, { sorumlu_id: "" }, { zorla: true }); // toplu iş: denetimsiz
   }
   await durum.depo.sil("uyeler", id);
-  bildir("Üye çıkarıldı");
+  bildir(S("uye") + " çıkarıldı");
   await yenile();
 }
 
 // Takım silinince ona ait bütün kayıtlar da silinir.
 async function takimSil() {
   const takim = durum.takim;
-  if (!confirm('"' + takim.ad + '" takımı ve ona ait BÜTÜN üyeler, görevler, son tarihler, tutanaklar ve etkinlikler silinsin mi?\nBu işlem geri alınamaz.')) return;
+  if (!confirm('"' + takim.ad + '" ' + S("takimi") + " ve ona ait BÜTÜN " + S("uyeler_kucuk") + ", görevler, son tarihler, tutanaklar ve etkinlikler silinsin mi?\nBu işlem geri alınamaz.")) return;
 
   // "takimlar" dışındaki bütün koleksiyonlar (yeni koleksiyon eklenince burası kendiliğinden kapsar)
   for (const koleksiyon of KOLEKSIYONLAR.filter((k) => k !== "takimlar")) {
@@ -67,14 +69,14 @@ async function takimSil() {
   }
   await durum.depo.sil("takimlar", takim.id);
   await takimlariYukle();
-  bildir("Takım silindi");
+  bildir(S("takim") + " silindi");
   await yenile();
 }
 
 function takimAdiFormu(takim) {
   formAc({
-    baslik: takim ? "Takım adını değiştir" : "Yeni takım",
-    alanlar: [{ ad: "ad", etiket: "Takım adı", tur: "metin", zorunlu: true }],
+    baslik: takim ? S("takim") + " adını değiştir" : "Yeni " + S("takim_kucuk"),
+    alanlar: [{ ad: "ad", etiket: S("takim") + " adı", tur: "metin", zorunlu: true }],
     degerler: takim || {},
     kaydetYazi: takim ? "Kaydet" : "Oluştur",
     kaydet: async (degerler) => {
@@ -162,7 +164,7 @@ function katilimKartiHtml(uyeler, toplantilar, etkinlikler) {
 
   let icerik;
   if (uyeler.length === 0) {
-    icerik = '<p class="soluk">Üye ekleyince katılım oranları burada görünür.</p>';
+    icerik = '<p class="soluk">' + S("uye") + " ekleyince katılım oranları burada görünür.</p>";
   } else if (sayilan === 0) {
     icerik = '<p class="soluk">Henüz yoklaması alınmış bir toplantı ya da etkinlik yok. ' +
       "Toplantı ve etkinlik formundaki “katılanlar” listesi yoklamadır; geçmiş tarihli kayıtlar buraya yansır.</p>";
@@ -176,7 +178,7 @@ function katilimKartiHtml(uyeler, toplantilar, etkinlikler) {
     icerik =
       '<p class="soluk kucuk-yazi" style="margin-bottom:10px">Yoklaması alınmış ' + sayilan +
       " toplantı/etkinlik üzerinden hesaplandı (gelecek tarihliler sayılmaz).</p>" +
-      '<div class="tablo-sarici"><table class="tablo"><thead><tr><th>Üye</th><th>Katıldı</th><th>Katılım oranı</th></tr></thead>' +
+      '<div class="tablo-sarici"><table class="tablo"><thead><tr><th>' + S("uye") + '</th><th>Katıldı</th><th>Katılım oranı</th></tr></thead>' +
       "<tbody>" + satirlar + "</tbody></table></div>";
   }
   return '<section class="kart genis"><h3>Yoklama: katılım oranları</h3>' + icerik + "</section>";
@@ -196,7 +198,7 @@ async function takimEkraniCiz(kok) {
     "<li>" +
     '<span class="avatar" aria-hidden="true">' + htmlKacis(basHarfler(uye.ad)) + "</span>" +
     '<span class="uye-ad">' + htmlKacis(uye.ad) + "</span>" +
-    '<span class="rozet ' + (uye.rol === "kaptan" ? "kaptan" : "") + '">' + (uye.rol === "kaptan" ? "Kaptan" : "Üye") + "</span>" +
+    '<span class="rozet ' + (uye.rol === "kaptan" ? "kaptan" : "") + '">' + (uye.rol === "kaptan" ? S("kaptan") : S("uye")) + "</span>" +
     kayitDugmesi("uye-duzenle", uye.id, "Düzenle", uye.ad) +
     kayitDugmesi("uye-sil", uye.id, "Çıkar", uye.ad, "tehlike") +
     "</li>"
@@ -205,22 +207,22 @@ async function takimEkraniCiz(kok) {
   kok.innerHTML =
     '<div class="takim-izgara">' +
     '<section class="kart">' +
-    '<div class="arac-cubugu"><h3>Üyeler <span class="soluk">(' + uyeler.length + ")</span></h3>" +
-    '<span class="bosluk"></span><button class="dugme ana" data-eylem="uye-ekle">+ Üye ekle</button></div>' +
+    '<div class="arac-cubugu"><h3>' + S("uyeler") + ' <span class="soluk">(' + uyeler.length + ")</span></h3>" +
+    '<span class="bosluk"></span><button class="dugme ana" data-eylem="uye-ekle">+ ' + S("uye") + " ekle</button></div>" +
     (uyeler.length
       ? '<ul class="uye-liste">' + uyeSatirlari + "</ul>"
-      : '<div class="bos"><h3>Henüz üye yok</h3>Görevlere sorumlu atayabilmek için üyeleri ekle.</div>') +
+      : '<div class="bos"><h3>Henüz ' + S("uye_kucuk") + " yok</h3>Görevlere sorumlu atayabilmek için önce " + S("uyeler_kucuk") + " listesini doldur.</div>") +
     "</section>" +
     '<section class="kart">' +
     "<h3>" + htmlKacis(durum.takim.ad) + "</h3>" +
     '<div class="dikey">' +
     '<button class="dugme" data-eylem="takim-ad">Adını değiştir</button>' +
-    '<button class="dugme" data-eylem="takim-yeni">+ Yeni takım oluştur</button>' +
-    (durum.oturum ? '<button class="dugme" data-eylem="koda-katil">Davet koduyla başka takıma katıl</button>' : "") +
-    '<button class="dugme tehlike" data-eylem="takim-sil">Bu takımı sil</button>' +
+    '<button class="dugme" data-eylem="takim-yeni">+ Yeni ' + S("takim_kucuk") + " oluştur</button>" +
+    (durum.oturum ? '<button class="dugme" data-eylem="koda-katil">Davet koduyla başka bir ' + S("takima") + " katıl</button>" : "") +
+    '<button class="dugme tehlike" data-eylem="takim-sil">Bu ' + S("takimi") + " sil</button>" +
     "</div>" +
     davetKoduHtml(durum.takim) +
-    '<p class="soluk kucuk-yazi" style="margin-top:14px">Üyeler hakkında yalnızca ad ve rol tutulur.</p>' +
+    '<p class="soluk kucuk-yazi" style="margin-top:14px">' + S("uyeler") + " hakkında yalnızca ad ve rol tutulur.</p>" +
     "</section>" +
     katilimKartiHtml(uyeler, toplantilar, etkinlikler) +
     "</div>";
@@ -240,9 +242,10 @@ async function takimEkraniCiz(kok) {
   });
 }
 
+// Başlık ve menü adı kurum türüne göre değişir (Takım / Ekip): fonksiyon olarak verilir (js/uygulama.js > ekranMetni)
 ekranKaydet("takim", {
-  baslik: "Takım ve üyeler",
-  kisaAd: "Takım",
+  baslik: () => S("takim_ve_uyeler"),
+  kisaAd: () => S("takim"),
   simge: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M17 11a2.5 2.5 0 1 0 0-5M17 14a5 5 0 0 1 4 6",
   ciz: takimEkraniCiz,
 });

@@ -55,6 +55,8 @@ async function takimlariYukle() {
 const VURGU_DEGISKENLERI = { vurgu: "--vurgu", vurgu_koyu: "--vurgu-koyu", vurgu_yazi: "--vurgu-yazi" };
 function kurumuUygula() {
   const ayar = kurumAyarlari(durum.takim);
+  // Menü: kapalı sekmeler ve paket sözcükleri (Takım / Ekip) için yeniden çizilir
+  if (sec("#menu").childElementCount) { menuCiz(); menuGuncelle(); }
   const stil = document.documentElement.style;
   const renkler = durum.takim && ayar.renk !== VARSAYILAN_RENK ? vurguRenkleri(ayar.renk) : null;
   for (const [anahtar, degisken] of Object.entries(VURGU_DEGISKENLERI)) {
@@ -96,22 +98,29 @@ const MENU_GRUPLARI = [
   { baslik: "Planlama", ekranlar: ["gorevler", "tarihler", "takvim"] },
   { baslik: "Toplantı ve etkinlik", ekranlar: ["toplantilar", "tutanaklar", "etkinlikler"] },
   { baslik: "İletişim", ekranlar: ["kisiler", "mesajlar", "duyuru"] },
-  { baslik: "Takım", ekranlar: ["takim", "ayarlar"] },
+  { baslik: "Takım", sozAnahtari: "takim", ekranlar: ["takim", "ayarlar"] },
 ];
 const ALT_CUBUK = ["ozet", "gorevler", "takvim", "tutanaklar"];
 const DAHA_FAZLA_SIMGE = "M5 12h.01M12 12h.01M19 12h.01";
 
+// Kurumun kapattığı sekmeler menüde ve "Daha fazla"da görünmez (js/kurum.js > menuyuSuz).
 function menuGruplari() {
   const grupta = new Set(MENU_GRUPLARI.flatMap((g) => g.ekranlar));
-  return [
-    ...MENU_GRUPLARI.map((g) => ({ baslik: g.baslik, ekranlar: g.ekranlar.filter((ad) => EKRANLAR[ad]) })),
+  return menuyuSuz([
+    ...MENU_GRUPLARI.map((g) => ({ ...g, ekranlar: g.ekranlar.filter((ad) => EKRANLAR[ad]) })),
     { baslik: "", ekranlar: EKRAN_SIRASI.filter((ad) => !grupta.has(ad)) },
-  ].filter((g) => g.ekranlar.length);
+  ], kurumAyarlari(durum.takim));
+}
+
+// Ekranın başlığı ya da menü adı. Kurum türüne göre değişenler fonksiyon olarak kaydedilir (ör. takim.js).
+function ekranMetni(ad, alan) {
+  const deger = EKRANLAR[ad][alan];
+  return typeof deger === "function" ? deger() : deger;
 }
 
 function menuDugmesi(ad, sinif) {
   return '<button type="button" class="' + sinif + '" data-ekran="' + ad + '">' +
-    simgeHtml(EKRANLAR[ad].simge) + "<span>" + EKRANLAR[ad].kisaAd + "</span></button>";
+    simgeHtml(EKRANLAR[ad].simge) + "<span>" + htmlKacis(ekranMetni(ad, "kisaAd")) + "</span></button>";
 }
 
 // Menü bir kez çizilir. Sonradan yalnızca "hangi ekran açık" işareti
@@ -233,6 +242,8 @@ async function ekraniCiz() {
   // Hiç takım yoksa diğer ekranların anlamı yok; takım ekranına yönlendir.
   // (Ayarlar hariç: yedekten geri yükleme takım yokken de gerekebilir.)
   if (!durum.takim && ad !== "ayarlar") ad = "takim";
+  // Kurumun kapattığı sekmeye (eski bağlantı, yer imi) gelindiyse Özet açılır.
+  if (durum.takim && !sekmeAcikMi(kurumAyarlari(durum.takim), ad)) ad = "ozet";
 
   const ilkCizim = durum.ekran === null;
   const ekranDegisti = durum.ekran !== ad;
@@ -242,8 +253,8 @@ async function ekraniCiz() {
   const tarif = odakTarifi(kok);
 
   menuGuncelle();
-  sec("#ekran-baslik").textContent = EKRANLAR[ad].baslik;
-  document.title = EKRANLAR[ad].baslik + " · Seyir";
+  sec("#ekran-baslik").textContent = ekranMetni(ad, "baslik");
+  document.title = ekranMetni(ad, "baslik") + " · Seyir";
 
   try {
     await EKRANLAR[ad].ciz(kok);
