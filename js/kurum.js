@@ -25,7 +25,7 @@ const LOGO_EN_BUYUK = 80 * 1024;
 
 // Uygulamadaki sekmeler (ekranlar). Kapatılabilecekler bu listeden seçilir.
 const BILINEN_SEKMELER = ["ozet", "gorevler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
-  "kisiler", "mesajlar", "duyuru", "takim", "ayarlar"];
+  "kisiler", "paydaslar", "mesajlar", "duyuru", "takim", "ayarlar"];
 // Kapatılırsa uygulama kullanılamaz hâle gelir: bunlar hep açık.
 const KAPATILAMAZ = ["ozet", "takim", "ayarlar"];
 
@@ -35,11 +35,13 @@ const SOZLUKLER = {
     takim: "Takım", takimi: "takımı", takimlar: "Takımlar", uye: "Üye", uyeler: "Üyeler",
     kaptan: "Kaptan", kurum: "Takım / kulüp",
     takim_kucuk: "takım", takima: "takıma", takimdaki: "takımdaki", uye_kucuk: "üye", uyeler_kucuk: "üyeler", takim_ve_uyeler: "Takım ve üyeler",
+    paydaslar: "Sponsorlar", paydas: "Sponsor", paydas_kucuk: "sponsor",
   },
   sirket: {
     takim: "Ekip", takimi: "ekibi", takimlar: "Ekipler", uye: "Çalışan", uyeler: "Çalışanlar",
     kaptan: "Yönetici", kurum: "Şirket / ekip",
     takim_kucuk: "ekip", takima: "ekibe", takimdaki: "ekipteki", uye_kucuk: "çalışan", uyeler_kucuk: "çalışanlar", takim_ve_uyeler: "Ekip ve çalışanlar",
+    paydaslar: "Müşteriler", paydas: "Müşteri", paydas_kucuk: "müşteri",
   },
 };
 

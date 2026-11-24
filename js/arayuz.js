@@ -123,7 +123,7 @@ function alanHtml(alan, deger) {
     ).join("");
     giris = '<select name="' + ad + '"' + zorunlu + ">" + secenekler + "</select>";
   } else if (alan.tur === "sayi") {
-    giris = '<input type="number" name="' + ad + '" value="' + htmlKacis(deger) + '" min="0" max="100000" step="1" inputmode="numeric"' + zorunlu + ">";
+    giris = '<input type="number" name="' + ad + '" value="' + htmlKacis(deger) + '" min="0" max="' + (alan.en || 100000) + '" step="1" inputmode="numeric"' + zorunlu + ">";
   } else if (alan.tur === "tarih") {
     giris = '<input type="date" name="' + ad + '" value="' + htmlKacis(deger) + '" min="' + EN_ERKEN_TARIH + '" max="' + EN_GEC_TARIH + '"' + zorunlu + ">";
   } else if (alan.tur === "saat") {
@@ -160,8 +160,9 @@ function formHatasi(alanlar, degerler) {
     if (alan.tur === "tarih" && deger && !tarihGecerli(deger)) {
       return '"' + alan.etiket + '" geçerli bir tarih değil (2000–2100 arası olmalı).';
     }
-    if (alan.tur === "sayi" && (!Number.isInteger(deger) || deger < 0 || deger > 100000)) {
-      return '"' + alan.etiket + '" 0 ile 100000 arasında tam sayı olmalı.';
+    // "en": alanın üst sınırı (ör. tutar alanında 1 milyar); verilmezse 100000
+    if (alan.tur === "sayi" && (!Number.isInteger(deger) || deger < 0 || deger > (alan.en || 100000))) {
+      return '"' + alan.etiket + '" 0 ile ' + (alan.en || 100000).toLocaleString("tr-TR") + " arasında tam sayı olmalı.";
     }
   }
   return null;

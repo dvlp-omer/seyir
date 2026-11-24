@@ -103,6 +103,19 @@ async function ornekVeriYukle(depo, bugunTarihi) {
   for (const [ad, ilkAd, telefon, etiket] of kisiler) {
     await depo.ekle("kisiler", { ...ortak, ad: ad, ilk_ad: ilkAd, telefon: telefon, etiket: etiket, aciklama: "" });
   }
+  // Sponsorlar: kurum adları UYDURMA
+  const sponsorlar = [
+    ["Mavi Derinlik Mühendislik", "gorusme", 40000, "Teklif dosyasını gönder", 3],
+    ["Örnek Elektronik A.Ş.", "anlasildi", 25000, "", 0],
+    ["Deniz Feneri Yazılım", "iletisimde", 15000, "Cuma günü tekrar ara", -1],
+    ["Pusula Makine", "aday", 0, "İlk tanıtım e-postasını yaz", 7],
+  ];
+  for (const [ad, asama, tutar, adim, gun] of sponsorlar) {
+    await depo.ekle("paydaslar", {
+      ...ortak, ad: ad, ilgili: "", iletisim: "", asama: asama, tutar: tutar,
+      sonraki_adim: adim, sonraki_tarih: adim ? gunEkle(bugunTarihi, gun) : "", notlar: "",
+    });
+  }
   for (const sablon of VARSAYILAN_SABLONLAR) {
     await depo.ekle("sablonlar", { ...ortak, ...sablon });
   }

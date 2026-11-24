@@ -32,7 +32,7 @@
 
 // Uygulamadaki tablolar. Yanlış yazılmış bir ad hemen hata versin diye liste tutuyoruz.
 const KOLEKSIYONLAR = ["takimlar", "uyeler", "gorevler", "son_tarihler", "toplantilar", "etkinlikler", "tutanaklar",
-  "kisiler", "sablonlar", "kampanyalar", "takim_rolleri"];
+  "kisiler", "sablonlar", "kampanyalar", "takim_rolleri", "paydaslar"];
 
 function koleksiyonKontrol(koleksiyon) {
   if (!KOLEKSIYONLAR.includes(koleksiyon)) {

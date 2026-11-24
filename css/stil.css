@@ -276,6 +276,21 @@ a { color: var(--su); }
 .satir-secim { display: inline-flex; align-items: center; gap: 6px; margin: 2px 12px 2px 0; white-space: nowrap; }
 .yonetim-dugmeler { display: flex; gap: 6px; flex-wrap: wrap; }
 .salt-okunur-not { margin-bottom: 14px; }
+/* Sponsorlar / Müşteriler (js/ekranlar/paydaslar.js) */
+.paydas-ozet { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.paydas-liste { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 10px; }
+.paydas-satir { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--cizgi); border-radius: var(--kose); background: var(--kagit); }
+.paydas-bilgi { flex: 1 1 220px; min-width: 0; }
+.paydas-bilgi h4 { margin: 0; }
+.paydas-bilgi p { margin: 2px 0 0; }
+.paydas-tutar { font-family: var(--sayi-tipi); }
+.rozet.asama-iletisimde { background: var(--yaklasiyor-z); color: var(--yaklasiyor-y); }
+.rozet.asama-gorusme { background: var(--yakin-z); color: var(--yakin-y); }
+.rozet.asama-anlasildi { background: var(--rahat-z); color: var(--rahat-y); }
+.rozet.asama-olmadi { background: var(--sutun); color: var(--soluk); }
+.adim-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.adim-liste .gecikti b { color: var(--gecikti-y); }
+@media (max-width: 700px) { .paydas-ozet { grid-template-columns: minmax(0, 1fr); } }
 .kurum-gorunum { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 12px 0; }
 .kurum-logo-satir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .kurum-logo-onizleme { display: inline-grid; place-items: center; width: 56px; height: 56px; border: 1px dashed var(--cizgi); border-radius: var(--kose); background: var(--sutun); }

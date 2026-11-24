@@ -70,6 +70,12 @@ const YEDEK_SEMASI = {
   kampanyalar: { takim_id: "metin!", ad: "metin!", sablon_id: "metin", mesaj: "metin!", alicilar: "alicilar" },
   // Roller ve yetkiler (js/yetki.js). Hesaplara atanmış roller veritabanındadır, yedeğe girmez.
   takim_rolleri: { takim_id: "metin!", ad: "metin!", temel: "mantik", yetkiler: "yetkiler" },
+  // Sponsorlar / Müşteriler (js/paydas.js)
+  paydaslar: {
+    takim_id: "metin!", ad: "metin!", ilgili: "metin", iletisim: "metin",
+    asama: ["aday", "iletisimde", "gorusme", "anlasildi", "olmadi"], tutar: "sayi",
+    sonraki_adim: "metin", sonraki_tarih: "tarih", notlar: "metin",
+  },
 };
 
 const metinMi = (deger) => typeof deger === "string" && deger.length <= YEDEK_METIN_SINIRI;

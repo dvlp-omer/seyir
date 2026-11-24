@@ -77,6 +77,7 @@ Rehberde telefon numaraları olduğu için üç kat koruma var:
 > - [supabase/guncelleme-roller.sql](supabase/guncelleme-roller.sql): roller ve yetkiler. Çalıştırınca kimsenin
 >   yetkisi değişmez; yönetici uygulamada rolleri kurunca sekme yetkileri devreye girer. Takım adını ve kurum
 >   ayarlarını artık yalnızca takım yöneticisi (takımı kuran, kurulum yöneticisi ya da yönetici yapılan) değiştirir.
+> - [supabase/guncelleme-paydaslar.sql](supabase/guncelleme-paydaslar.sql): Sponsorlar / Müşteriler sekmesi (rollerden sonra çalıştır).
 
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 

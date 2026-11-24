@@ -20,7 +20,7 @@ const YETKI_ETIKETLERI = { gizli: "Gizli", gorur: "Görür", duzenler: "Düzenle
 
 // Yetkiye bağlı sekmeler (Özet ve Ayarlar hep açık: herkes görür, kendi içinde ayrıca denetlenir)
 const YETKI_SEKMELERI = ["gorevler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
-  "kisiler", "mesajlar", "duyuru", "takim"];
+  "kisiler", "paydaslar", "mesajlar", "duyuru", "takim"];
 const HEP_ACIK = ["ozet", "ayarlar"];
 
 // Veritabanı tablosu -> o tabloyu yöneten sekme (SQL'deki eşlemeyle aynı; testli).
@@ -28,6 +28,7 @@ const HEP_ACIK = ["ozet", "ayarlar"];
 const TABLO_SEKMESI = {
   uyeler: "takim", gorevler: "gorevler", son_tarihler: "tarihler", toplantilar: "toplantilar",
   etkinlikler: "etkinlikler", tutanaklar: "tutanaklar", kisiler: "kisiler", sablonlar: "mesajlar", kampanyalar: "mesajlar",
+  paydaslar: "paydaslar",
 };
 
 function yetkileriTemizle(yetkiler) {
@@ -96,7 +97,7 @@ function hazirRoller(tur) {
     { ad: sirket ? "Toplantı sorumlusu" : "Tutanak sorumlusu", temel: false,
       yetkiler: { toplantilar: "duzenler", tutanaklar: "duzenler", etkinlikler: "duzenler" } },
     { ad: sirket ? "İletişim sorumlusu" : "İletişim sorumlusu", temel: false,
-      yetkiler: { kisiler: "duzenler", mesajlar: "duzenler", duyuru: "duzenler" } },
+      yetkiler: { kisiler: "duzenler", mesajlar: "duzenler", duyuru: "duzenler", paydaslar: "duzenler" } },
   ];
 }
 

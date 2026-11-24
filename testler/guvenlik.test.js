@@ -74,7 +74,13 @@ test("şema: takıma bağlı her tablo sekme yetkisine bağlı (okumak görür, 
     // takim_uyelikleri: "yalnızca kendi üyeliğim"; takim_rolleri: okumak üye, yazmak yönetici (ayrı kurallar)
     if (ad === "takim_uyelikleri" || ad === "takim_rolleri") continue;
     if (!/^\s*takim_id\s+text not null/m.test(govde)) continue;
-    assert.match(dongu, new RegExp("\\('" + ad + "', '\\w+'\\)"), ad + ": yetki eşlemesinde yok");
+    // Ya 8. bölümdeki döngüde ya da kendi bloğunda açık kurallarla (ör. paydaslar, 9. bölüm)
+    if (new RegExp("\\('" + ad + "', '\\w+'\\)").test(dongu)) continue;
+    const s = "yetki_seviyesi\\(takim_id, '\\w+'\\)";
+    assert.match(sema, new RegExp("create policy \\w+ on " + ad + " for select to authenticated\\s+using \\(" + s + " >= 1\\)"), ad + ": okuma kuralı yetkiye bağlı değil");
+    assert.match(sema, new RegExp("create policy \\w+ on " + ad + " for insert to authenticated\\s+with check \\(" + s + " >= 2\\)"), ad + ": ekleme");
+    assert.match(sema, new RegExp("create policy \\w+ on " + ad + " for update to authenticated\\s+using \\(" + s + " >= 2\\) with check \\(" + s + " >= 2\\)"), ad + ": güncelleme");
+    assert.match(sema, new RegExp("create policy \\w+ on " + ad + " for delete to authenticated\\s+using \\(" + s + " >= 2\\)"), ad + ": silme");
   }
   // Döngü dört işlemin dördüne de kural koyar; yazma işlemleri "düzenler" (2) ister
   assert.match(dongu, /for select to authenticated using \(yetki_seviyesi\(takim_id, %L\) >= 1\)/);
@@ -110,9 +116,12 @@ test("şema: her koleksiyonda 'surum' sütunu ve onu artıran tetikleyici var (�
   const liste = /foreach tablo in array array\[([^\]]+)\]/.exec(sema);
   assert.ok(liste, "tablo listesi bulunamadı");
   const tablolar = liste[1].match(/'([a-z_]+)'/g).map((t) => t.slice(1, -1)).sort();
-  // takim_rolleri sonradan geldi: sürüm sütunu ve tetikleyicisi kendi bloğunda (8. bölüm)
-  assert.deepEqual(tablolar, KOLEKSIYONLAR.filter((k) => k !== "takim_rolleri").sort());
-  assert.match(sema, /surum\s+integer not null default 1\s*\)[\s\S]*?create trigger surum_artir before update on takim_rolleri/);
+  // Sonradan gelen tablolar (takim_rolleri, paydaslar...) sürüm sütununu ve tetikleyicisini kendi bloğunda kurar
+  const kendiBlogunda = KOLEKSIYONLAR.filter((k) => new RegExp("create trigger surum_artir before update on " + k + " ").test(sema));
+  assert.deepEqual(tablolar, KOLEKSIYONLAR.filter((k) => !kendiBlogunda.includes(k)).sort());
+  for (const k of kendiBlogunda) {
+    assert.match(sema, new RegExp("create table if not exists " + k + " \\([\\s\\S]*?surum\\s+integer not null default 1"), k + ": surum sütunu yok");
+  }
   // Ayrı güncelleme dosyası da aynı komutları içersin
   const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-surum.sql"), "utf8");
   // (sema'dan yorumlar atılmıştır; dosyayı da aynı biçimde karşılaştır)
@@ -268,4 +277,13 @@ test("veritabanı: roller ve yetkiler bloğu schema.sql ile guncelleme-roller.sq
   assert.doesNotMatch(sema.replace(/--[^\n]*/g, ""), /create policy \w+_takim_uyesi/);
   assert.match(blok, /yetki_seviyesi\(takim_id, %L\) >= 2/);
   assert.match(blok, /grant update \(ad, ayarlar\) on takimlar/);
+});
+
+test("veritabanı: sponsorlar / müşteriler bloğu schema.sql ile guncelleme-paydaslar.sql'de aynı", () => {
+  const sema = fs.readFileSync(path.join(KOK, "supabase/schema.sql"), "utf8");
+  const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-paydaslar.sql"), "utf8");
+  const blok = sema.slice(sema.indexOf("-- PAYDASLAR-BLOGU-BASI") + "-- PAYDASLAR-BLOGU-BASI".length, sema.indexOf("-- PAYDASLAR-BLOGU-SONU")).trim();
+  assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablo ----")).trim());
+  assert.match(blok, /revoke all on paydaslar from anon/);
+  assert.match(blok, /alter table paydaslar enable row level security/);
 });

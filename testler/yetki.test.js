@@ -64,9 +64,12 @@ test("yetki sekmeleri kurum sekmeleriyle uyumlu; tablo eşlemesi veritabanıyla 
     assert.ok(BILINEN_SEKMELER.includes(sekme), sekme);
     assert.ok(!KAPATILAMAZ.includes(sekme) || sekme === "takim", sekme + " hep açık; yetkiye bağlanmaz");
   }
-  const sql = fs.readFileSync(path.join(__dirname, "..", "supabase", "guncelleme-roller.sql"), "utf8");
+  // Veritabanında eşleme ya 8. bölümdeki döngüde ("(tablo, sekme)") ya da tablonun kendi kurallarında
+  const sql = fs.readFileSync(path.join(__dirname, "..", "supabase", "schema.sql"), "utf8");
   for (const [tablo, sekme] of Object.entries(y.TABLO_SEKMESI)) {
-    assert.ok(sql.includes("('" + tablo + "', '" + sekme + "')"), "SQL eşlemesinde yok: " + tablo + " -> " + sekme);
+    const dongude = sql.includes("('" + tablo + "', '" + sekme + "')");
+    const kendiKurali = sql.replace(/\s+/g, " ").includes("on " + tablo + " for select to authenticated using (yetki_seviyesi(takim_id, '" + sekme + "') >= 1)");
+    assert.ok(dongude || kendiKurali, "SQL eşlemesinde yok: " + tablo + " -> " + sekme);
   }
 });
 
