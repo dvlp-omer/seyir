@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 
 // yedek.js ve ornek-veri.js tarayıcıda diğer dosyaların fonksiyonlarını
 // globalden bulur; Node'da aynı ortamı biz kuruyoruz.
-Object.assign(global, require("../js/mantik.js"), require("../js/veri.js"), require("../js/kisiler.js"));
+Object.assign(global, require("../js/mantik.js"), require("../js/veri.js"), require("../js/kisiler.js"), require("../js/kurum.js"));
 const { yedekCoz, yedekOlustur, yedekYukle, kayitTemizle, YEDEK_SEMASI } = require("../js/yedek.js");
 const { ornekVeriYukle } = require("../js/ornek-veri.js");
 
@@ -194,4 +194,15 @@ test("kişiler, şablonlar ve gönderim listeleri yedekte korunur; bozuk numara 
   yedek.veriler.kisiler[0].telefon = "905000000001";
   yedek.veriler.kampanyalar[0].alicilar[0].telefon = "<script>";
   assert.match(yedekCoz(JSON.stringify(yedek)).hata, /alıcı listesi/);
+});
+
+test("yedek: takımın kurum ayarları temizlenerek taşınır; eski yedekte alan hiç yazılmaz", () => {
+  const ayarli = kayitTemizle("takimlar", { id: "t1", ad: "Örnek", ayarlar: { tur: "sirket", renk: "#1F4E79", bilinmeyen: 1, logo: "javascript:x" } });
+  assert.equal(ayarli.kayit.ayarlar.tur, "sirket");
+  assert.equal(ayarli.kayit.ayarlar.renk, "#1f4e79");
+  assert.equal(ayarli.kayit.ayarlar.logo, "");
+  assert.equal("bilinmeyen" in ayarli.kayit.ayarlar, false);
+  const eski = kayitTemizle("takimlar", { id: "t2", ad: "Eski yedek" });
+  assert.equal("ayarlar" in eski.kayit, false);
+  assert.match(kayitTemizle("takimlar", { id: "t3", ad: "X", ayarlar: [1] }).hata, /kurum ayarları bozuk/);
 });

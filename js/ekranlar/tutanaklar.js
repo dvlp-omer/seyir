@@ -98,7 +98,9 @@ function tutanakListesiCiz(kok, tutanaklar) {
 
   const bul = (id) => tutanaklar.find((t) => t.id === id);
   eylemleriBagla(kok, {
-    yeni: () => tutanakFormunuAc(yeniTutanakTaslagi(tutanaklar, bugun()), null),
+    // İlk tutanağın başlık, numara kalıbı ve alt bilgisi kurum ayarlarından gelir (js/kurum.js)
+    yeni: () => tutanakFormunuAc(yeniTutanakTaslagi(tutanaklar, bugun(),
+      tutanakVarsayilani(kurumAyarlari(durum.takim), durum.takim.ad)), null),
     ac: (id) => { Object.assign(tutanakEkrani, { kip: "goruntule", id: id }); return yenile(); },
     duzenle: (id) => bul(id) && tutanakFormunuAc({ ...bosTutanak(), ...bul(id) }, id),
     kopyala: (id) => tutanagiKopyala(bul(id), tutanaklar),

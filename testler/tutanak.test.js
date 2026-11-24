@@ -21,9 +21,10 @@ test("sonrakiTutanakNo: yıl değişince yılı günceller ve sayacı 01'e dönd
   assert.equal(t.sonrakiTutanakNo("ROTA/İSAS-2026/12", "2027"), "ROTA/İSAS-2027/01");
 });
 
-test("sonrakiTutanakNo: ilk tutanakta varsayılan kalıp; sayısız numarada ek", () => {
-  assert.equal(t.sonrakiTutanakNo("", "2026"), "ROTA/İSAS-2026/01");
-  assert.equal(t.sonrakiTutanakNo(undefined, "2026"), "ROTA/İSAS-2026/01");
+test("sonrakiTutanakNo: ilk tutanakta kurumun kalıbı (yoksa genel kalıp); sayısız numarada ek", () => {
+  assert.equal(t.sonrakiTutanakNo("", "2026", "ROTA/İSAS-{yil}/01"), "ROTA/İSAS-2026/01");
+  assert.equal(t.sonrakiTutanakNo("", "2026"), "TT-2026/01");
+  assert.equal(t.sonrakiTutanakNo(undefined, "2026"), "TT-2026/01");
   assert.equal(t.sonrakiTutanakNo("Açılış", "2026"), "Açılış-2");
 });
 
@@ -58,10 +59,15 @@ test("sirayiGuncelle: sıra sözcüğünü ya da sayısını bir sonrakine çevi
 
 /* ---------- Taslak, kopya, devreden ---------- */
 
-test("yeniTutanakTaslagi: ilk tutanak varsayılanlarla ve 01 numarasıyla gelir", () => {
-  const taslak = t.yeniTutanakTaslagi([], "2026-03-19");
-  assert.equal(taslak.numara, "ROTA/İSAS-2026/01");
-  assert.equal(taslak.kurum, t.TUTANAK_VARSAYILAN.kurum);
+test("yeniTutanakTaslagi: ilk tutanak kurumun varsayılanlarıyla ve 01 numarasıyla gelir", () => {
+  const kurum = { ...t.TUTANAK_VARSAYILAN, kurum: "ÖRNEK KULÜBÜ", numara_kalibi: "ÖRN-{yil}/01", alt_bilgi: "Örnek — Tutanak No. 01" };
+  const taslak = t.yeniTutanakTaslagi([], "2026-03-19", kurum);
+  assert.equal(taslak.numara, "ÖRN-2026/01");
+  assert.equal(taslak.kurum, "ÖRNEK KULÜBÜ");
+  assert.equal(taslak.alt_bilgi, "Örnek — Tutanak No. 01");
+  // Kurum bilgisi verilmezse genel varsayılan; kodda kuruma özel sabit yok
+  assert.equal(t.yeniTutanakTaslagi([], "2026-03-19").numara, "TT-2026/01");
+  assert.doesNotMatch(JSON.stringify(t.TUTANAK_VARSAYILAN), /ROTA|İSAS|Sabahattin|Zaim/i);
   assert.equal(taslak.toplanti_tarihi, "2026-03-19");
   assert.deepEqual(taslak.kararlar, []);
 });

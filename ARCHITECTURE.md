@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 252 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 263 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -27,6 +27,7 @@ js/
   veri.js                  VERİ KATMANI — depo arayüzü ve iki uygulaması
   oturum.js                Supabase girişi (jeton al, yenile, çık)
   mantik.js                Saf fonksiyonlar: tarih, takvim, yoklama, rapor, duyuru metni
+  kurum.js                 Kurum ayarları: tür (takım / şirket), logo, renk, tutanak bilgileri, kapalı sekmeler
   yedek.js                 Veri şeması + JSON dışa/içe aktarma
   tema.js                  Açık / koyu tema
   kolaylik.js              Saf yardımcılar: taslak, sorumlu tahmini, .ics, arama, kısayollar
@@ -47,7 +48,7 @@ netlify.toml               Yayın ayarları ve güvenlik başlıkları
 tanitim-kaynak/            Tanıtım sayfası (/tanitim): React + Tailwind + Framer Motion, Vite ile
                            derlenir; çıktı tanitim/ (depoya girmez, yayında üretilir). Uygulamadan
                            bağımsızdır: uygulama yine framework'süz, derlemesiz.
-testler/                   252 test (Node'un kendi test aracı)
+testler/                   263 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar

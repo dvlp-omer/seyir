@@ -235,3 +235,13 @@ test("Search Console: sahiplik doğrulama etiketi tanıtım sayfasında duruyor"
   const html = fs.readFileSync(path.join(KOK, "tanitim-kaynak/index.html"), "utf8");
   assert.match(html, /<meta name="google-site-verification" content="vDP-KhF2csmsWzK9AB2Oq6zeUZBL7isGsuSyla2XOg0" \/>/);
 });
+
+test("veritabanı: kurum ayarları sütunu schema.sql ile güncelleme dosyasında aynı", () => {
+  const sade = (dosya) => fs.readFileSync(path.join(KOK, dosya), "utf8").replace(/\s+/g, " ");
+  const sema = sade("supabase/schema.sql");
+  const guncelleme = sade("supabase/guncelleme-kurum.sql");
+  for (const parca of ["ayarlar jsonb not null default '{}'::jsonb", "jsonb_typeof(ayarlar) = 'object'", "pg_column_size(ayarlar) < 150000"]) {
+    assert.ok(sema.includes(parca), "schema.sql: " + parca);
+    assert.ok(guncelleme.includes(parca), "guncelleme-kurum.sql: " + parca);
+  }
+});

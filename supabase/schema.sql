@@ -45,6 +45,9 @@ create table if not exists takimlar (
   olusturan_id uuid not null default auth.uid(),
   -- Başkalarının takıma katılması için paylaşılan kod (rastgele, 12 karakter).
   davet_kodu   text not null unique default substr(replace(gen_random_uuid()::text, '-', ''), 1, 12),
+  -- Kurum ayarları: tür (takim / sirket), logo, ana renk, tutanak bilgileri, kapalı sekmeler.
+  -- Uygulama her okumada temizler (js/kurum.js > kurumAyarlari); boyut sınırı kaydı şişirmesin diye.
+  ayarlar      jsonb not null default '{}'::jsonb check (jsonb_typeof(ayarlar) = 'object' and pg_column_size(ayarlar) < 150000),
   olusturma    timestamptz not null default now()
 );
 

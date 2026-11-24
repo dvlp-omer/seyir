@@ -31,9 +31,10 @@ const YEDEK_METIN_SINIRI = 5000;
      "mantik"    : true / false               "sayi"    : 0 ya da pozitif tam sayı
      "liste"     : yazı dizisi                "kararlar": [{ metin, gorev_id }]
      "atifli"    : [{ metin, atif }]  (resmî tutanağın devreden kararları)
+     "kurum"     : kurum ayarları (js/kurum.js > kurumAyarlari ile temizlenir); yedekte yoksa alan hiç yazılmaz
      [a, b, c]   : bu değerlerden biri; yoksa ilki */
 const YEDEK_SEMASI = {
-  takimlar: { ad: "metin!" },
+  takimlar: { ad: "metin!", ayarlar: "kurum" },
   uyeler: { takim_id: "metin!", ad: "metin!", rol: ["uye", "kaptan"] },
   gorevler: {
     takim_id: "metin!", baslik: "metin!", aciklama: "metin",
@@ -82,6 +83,11 @@ function alanTemizle(kural, deger) {
       return metinMi(deger) ? { deger: deger } : { hata: "yazı olmalı (en çok " + YEDEK_METIN_SINIRI + " karakter)" };
     case "metin!":
       return metinMi(deger) && deger.trim() !== "" ? { deger: deger } : { hata: "boş olamaz" };
+    case "kurum":
+      // Eski yedeklerde yok: alanı hiç yazma (veritabanında sütun yoksa da kayıt eklenebilsin)
+      if (deger === undefined || deger === null) return { atla: true };
+      if (typeof deger !== "object" || Array.isArray(deger)) return { hata: "kurum ayarları bozuk" };
+      return { deger: kurumAyarlari({ ayarlar: deger }) };
     case "tarih":
       if (deger === undefined || deger === null || deger === "") return { deger: "" };
       return tarihGecerli(deger) ? { deger: deger } : { hata: "geçerli bir tarih değil" };
@@ -136,6 +142,7 @@ function kayitTemizle(koleksiyon, ham) {
   for (const [alan, kural] of Object.entries(YEDEK_SEMASI[koleksiyon])) {
     const sonuc = alanTemizle(kural, ham[alan]);
     if (sonuc.hata) return { hata: '"' + alan + '" ' + sonuc.hata };
+    if (sonuc.atla) continue;
     temiz[alan] = sonuc.deger;
   }
   return { kayit: temiz };

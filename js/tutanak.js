@@ -23,16 +23,18 @@
 
 /* ---------- 1) Varsayılanlar ---------- */
 
-// İlk tutanakta formun dolu geleceği değerler. Hepsi formda değiştirilebilir;
-// sonraki tutanaklar bir öncekinden kopyalanır, buraya bir daha bakılmaz.
+// İlk tutanakta formun dolu geleceği GENEL değerler. Uygulama bunun yerine kurumun
+// kendi varsayılanlarını verir (js/kurum.js > tutanakVarsayilani: kurum ayarları ya da
+// takım adı). Hepsi formda değiştirilebilir; sonraki tutanaklar bir öncekinden
+// kopyalanır, buraya bir daha bakılmaz. Kuruma özel sabit (ad, kalıp) burada OLMAZ.
 const TUTANAK_VARSAYILAN = {
-  kurum: "İSTANBUL SABAHATTİN ZAİM ÜNİVERSİTESİ TEKNOFEST KULÜBÜ",
-  alt_baslik: "İSAS Akademi — Birinci Toplantı",
-  numara_kalibi: "ROTA/İSAS-{yil}/01",
-  ek_etiket: "Seminer/Buluşma",
+  kurum: "",
+  alt_baslik: "Birinci Toplantı",
+  numara_kalibi: "TT-{yil}/01",
+  ek_etiket: "",
   devreden_giris: "Önceki toplantılarda alınan ve geçerliliği devam eden kararlar aşağıda sıralanmıştır.",
-  alt_bilgi: "ROTA: İSAS Akademi — Toplantı Tutanağı No. 01 — İstanbul Sabahattin Zaim Üniversitesi Teknofest Kulübü",
-  sayfa_altligi: "İSAS Akademi — Toplantı Tutanağı 01",
+  alt_bilgi: "Toplantı Tutanağı No. 01",
+  sayfa_altligi: "Toplantı Tutanağı 01",
 };
 
 const TUTANAK_BASLIGI = "TOPLANTI TUTANAĞI";
@@ -75,10 +77,10 @@ function tutanakSirasi(numara) {
    değiştirirsen sonrakiler o biçimi izler.
      "ROTA/İSAS-2026/04", 2026 -> "ROTA/İSAS-2026/05"   (sıfır dolgusu korunur)
      "ROTA/İSAS-2026/12", 2027 -> "ROTA/İSAS-2027/01"   (yıl değişti: sayaç sıfırlanır)
-     "",                  2026 -> "ROTA/İSAS-2026/01"   (ilk tutanak: varsayılan kalıp) */
-function sonrakiTutanakNo(oncekiNo, yil) {
+     "",                  2026 -> kurumun kalıbı, ör. "ROTA/İSAS-{yil}/01" -> "ROTA/İSAS-2026/01" */
+function sonrakiTutanakNo(oncekiNo, yil, ilkKalip = TUTANAK_VARSAYILAN.numara_kalibi) {
   const onceki = String(oncekiNo || "").trim();
-  if (!onceki) return TUTANAK_VARSAYILAN.numara_kalibi.replace("{yil}", yil);
+  if (!onceki) return (ilkKalip || TUTANAK_VARSAYILAN.numara_kalibi).replace("{yil}", yil);
 
   const eslesme = onceki.match(/^(.*?)(\d+)(\D*)$/);
   if (!eslesme) return onceki + "-2"; // içinde hiç sayı yok: sonuna ek koy
@@ -121,8 +123,10 @@ function sirayiGuncelle(metin, eskiSira, yeniSira) {
 /* Yeni tutanak için dolu bir taslak hazırlar.
    Önceki tutanak varsa: kurum, katılımcılar, etiketler ondan gelir; numara,
    alt başlık ve alt bilgi satırları bir sonraki sıraya göre güncellenir.
-   Kararlar BOŞ gelir (her toplantının kararı kendine aittir). */
-function yeniTutanakTaslagi(oncekiler, bugunTarihi) {
+   Kararlar BOŞ gelir (her toplantının kararı kendine aittir).
+   varsayilan: İLK tutanak için kurumun değerleri (js/kurum.js > tutanakVarsayilani). */
+function yeniTutanakTaslagi(oncekiler, bugunTarihi, varsayilan = TUTANAK_VARSAYILAN) {
+  const ilk = { ...TUTANAK_VARSAYILAN, ...varsayilan };
   const yil = bugunTarihi.slice(0, 4);
   const sirali = tutanaklariSirala(oncekiler);
   const son = sirali[sirali.length - 1];
@@ -133,13 +137,13 @@ function yeniTutanakTaslagi(oncekiler, bugunTarihi) {
   if (!son) {
     return {
       ...taslak,
-      kurum: TUTANAK_VARSAYILAN.kurum,
-      alt_baslik: TUTANAK_VARSAYILAN.alt_baslik,
-      numara: sonrakiTutanakNo("", yil),
-      ek_etiket: TUTANAK_VARSAYILAN.ek_etiket,
-      devreden_giris: TUTANAK_VARSAYILAN.devreden_giris,
-      alt_bilgi: TUTANAK_VARSAYILAN.alt_bilgi,
-      sayfa_altligi: TUTANAK_VARSAYILAN.sayfa_altligi,
+      kurum: ilk.kurum,
+      alt_baslik: ilk.alt_baslik,
+      numara: sonrakiTutanakNo("", yil, ilk.numara_kalibi),
+      ek_etiket: ilk.ek_etiket,
+      devreden_giris: ilk.devreden_giris,
+      alt_bilgi: ilk.alt_bilgi,
+      sayfa_altligi: ilk.sayfa_altligi,
     };
   }
 
@@ -153,7 +157,7 @@ function yeniTutanakTaslagi(oncekiler, bugunTarihi) {
     numara: numara,
     ek_etiket: son.ek_etiket,
     katilimcilar: [...(son.katilimcilar || [])],
-    devreden_giris: son.devreden_giris || TUTANAK_VARSAYILAN.devreden_giris,
+    devreden_giris: son.devreden_giris || ilk.devreden_giris,
     alt_bilgi: sirayiGuncelle(son.alt_bilgi, eskiSira, yeniSira),
     sayfa_altligi: sirayiGuncelle(son.sayfa_altligi, eskiSira, yeniSira),
   };
