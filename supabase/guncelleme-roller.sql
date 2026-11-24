@@ -85,7 +85,7 @@ begin
 end;
 $$;
 
--- Uygulamanın ekranı için: { "yonetici": true/false, "uyelik": { "yonetici": .., "rol_idleri": [..] } }
+-- Uygulamanın ekranı için: { "yonetici": true/false, "rol_idleri": ["rol-kimliği", ...] }
 -- Seviyeleri uygulama, rollerle birlikte js/yetki.js > yetkilerimiHesapla ile hesaplar.
 create or replace function yetkilerim(hedef_takim text)
 returns jsonb
