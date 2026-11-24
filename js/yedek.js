@@ -76,6 +76,11 @@ const YEDEK_SEMASI = {
     asama: ["aday", "iletisimde", "gorusme", "anlasildi", "olmadi"], tutar: "sayi",
     sonraki_adim: "metin", sonraki_tarih: "tarih", notlar: "metin",
   },
+  // Bütçe (js/butce.js)
+  butce_kalemleri: {
+    takim_id: "metin!", tur: ["gider", "gelir"], baslik: "metin!", tutar: "sayi", kategori: "metin",
+    tarih: "tarih", odeyen: "metin", aciklama: "metin", paydas_id: "metin",
+  },
 };
 
 const metinMi = (deger) => typeof deger === "string" && deger.length <= YEDEK_METIN_SINIRI;

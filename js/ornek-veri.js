@@ -116,6 +116,22 @@ async function ornekVeriYukle(depo, bugunTarihi) {
       sonraki_adim: adim, sonraki_tarih: adim ? gunEkle(bugunTarihi, gun) : "", notlar: "",
     });
   }
+  // Bütçe: anlaşılan sponsorun geliri ve birkaç gider (tutarlar uydurma)
+  const elektronik = (await depo.listele("paydaslar", { takim_id: takim.id })).find((p) => p.asama === "anlasildi");
+  const kalemler = [
+    ["gelir", "Örnek Elektronik A.Ş. — sponsorluk", 25000, "Sponsorluk", -12, elektronik ? elektronik.id : ""],
+    ["gelir", "Bölüm desteği", 8000, "Bağış", -20, ""],
+    ["gider", "İtici motor (2 adet)", 9600, "Malzeme", -8, ""],
+    ["gider", "Basınç sensörü ve kablolar", 2750, "Elektronik", -5, ""],
+    ["gider", "Kargo — sensör", 340, "Kargo", -4, ""],
+    ["gider", "Tanıtım afişi baskısı", 600, "Baskı / tanıtım", -2, ""],
+  ];
+  for (const [tur, baslik, tutar, kategori, gun, paydasId] of kalemler) {
+    await depo.ekle("butce_kalemleri", {
+      ...ortak, tur: tur, baslik: baslik, tutar: tutar, kategori: kategori, tarih: gunEkle(bugunTarihi, gun),
+      odeyen: tur === "gider" ? "Mert Şahin" : "", aciklama: "", paydas_id: paydasId,
+    });
+  }
   for (const sablon of VARSAYILAN_SABLONLAR) {
     await depo.ekle("sablonlar", { ...ortak, ...sablon });
   }

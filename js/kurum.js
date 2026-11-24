@@ -25,7 +25,7 @@ const LOGO_EN_BUYUK = 80 * 1024;
 
 // Uygulamadaki sekmeler (ekranlar). Kapatılabilecekler bu listeden seçilir.
 const BILINEN_SEKMELER = ["ozet", "gorevler", "tarihler", "takvim", "toplantilar", "tutanaklar", "etkinlikler",
-  "kisiler", "paydaslar", "mesajlar", "duyuru", "takim", "ayarlar"];
+  "kisiler", "paydaslar", "butce", "mesajlar", "duyuru", "takim", "ayarlar"];
 // Kapatılırsa uygulama kullanılamaz hâle gelir: bunlar hep açık.
 const KAPATILAMAZ = ["ozet", "takim", "ayarlar"];
 

@@ -28,7 +28,9 @@ function paydasFormu(kayit) {
   });
 }
 
-function paydasSatiriHtml(k) {
+// butceKalemleri: bütçe sekmesi görünürse dolu; anlaşılan sponsor bütçede değilse "Bütçeye ekle" çıkar
+function paydasSatiriHtml(k, butceKalemleri) {
+  const butceyeEklenebilir = butceKalemleri && k.asama === "anlasildi" && Number(k.tutar) > 0 && !butcedeMi(k, butceKalemleri);
   return '<li class="paydas-satir">' +
     '<span class="rozet asama-' + htmlKacis(k.asama) + '">' + asamaEtiketi(k.asama) + "</span>" +
     '<div class="paydas-bilgi"><h4>' + htmlKacis(k.ad) + "</h4>" +
@@ -39,6 +41,8 @@ function paydasSatiriHtml(k) {
     "</div>" +
     '<b class="paydas-tutar">' + tutarYaz(k.tutar) + "</b>" +
     '<div class="satir-dugmeler">' +
+    (butceyeEklenebilir ? kayitDugmesi("butceye", k.id, "Bütçeye ekle", k.ad) : "") +
+    (butceKalemleri && k.asama === "anlasildi" && butcedeMi(k, butceKalemleri) ? '<span class="soluk kucuk-yazi">bütçede</span>' : "") +
     kayitDugmesi("duzenle", k.id, "Düzenle", k.ad) +
     kayitDugmesi("sil", k.id, "Sil", k.ad, "tehlike") +
     "</div></li>";
@@ -46,6 +50,9 @@ function paydasSatiriHtml(k) {
 
 async function paydaslarEkraniCiz(kok) {
   const kayitlar = paydaslariSirala(await takimKayitlari("paydaslar"));
+  // Bütçe sekmesi açık ve görünürse kalemleri de oku (bütçeye eklenmiş sponsorları bilmek için)
+  const butceVar = sekmeAcikMi(kurumAyarlari(durum.takim), "butce") && sekmeGorunurMu(durum.yetki, "butce");
+  const butceKalemleri = butceVar ? await takimKayitlari("butce_kalemleri") : null;
   const ozet = paydasOzeti(kayitlar);
   const adimlar = yaklasanAdimlar(kayitlar, bugun()).slice(0, 5);
 
@@ -67,12 +74,17 @@ async function paydaslarEkraniCiz(kok) {
     '<div class="arac-cubugu"><span class="bosluk"></span>' +
     '<button class="dugme ana" data-eylem="ekle">+ Yeni ' + htmlKacis(P("paydas_kucuk")) + "</button></div>" +
     (kayitlar.length
-      ? ozetHtml + adimHtml + '<ul class="paydas-liste">' + kayitlar.map(paydasSatiriHtml).join("") + "</ul>"
+      ? ozetHtml + adimHtml + '<ul class="paydas-liste">' + kayitlar.map((k) => paydasSatiriHtml(k, butceKalemleri)).join("") + "</ul>"
       : '<div class="bos"><h3>Henüz ' + htmlKacis(P("paydas_kucuk")) + " yok</h3>" +
         "Görüştüğün ya da görüşmek istediğin kurumları ekle; aşamasını, tutarını ve sonraki adımı burada takip et.</div>");
 
   eylemleriBagla(kok, {
     ekle: () => paydasFormu(null),
+    butceye: async (id) => {
+      const kayit = await durum.depo.oku("paydaslar", id);
+      if (!kayit) return yenile();
+      butceFormu(null, sponsordanGelir(kayit, bugun())); // js/ekranlar/butce.js
+    },
     duzenle: async (id) => {
       const kayit = await durum.depo.oku("paydaslar", id);
       if (!kayit) return yenile();

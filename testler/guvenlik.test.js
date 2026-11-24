@@ -287,3 +287,10 @@ test("veritabanı: sponsorlar / müşteriler bloğu schema.sql ile guncelleme-pa
   assert.match(blok, /revoke all on paydaslar from anon/);
   assert.match(blok, /alter table paydaslar enable row level security/);
 });
+
+test("veritabanı: bütçe bloğu schema.sql ile guncelleme-butce.sql'de aynı", () => {
+  const sema = fs.readFileSync(path.join(KOK, "supabase/schema.sql"), "utf8");
+  const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-butce.sql"), "utf8");
+  const blok = sema.slice(sema.indexOf("-- BUTCE-BLOGU-BASI") + "-- BUTCE-BLOGU-BASI".length, sema.indexOf("-- BUTCE-BLOGU-SONU")).trim();
+  assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablo ----")).trim());
+});
