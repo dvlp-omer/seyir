@@ -38,7 +38,9 @@ test("şema: HER tabloda RLS açık, en az bir kural var, ziyaretçiye (anon) ka
     .flatMap((e) => e[1].split(",").map((ad) => ad.trim())));
   for (const { ad } of tablolar) {
     assert.match(sema, new RegExp("alter table " + ad + "\\s+enable row level security"), ad + ": RLS açılmamış");
-    assert.match(sema, new RegExp("create policy \\w+ on " + ad + "\\s"), ad + ": hiç kural yok (RLS açık + kural yok = kimse göremez; büyük olasılıkla unutuldu)");
+    // Kural ya doğrudan yazılır ya da 8. bölümdeki döngüde (tablo, sekme) eşlemesiyle kurulur
+    const kuralVar = new RegExp("create policy \\w+ on " + ad + "\\s").test(sema) || sema.includes("('" + ad + "', '");
+    assert.ok(kuralVar, ad + ": hiç kural yok (RLS açık + kural yok = kimse göremez; büyük olasılıkla unutuldu)");
     assert.ok(anonaKapali.has(ad), ad + ": ziyaretçiden (anon) yetki geri alınmamış");
   }
 });
@@ -66,13 +68,22 @@ test("şema: kayıt yalnızca davetle — auth.users tetikleyicileri ve ilk hesa
   assert.match(sema, /revoke all on function yeni_hesap\(\) from public, anon, authenticated/);
 });
 
-test("şema: takıma bağlı her tablonun kuralı 'yalnızca kendi takımım' (uye_mi)", () => {
+test("şema: takıma bağlı her tablo sekme yetkisine bağlı (okumak görür, yazmak düzenler; takım dışına kapalı)", () => {
+  const dongu = sema.slice(sema.indexOf("for esleme in"), sema.indexOf("end loop;", sema.indexOf("for esleme in")));
   for (const { ad, govde } of tablolar) {
-    // takim_uyelikleri hariç: onun kuralı "yalnızca kendi üyeliğim" (kullanici_id = auth.uid())
-    if (ad === "takim_uyelikleri") continue;
+    // takim_uyelikleri: "yalnızca kendi üyeliğim"; takim_rolleri: okumak üye, yazmak yönetici (ayrı kurallar)
+    if (ad === "takim_uyelikleri" || ad === "takim_rolleri") continue;
     if (!/^\s*takim_id\s+text not null/m.test(govde)) continue;
-    assert.match(sema, new RegExp("create policy \\w+ on " + ad + " for all to authenticated\\s+using \\(uye_mi\\(takim_id\\)\\) with check \\(uye_mi\\(takim_id\\)\\)"), ad);
+    assert.match(dongu, new RegExp("\\('" + ad + "', '\\w+'\\)"), ad + ": yetki eşlemesinde yok");
   }
+  // Döngü dört işlemin dördüne de kural koyar; yazma işlemleri "düzenler" (2) ister
+  assert.match(dongu, /for select to authenticated using \(yetki_seviyesi\(takim_id, %L\) >= 1\)/);
+  assert.match(dongu, /for insert to authenticated with check \(yetki_seviyesi\(takim_id, %L\) >= 2\)/);
+  assert.match(dongu, /for update to authenticated using \(yetki_seviyesi\(takim_id, %L\) >= 2\) with check \(yetki_seviyesi\(takim_id, %L\) >= 2\)/);
+  assert.match(dongu, /for delete to authenticated using \(yetki_seviyesi\(takim_id, %L\) >= 2\)/);
+  // Seviye fonksiyonu takım üyesi olmayana 0 verir; rolleri yalnızca yönetici yazar
+  assert.match(sema, /function yetki_seviyesi[\s\S]*?if not found then return 0; end if;/);
+  assert.match(sema, /create policy roller_yonet on takim_rolleri for all to authenticated\s+using \(takim_yoneticisi_mi\(takim_id\)\) with check \(takim_yoneticisi_mi\(takim_id\)\)/);
 });
 
 /* ---------- Kişisel veri ---------- */
@@ -244,4 +255,15 @@ test("veritabanı: kurum ayarları sütunu schema.sql ile güncelleme dosyasınd
     assert.ok(sema.includes(parca), "schema.sql: " + parca);
     assert.ok(guncelleme.includes(parca), "guncelleme-kurum.sql: " + parca);
   }
+});
+
+test("veritabanı: roller ve yetkiler bloğu schema.sql ile guncelleme-roller.sql'de aynı", () => {
+  const sema = fs.readFileSync(path.join(KOK, "supabase/schema.sql"), "utf8");
+  const guncelleme = fs.readFileSync(path.join(KOK, "supabase/guncelleme-roller.sql"), "utf8");
+  const blok = sema.slice(sema.indexOf("-- ROLLER-BLOGU-BASI") + "-- ROLLER-BLOGU-BASI".length, sema.indexOf("-- ROLLER-BLOGU-SONU")).trim();
+  assert.equal(blok, guncelleme.slice(guncelleme.indexOf("-- ---- Tablolar ----")).trim());
+  // Eski "her üye her şeyi" kuralı kalmadı; takıma bağlı tablolar yetkiye bağlı
+  assert.doesNotMatch(sema.replace(/--[^\n]*/g, ""), /create policy \w+_takim_uyesi/);
+  assert.match(blok, /yetki_seviyesi\(takim_id, %L\) >= 2/);
+  assert.match(blok, /grant update \(ad, ayarlar\) on takimlar/);
 });

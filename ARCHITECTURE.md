@@ -8,7 +8,7 @@ başında da "bu dosya ne yapar" yorumu var; burası büyük resim.
 ekranlar veriye tek bir arayüz üzerinden ulaşır, o arayüzün arkasında
 tarayıcı kaydı (localStorage) ya da bulut (Supabase) olabilir.
 
-Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 270 otomatik test,
+Sayılarla: yaklaşık 5.800 satır JavaScript, 650 satır CSS, 276 otomatik test,
 sıfır bağımlılık, derleme adımı yok.
 
 ---
@@ -28,6 +28,7 @@ js/
   oturum.js                Supabase girişi (jeton al, yenile, çık)
   mantik.js                Saf fonksiyonlar: tarih, takvim, yoklama, rapor, duyuru metni
   kurum.js                 Kurum ayarları: tür (takım / şirket), logo, renk, tutanak bilgileri, kapalı sekmeler
+  yetki.js                 Roller ve yetkiler: Gizli / Görür / Düzenler, hazır roller (asıl denetim veritabanında)
   yedek.js                 Veri şeması + JSON dışa/içe aktarma
   tema.js                  Açık / koyu tema
   kolaylik.js              Saf yardımcılar: taslak, sorumlu tahmini, .ics, arama, kısayollar
@@ -48,7 +49,7 @@ netlify.toml               Yayın ayarları ve güvenlik başlıkları
 tanitim-kaynak/            Tanıtım sayfası (/tanitim): React + Tailwind + Framer Motion, Vite ile
                            derlenir; çıktı tanitim/ (depoya girmez, yayında üretilir). Uygulamadan
                            bağımsızdır: uygulama yine framework'süz, derlemesiz.
-testler/                   270 test (Node'un kendi test aracı)
+testler/                   276 test (Node'un kendi test aracı)
 ```
 
 ## 2. Katmanlar

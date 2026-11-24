@@ -71,6 +71,12 @@ Rehberde telefon numaraları olduğu için üç kat koruma var:
 > kez çalıştır. Her tabloya `surum` sütunu ekler; "aynı anda düzenleme"
 > uyarısı bununla çalışır. Çalıştırmazsan uygulama yine çalışır, yalnızca
 > bu uyarı çıkmaz. Yeni kurulumda gerekmez (`schema.sql` içinde var).
+>
+> Aynı şekilde, bu sırayla:
+> - [supabase/guncelleme-kurum.sql](supabase/guncelleme-kurum.sql): kurum ayarları (tür, logo, renk, tutanak bilgileri, sekmeler).
+> - [supabase/guncelleme-roller.sql](supabase/guncelleme-roller.sql): roller ve yetkiler. Çalıştırınca kimsenin
+>   yetkisi değişmez; yönetici uygulamada rolleri kurunca sekme yetkileri devreye girer. Takım adını ve kurum
+>   ayarlarını artık yalnızca takım yöneticisi (takımı kuran, kurulum yöneticisi ya da yönetici yapılan) değiştirir.
 
 Dosya tekrar çalıştırılabilir; var olan veriyi silmez.
 
