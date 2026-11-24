@@ -176,8 +176,8 @@ export function Vitrin() {
 /* ---------- Sayılar ---------- */
 const SAYILAR = [
   { hedef: 302, sonek: "", metin: t("otomatik test, her gönderimde", "automated tests on every push") },
-  { hedef: 13, sonek: "", metin: t("tablo, hepsi satır düzeyinde korumalı", "tables, all with row-level security") },
-  { hedef: 12, sonek: "", metin: t("ekran: görevden WhatsApp'a", "screens, from tasks to WhatsApp") },
+  { hedef: 18, sonek: "", metin: t("tablo, hepsi satır düzeyinde korumalı", "tables, all with row-level security") },
+  { hedef: 16, sonek: "", metin: t("ekran: görevden bütçeye", "screens, from tasks to budget") },
   { hedef: 0, sonek: t(" ₺", " $"), metin: t("aylık maliyet", "monthly cost") },
 ];
 

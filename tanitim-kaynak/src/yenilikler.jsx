@@ -8,30 +8,29 @@ const YENI = t("Yeni", "New"), IYI = t("İyileşti", "Improved"), GUV = t("Güve
 
 const SURUMLER = [
   {
+    tarih: t("24 Kasım 2026", "November 24, 2026"),
+    maddeler: [
+      [YENI, t("Kurum paketleri: öğrenci takımı ya da şirket ekibi; sözcükler, sekmeler ve hazır roller türe göre.", "Organization packages: student team or company team; words, tabs and ready-made roles follow your type.")],
+      [YENI, t("Logo, ana renk ve tutanak bilgileri kurumuna göre; kullanmadığın sekmeleri kapat.", "Your logo, main color and minutes details; hide the tabs you don't use.")],
+      [GUV, t("Roller ve yetkiler: her sekme için Gizli / Görür / Düzenler; kurallar veritabanında da geçerli.", "Roles and permissions: Hidden / View / Edit per tab, enforced in the database too.")],
+      [YENI, t("Yeni sekmeler: Sponsorlar (Müşteriler), Bütçe, Malzeme (Envanter) ve Projeler.", "New tabs: Sponsors (Customers), Budget, Parts (Inventory) and Projects.")],
+      [YENI, t("Anlaşılan sponsor ve alınan malzeme tek tıkla bütçeye; proje ilerlemesi görevlerden hesaplanır.", "Signed sponsors and bought parts go to the budget in one click; project progress comes from tasks.")],
+    ],
+  },
+  {
+    tarih: t("22 Kasım 2026", "November 22, 2026"),
+    maddeler: [
+      [YENI, t("Duyurulara bağlantı, fotoğraf ve video eklenebiliyor; metin görselle tek mesaj olarak gidiyor.", "Announcements can carry a link, photos and videos; the text goes with the image as one message.")],
+      [IYI, t("WhatsApp mesajlarında emojiler artık bozulmuyor.", "Emoji no longer break in WhatsApp messages.")],
+    ],
+  },
+  {
     tarih: t("19 Kasım 2026", "November 19, 2026"),
     maddeler: [
       [YENI, t("Hesap açmadan dene: tek tıkla uydurma bir takımla dolu uygulama, sekmeyi kapatınca silinir.", "Try without an account: one click opens the app with a made-up team, deleted when you close the tab.")],
       [YENI, t("Yeni logo ve tanıtım sayfası.", "New logo and landing page.")],
       [IYI, t("Özet ekranı: ilerleme çubuğu, \"Kimde ne var\" ve \"Sıradaki buluşmalar\".", "Overview screen: progress bar, \"Who has what\" and \"Upcoming meetups\".")],
       [IYI, t("Telefonda alt çubukta dört ana ekran; menü gruplara ayrıldı.", "Four main screens in the bottom bar on phones; the menu is now grouped.")],
-    ],
-  },
-  {
-    tarih: t("18 Kasım 2026", "November 18, 2026"),
-    maddeler: [
-      [YENI, t("Görev panosunda kartları sürükleyip başka sütuna bırak.", "Drag task cards to another column on the board.")],
-      [YENI, t("Ctrl+K ile her yerde arama; Ctrl+S kaydet, ? kısayol listesi.", "Search everywhere with Ctrl+K; Ctrl+S to save, ? for shortcuts.")],
-      [YENI, t("Takvimi .ics dosyasıyla Google Takvim'e ya da telefona aktar.", "Export the calendar as an .ics file to Google Calendar or your phone.")],
-      [YENI, t("Tutanak kararından tek tıkla görev; sorumlu metindeki addan seçilir.", "One-click tasks from minutes decisions; the owner is picked from the name in the text.")],
-      [IYI, t("Başlıksız notlar da forma yerleşiyor; Word dosyası sürükleyip bırakılabiliyor.", "Notes without headings now fill the form too; Word files can be dragged in.")],
-      [IYI, t("Yarım kalan formlar kaybolmuyor, açınca geri geliyor.", "Half-filled forms no longer get lost; they come back when reopened.")],
-    ],
-  },
-  {
-    tarih: t("17 Kasım 2026", "November 17, 2026"),
-    maddeler: [
-      [YENI, t("Şifremi unuttum, beni hatırla ve şifre değiştirme.", "Forgot password, remember me and password change.")],
-      [GUV, t("İki kişi aynı kaydı aynı anda düzenlerse uyarı; kimsenin yazdığı ezilmez.", "A warning when two people edit the same record at once; nobody's work gets overwritten.")],
     ],
   },
 ];

@@ -10,6 +10,7 @@ import { NotDemosu, Vitrin, Sayilar, Adimlar, Guvenlik, Kapanis, AltBilgi } from
 import { Sss } from "./sss.jsx";
 import { Hikaye } from "./hikaye.jsx";
 import { Yenilikler } from "./yenilikler.jsx";
+import { Paketler } from "./paketler.jsx";
 
 function Uygulama() {
   return (
@@ -22,6 +23,7 @@ function Uygulama() {
         <Hero />
         <KayanBant />
         <Bento />
+        <Paketler />
         <NotDemosu />
         <Vitrin />
         <Sayilar />

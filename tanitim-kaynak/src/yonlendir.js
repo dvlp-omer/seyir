@@ -7,7 +7,7 @@
 //   - örnek veri bağlantısı:  /?ornek=1                         -> /uygulama?ornek=1
 // Tanıtım sayfasının kendi bölüm bağlantıları (#ozellikler gibi) yönlendirilmez.
 // Dönen değer true ise sayfa çizilmez (tarayıcı zaten başka adrese gidiyor).
-const TANITIM_BOLUMLERI = new Set(["", "ozellikler", "demo", "vitrin", "guvenlik", "sss", "hikaye", "yenilikler"]);
+const TANITIM_BOLUMLERI = new Set(["", "ozellikler", "demo", "vitrin", "guvenlik", "sss", "hikaye", "yenilikler", "kurumsal"]);
 
 export function uygulamayaYonlendir(konum = window.location, ortam = window) {
   const ek = konum.hash.slice(1);

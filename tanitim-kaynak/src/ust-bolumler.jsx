@@ -42,6 +42,7 @@ export function UstMenu() {
         </a>
         <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
           <a className="transition hover:text-white" href="#ozellikler">{t("Özellikler", "Features")}</a>
+          <a className="transition hover:text-white" href="#kurumsal">{t("Kurumlar", "Organizations")}</a>
           <a className="transition hover:text-white" href="#demo">{t("Nasıl çalışır", "How it works")}</a>
           <a className="transition hover:text-white" href="#vitrin">{t("Ekranlar", "Screens")}</a>
           <a className="transition hover:text-white" href="#hikaye">{t("Hikâye", "Story")}</a>
@@ -95,7 +96,7 @@ export function Hero() {
         <Belir>
           <a href="#yenilikler" className="parilti animate-parilti inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium text-slate-300 transition hover:border-white/20 sm:text-sm">
             <Sparkles size={14} className="text-su-300" />
-            {t("Yeni: hesap açmadan örnek takımla dene", "New: try it with a sample team, no sign-up")}
+            {t("Yeni: şirketler için paket, roller ve yetkiler", "New: a package for companies, roles and permissions")}
             <ArrowRight size={14} />
           </a>
         </Belir>
@@ -106,8 +107,8 @@ export function Hero() {
         </Belir>
 
         <Belir gecikme={0.16} as="p" className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
-          {t("Görevler, son tarihler, resmî toplantı tutanakları ve ekibe giden mesajlar tek yerde. Teknofest takımları için yapıldı; ücretsiz ve internet yokken bile açılır.",
-            "Tasks, deadlines, official meeting minutes and messages to your crew, in one place. Built for student competition teams; free, and it opens even without internet.")}
+          {t("Görevler, projeler, bütçe, sponsorlar, resmî toplantı tutanakları ve ekibe giden mesajlar tek yerde. Teknofest takımları için doğdu; şimdi öğrenci kulüplerine ve şirket ekiplerine de uyarlanıyor. İnternet yokken bile açılır.",
+            "Tasks, projects, budget, sponsors, official meeting minutes and team messages in one place. Born in competition teams; now made to fit student clubs and company teams too. It opens even without internet.")}
         </Belir>
 
         <Belir gecikme={0.24} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -13,6 +13,18 @@ const SORULAR = [
       <>No. It's completely free for teams, hosted on the free tiers of Vercel and Supabase. No credit card, no ads.</>),
   },
   {
+    soru: t("Şirketim ya da ekibim için kullanabilir miyim?", "Can my company or team use it?"),
+    cevap: t(
+      <>Evet, kurulumda <b>Şirket / ekip</b> paketini seç: Takım yerine Ekip, Sponsorlar yerine Müşteriler, Malzeme yerine Envanter, ayrıca Projeler ve Bütçe gelir. Logonu ve rengini koyarsın. Denemek ücretsiz; ticari kullanım ve kurumunuza özel kurulum için <a href={LISANS}>lisansa</a> bakın ve GitHub üzerinden iletişime geçin.</>,
+      <>Yes, pick the <b>Company / team</b> package at setup: members become employees, captains become managers, Sponsors become Customers, Parts become Inventory, plus Projects and Budget. Add your logo and color. Trying it is free; for commercial use or a custom setup for your organization, see the <a href={LISANS}>license</a> and get in touch via GitHub.</>),
+  },
+  {
+    soru: t("Kim neyi görebilir?", "Who can see what?"),
+    cevap: t(
+      <>Takım yöneticisi rolleri kurar ve her sekme için <b>Gizli</b>, <b>Görür</b> ya da <b>Düzenler</b> seçer; örneğin bütçeyi yalnızca sayman düzenler, telefon numaralarını yalnızca iletişim sorumlusu görür. Kurallar veritabanında uygulanır: gizli sekmenin verisi uygulama dışından da okunamaz. Roller kurulmadan herkes her şeyi düzenler.</>,
+      <>The team admin sets up roles and picks <b>Hidden</b>, <b>View</b> or <b>Edit</b> for each tab; for example only the treasurer edits the budget and only the comms lead sees phone numbers. Rules are enforced in the database: hidden data can't be read from outside the app either. Until roles are set up, everyone can edit everything.</>),
+  },
+  {
     soru: t("Hesap açmadan deneyebilir miyim?", "Can I try it without an account?"),
     cevap: t(
       <>Evet. <a href={ORNEK}>Örnek takımla dene</a> düğmesi uydurma bir takımla dolu bir uygulama açar. Her şeyi kurcalayabilirsin; veriler yalnızca o sekmede durur, sekmeyi kapatınca silinir.</>,
